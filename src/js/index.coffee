@@ -11,6 +11,7 @@ AllCharacters          = require './all-characters.coffee'
 
 # Drawing
 DrawColumnNames   = require './draw-column-names.coffee'
+DrawRowNames      = require './draw-row-names.coffee'
 DrawEveryCell     = require './draw-every-cell.coffee'
 DrawSelectedCell  = require './draw-selected-cell.coffee'
 
@@ -114,8 +115,10 @@ Index = React.createClass
     selectedColor = hexToArray lighterGray
 
     DrawColumnNames  currentSheet, workarea, glyphs, cellColor, cell
+    DrawRowNames     currentSheet, workarea, glyphs, cellColor, cell
     DrawEveryCell    currentSheet, workarea, glyphs, cellColor, cell
     DrawSelectedCell currentSheet, workarea, glyphs, selectedColor, cell, @state.selectedCell
+
 
     # # pastin = =>
     # middleX = 400
