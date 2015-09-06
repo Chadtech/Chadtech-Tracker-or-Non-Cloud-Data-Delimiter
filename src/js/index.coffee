@@ -52,6 +52,7 @@ Index = React.createClass
         ]]
     selectedCell: [ 2, 1 ]
     currentSheet: 0
+    rowNameRadix: 8
 
 
   componentDidMount: ->
@@ -61,7 +62,6 @@ Index = React.createClass
     @drawToolBar0()
     @drawToolBar1()
     setTimeout @refreshWorkArea, 3000
-
 
 
   setCanvasDimensions: ->
@@ -110,17 +110,7 @@ Index = React.createClass
 
 
   refreshWorkArea: ->
-
-    ###
-      currentSheet
-      canvas
-      color
-      cellWidth
-      cellHeight
-    ###
-
       
-
     workarea      = document.getElementById 'workarea'
     workarea      = workarea.getContext '2d'
     currentSheet  = @state.sheets[ @state.currentSheet ]
@@ -130,34 +120,6 @@ Index = React.createClass
     DrawColumnNames  currentSheet, workarea, glyphs, cellColor, cell
     DrawEveryCell    currentSheet, workarea, glyphs, cellColor, cell
     DrawSelectedCell currentSheet, workarea, glyphs, selectedColor, cell, @state.selectedCell
-
-
-
-    # # Drawing the selected cell
-    # cellColor = hexToArray lighterGray
-    # xCor = (@state.selectedCell[1] * (cellWidth - 1)) + cellWidth
-    # yCor = (@state.selectedCell[0] * (cellHeight - 1)) + cellHeight
-
-    # datum = currentSheet[ @state.selectedCell[1] ][ @state.selectedCell[0] ]
-    # drawText workarea, glyphs, 0, datum, [ xCor + 3, yCor + 3 ]
-
-    # _.forEach [ 0 .. cellWidth - 1 ], (point) ->  
-    #   thisXCor = xCor + point        
-    #   putPixel workarea, cellColor, [ thisXCor, yCor + cellHeight - 1]
-    #   putPixel workarea, cellColor, [ thisXCor, yCor ]
-
-    # _.forEach [ 0 .. cellHeight - 1 ], (point) ->
-    #   thisYCor = yCor + point
-    #   putPixel workarea, cellColor, [ xCor + cellWidth - 1, thisYCor ]
-    #   putPixel workarea, cellColor, [ xCor, thisYCor ]
-
-
-
-
-
-
-
-
 
     # # pastin = =>
     # middleX = 400
@@ -181,11 +143,8 @@ Index = React.createClass
 
     whichCell = [ mouseY // (cell.h - 1), mouseX // (cell.w - 1), ]
 
-    # console.log whichCell
-
     @setState selectedCell: whichCell, =>
       @refreshWorkArea()
-
 
 
   render: ->

@@ -3,6 +3,7 @@ _ = require 'lodash'
 
 # Utilities
 {putPixel, hexToArray, drawText} = require './drawingUtilities.coffee'
+drawABox                         = require './draw-a-box.coffee'
 
 module.exports = (currentSheet, ctx, glyphs, color, cell) ->
 
@@ -13,13 +14,4 @@ module.exports = (currentSheet, ctx, glyphs, color, cell) ->
       yCor = (datumIndex * (cell.h - 1)) + cell.h
 
       drawText ctx, glyphs, 1, datum, [ xCor + 3, yCor + 3 ]
-    
-      _.forEach [ 0 .. cell.w - 1 ], (point) ->  
-        thisXCor = xCor + point        
-        putPixel ctx, color, [ thisXCor, yCor + cell.h - 1]
-        putPixel ctx, color, [ thisXCor, yCor ]
-
-      _.forEach [ 0 .. cell.h - 1 ], (point) ->
-        thisYCor = yCor + point
-        putPixel ctx, color, [ xCor + cell.w - 1, thisYCor ]
-        putPixel ctx, color, [ xCor, thisYCor ]
+      drawABox ctx, color, cell, [ xCor, yCor ]
