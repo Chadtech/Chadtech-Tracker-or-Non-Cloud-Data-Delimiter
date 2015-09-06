@@ -4,10 +4,12 @@ _     = require 'lodash'
 
 # Utilities
 {putPixel, hexToArray, drawText} = require './drawingUtilities.coffee'
+CoordinateIsElement              = require './coordinate-in-array.coffee'
 
 # Dependencies
-Init                   = require './init.coffee'
-AllCharacters          = require './all-characters.coffee'
+Init          = require './init.coffee'
+AllCharacters = require './all-characters.coffee'
+Keys          = require './keys.coffee'
 
 # Drawing
 DrawColumnNames   = require './draw-column-names.coffee'
@@ -19,23 +21,23 @@ DrawSelectedCell  = require './draw-selected-cell.coffee'
 {p, a, div, input, img, canvas} = React.DOM
 
 
+# Colors
 lighterGray = '#c0c0c0'
 gray        = '#808080'
 darkGray    = '#404040'
 darkerGray  = '#202020'
 borderGray  = '#101408'
 
-
+# Images for each character
 glyphs                  = Init AllCharacters
 glyphs.characterWidth   = 11
 glyphs.characterHeight  = 19
 
-
+# Dimensions
 toolbarSize = 52
 cell =
   w: 4 + (glyphs.characterWidth * 5)
   h: 6 + glyphs.characterHeight
-
 
 
 
@@ -51,13 +53,17 @@ Index = React.createClass
           [ '32', '30', '31', '30', '32' ] 
           [ 'B', '', 'S', 'S', '' ] 
         ]]
-    selectedCell: [ 2, 1 ]
-    currentSheet: 0
-    rowNameRadix: 8
+    selectedCells: [ [ 2, 1 ] ]
+    currentSheet:  0
+    rowNameRadix:  8
+    commandIsDown: false
 
 
   componentDidMount: ->
     window.addEventListener 'resize', @handleResize
+
+    document.addEventListener 'keyup',   @onKeyUp
+    document.addEventListener 'keydown', @onKeyDown
 
     @setCanvasDimensions()
     @drawToolBar0()
@@ -117,7 +123,8 @@ Index = React.createClass
     DrawColumnNames  currentSheet, workarea, glyphs, cellColor, cell
     DrawRowNames     currentSheet, workarea, glyphs, cellColor, cell
     DrawEveryCell    currentSheet, workarea, glyphs, cellColor, cell
-    DrawSelectedCell currentSheet, workarea, glyphs, selectedColor, cell, @state.selectedCell
+    for selectedCell in @state.selectedCells
+      DrawSelectedCell currentSheet, workarea, glyphs, selectedColor, cell, selectedCell
 
 
     # # pastin = =>
@@ -140,32 +147,48 @@ Index = React.createClass
     mouseY -= cell.h
     mouseY -= toolbarSize + 5
 
-    whichCell = [ mouseY // (cell.h - 1), mouseX // (cell.w - 1), ]
+    whichCell = [ mouseY // (cell.h - 1), mouseX // (cell.w - 1) ]
 
-    @setState selectedCell: whichCell, =>
-      @refreshWorkArea()
+    if not @state.commandIsDown
+      unless (whichCell[0] < 0) or (whichCell[1] < 0)
+        @setState selectedCells: [ whichCell ], =>
+          @refreshWorkArea()
+    else
+      unless CoordinateIsElement @state.selectedCells, whichCell
+        @state.selectedCells.push whichCell
+        @setState selectedCells: @state.selectedCells, =>
+          @refreshWorkArea()
 
+  onKeyUp: (event) ->
+    if event.which is Keys['command']
+      @setState commandIsDown: false, ->
+        console.log 'command is marked Up'
+
+  onKeyDown: (event) ->
+    if event.which is Keys['command']
+      @setState commandIsDown: true, ->
+        console.log 'command is marked down'
 
   render: ->
 
     div
       style:
-        backgroundColor:  darkerGray
-        width:            '100%'
-        height:           '100%'
-        margin:           0
-        padding:          0
-        position:         'absolute'
-        top:              0
-        left:             0
+        backgroundColor:    darkerGray
+        width:              '100%'
+        height:             '100%'
+        margin:             0
+        padding:            0
+        position:           'absolute'
+        top:                0
+        left:               0
 
       canvas
-        id:               'toolbar0'
+        id:                 'toolbar0'
         style:
-          backgroundColor: darkerGray
-          width:           '100%'
-          height:          toolbarSize
-          imageRendering:  'pixelated'
+          backgroundColor:  darkerGray
+          width:            '100%'
+          height:           toolbarSize
+          imageRendering:   'pixelated'
 
       canvas
         id:                 'toolbar1'
