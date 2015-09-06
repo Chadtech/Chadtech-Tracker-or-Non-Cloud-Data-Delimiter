@@ -1,0 +1,19 @@
+{
+  "name": "nw-demo",
+  "version": "0.0.1",
+  "main": "./resources/index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "window": {
+    "title": "node-webkit demo",
+    "icon": "link.png",
+    "toolbar": true,
+    "frame": true,
+    "width": 1000,
+    "height": 800,
+    "position": "mouse"
+  }
+}
