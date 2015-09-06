@@ -24,19 +24,19 @@ darkGray    = '#404040'
 darkerGray  = '#202020'
 borderGray  = '#101408'
 
-wackyColorWOW = '#e64088'
-
-# characterWidth  = 11
-# characterHeight = 19
 
 glyphs                  = Init AllCharacters
 glyphs.characterWidth   = 11
 glyphs.characterHeight  = 19
 
+
 toolbarSize = 52
 cell =
   w: 4 + (glyphs.characterWidth * 5)
   h: 6 + glyphs.characterHeight
+
+
+
 
 Index = React.createClass
 
@@ -94,10 +94,6 @@ Index = React.createClass
     for point in [ 0 .. @state.windowWidth - 1 ]
       borderColor = hexToArray borderGray
       putPixel toolbar0, borderColor, [ point, toolbarSize - 1 ]
-
-    # putTitle = =>
-    #   toolbar0.drawImage titleImage, 5, 5
-    # setTimeout putTitle, 2000
 
 
   drawToolBar1: ->

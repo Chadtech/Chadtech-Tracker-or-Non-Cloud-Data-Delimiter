@@ -25,10 +25,8 @@ module.exports =
 
 
   drawText: (canvas, glyphs, CS, text, pos) ->
-    # CS stands for 'Color Scheme'
     _.forEach text, (character, characterIndex) ->
       xCor = pos[0]
       yCor = pos[1]
       xCor += characterIndex * glyphs.characterWidth
       canvas.drawImage glyphs.images[ CS ][ character ], xCor, yCor
-      
