@@ -4,8 +4,8 @@ CToNCDD is a utility made for myself to handle a really specific use case that I
 
 It was my intention to make my own tracker, and tie it to my own audio generation software. I realized all that the only difference between google sheets, and a tracker, is that a tracker is committed to a music application. I played with the possibility of using google sheets as a tracker, and I ran into some problems. The problems had nothing to do with using a csv output generated from google sheets to make music, but instead had to do with google sheets being cloud software. The problems were as listed:
 
-  > * You can only export as csv, rather than save. By saving, you are updating a known data location. When exporting you have to re-sepcify the export location, and you cannot write over existing data. The user could specify the data location and the file name each time, but this is costly, especially if the user is updating the data very frequently.
-  > * Since the data isnt stored on your computer, but instead Googles, you have to request and download the data each time you would like to utilize the data.
+  * You can only export as csv, rather than save. By saving, you are updating a known data location. When exporting you have to re-sepcify the export location, and you cannot write over existing data. The user could specify the data location and the file name each time, but this is costly, especially if the user is updating the data very frequently.
+  * Since the data isnt stored on your computer, but instead Googles, you have to request and download the data each time you would like to utilize the data.
 
 I therefore needed csv software that could save directly to csv, and remember the location of the file being updated. I was going back in time as far as personal data management is concerned. 
 
