@@ -10,7 +10,7 @@ It was my intention to make my own tracker, and tie it to my own audio generatio
 I therefore needed csv software that could save directly to csv, and remember the location of the file being updated. I was going back in time as far as personal data management is concerned. 
 
 
-# Glossary
+# Variable Name Glossary
   * 'xCor' and 'yCor' stand for 'x coordinate' and 'y coordinate'
   
   * 'xOrg' and 'xOrg' stand for 'x origin' and 'y origin', meaning a point of reference from which the remainder of a drawing is made.
