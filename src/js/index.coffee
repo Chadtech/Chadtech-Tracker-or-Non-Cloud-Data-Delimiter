@@ -9,8 +9,10 @@ _     = require 'lodash'
 Init                   = require './init.coffee'
 AllCharacters          = require './all-characters.coffee'
 
-# titleImage = new Image()
-# titleImage.src = './titleImage.png'
+# Drawing
+DrawColumnNames   = require './draw-column-names.coffee'
+DrawEveryCell     = require './draw-every-cell.coffee'
+DrawSelectedCell  = require './draw-selected-cell.coffee'
 
 # DOM Elements
 {p, a, div, input, img, canvas} = React.DOM
@@ -24,16 +26,17 @@ borderGray  = '#101408'
 
 wackyColorWOW = '#e64088'
 
-characterWidth  = 11
-characterHeight = 19
-
-toolbarSize = 52
-cellWidth   = 4 + (characterWidth * 5)
-cellHeight  = 6 + characterHeight
+# characterWidth  = 11
+# characterHeight = 19
 
 glyphs                  = Init AllCharacters
-glyphs.characterWidth   = characterWidth
-glyphs.characterHeight  = characterHeight
+glyphs.characterWidth   = 11
+glyphs.characterHeight  = 19
+
+toolbarSize = 52
+cell =
+  w: 4 + (glyphs.characterWidth * 5)
+  h: 6 + glyphs.characterHeight
 
 Index = React.createClass
 
@@ -107,68 +110,54 @@ Index = React.createClass
 
 
   refreshWorkArea: ->
-    workarea = document.getElementById 'workarea'
-    workarea = workarea.getContext '2d'
 
-    currentSheet = @state.sheets[ @state.currentSheet ]
+    ###
+      currentSheet
+      canvas
+      color
+      cellWidth
+      cellHeight
+    ###
 
-    # Drawing the column names
-    _.forEach currentSheet, (column, columnIndex) ->
-
-      cellColor = hexToArray darkGray
-      xCor      = (columnIndex * (cellWidth - 1)) + cellWidth
-      yCor      = 0
-      # yCor      = (datumIndex * (cellHeight - 1)) + cellHeight
-
-      drawText workarea, glyphs, 1, ('' + (columnIndex % 2)), [ xCor + 3, yCor + 3 ]
       
-      _.forEach [ 0 .. cellWidth - 1 ], (point) ->  
-        thisXCor = xCor + point        
-        putPixel workarea, cellColor, [ thisXCor, yCor + cellHeight - 1]
-        putPixel workarea, cellColor, [ thisXCor, yCor ]
 
-      _.forEach [ 0 .. cellHeight - 1 ], (point) ->
-        thisYCor = yCor + point
-        putPixel workarea, cellColor, [ xCor + cellWidth - 1, thisYCor ]
-        putPixel workarea, cellColor, [ xCor, thisYCor ]
+    workarea      = document.getElementById 'workarea'
+    workarea      = workarea.getContext '2d'
+    currentSheet  = @state.sheets[ @state.currentSheet ]
+    cellColor     = hexToArray darkGray
+    selectedColor = hexToArray lighterGray
 
-    # Drawing every cell
-    _.forEach currentSheet, (column, columnIndex) ->
-      _.forEach column, (datum, datumIndex) ->
+    DrawColumnNames  currentSheet, workarea, glyphs, cellColor, cell
+    DrawEveryCell    currentSheet, workarea, glyphs, cellColor, cell
+    DrawSelectedCell currentSheet, workarea, glyphs, selectedColor, cell, @state.selectedCell
 
-        cellColor = hexToArray darkGray
-        xCor      = (columnIndex * (cellWidth - 1)) + cellWidth
-        yCor      = (datumIndex * (cellHeight - 1)) + cellHeight
 
-        drawText workarea, glyphs, 1, datum, [ xCor + 3, yCor + 3 ]
-        
-        _.forEach [ 0 .. cellWidth - 1 ], (point) ->  
-          thisXCor = xCor + point        
-          putPixel workarea, cellColor, [ thisXCor, yCor + cellHeight - 1]
-          putPixel workarea, cellColor, [ thisXCor, yCor ]
 
-        _.forEach [ 0 .. cellHeight - 1 ], (point) ->
-          thisYCor = yCor + point
-          putPixel workarea, cellColor, [ xCor + cellWidth - 1, thisYCor ]
-          putPixel workarea, cellColor, [ xCor, thisYCor ]
+    # # Drawing the selected cell
+    # cellColor = hexToArray lighterGray
+    # xCor = (@state.selectedCell[1] * (cellWidth - 1)) + cellWidth
+    # yCor = (@state.selectedCell[0] * (cellHeight - 1)) + cellHeight
 
-    # Drawing the selected cell
-    cellColor = hexToArray lighterGray
-    xCor = (@state.selectedCell[1] * (cellWidth - 1)) + cellWidth
-    yCor = (@state.selectedCell[0] * (cellHeight - 1)) + cellHeight
+    # datum = currentSheet[ @state.selectedCell[1] ][ @state.selectedCell[0] ]
+    # drawText workarea, glyphs, 0, datum, [ xCor + 3, yCor + 3 ]
 
-    datum = currentSheet[ @state.selectedCell[1] ][ @state.selectedCell[0] ]
-    drawText workarea, glyphs, 0, datum, [ xCor + 3, yCor + 3 ]
+    # _.forEach [ 0 .. cellWidth - 1 ], (point) ->  
+    #   thisXCor = xCor + point        
+    #   putPixel workarea, cellColor, [ thisXCor, yCor + cellHeight - 1]
+    #   putPixel workarea, cellColor, [ thisXCor, yCor ]
 
-    _.forEach [ 0 .. cellWidth - 1 ], (point) ->  
-      thisXCor = xCor + point        
-      putPixel workarea, cellColor, [ thisXCor, yCor + cellHeight - 1]
-      putPixel workarea, cellColor, [ thisXCor, yCor ]
+    # _.forEach [ 0 .. cellHeight - 1 ], (point) ->
+    #   thisYCor = yCor + point
+    #   putPixel workarea, cellColor, [ xCor + cellWidth - 1, thisYCor ]
+    #   putPixel workarea, cellColor, [ xCor, thisYCor ]
 
-    _.forEach [ 0 .. cellHeight - 1 ], (point) ->
-      thisYCor = yCor + point
-      putPixel workarea, cellColor, [ xCor + cellWidth - 1, thisYCor ]
-      putPixel workarea, cellColor, [ xCor, thisYCor ]
+
+
+
+
+
+
+
 
     # # pastin = =>
     # middleX = 400
@@ -186,13 +175,13 @@ Index = React.createClass
   handleClickWorkArea: (event) ->
     mouseX = event.clientX
     mouseY = event.clientY
-    mouseX -= cellWidth
-    mouseY -= cellHeight
+    mouseX -= cell.w
+    mouseY -= cell.h
     mouseY -= toolbarSize + 5
 
-    whichCell = [ mouseY // (cellHeight - 1), mouseX // (cellWidth - 1), ]
+    whichCell = [ mouseY // (cell.h - 1), mouseX // (cell.w - 1), ]
 
-    console.log whichCell
+    # console.log whichCell
 
     @setState selectedCell: whichCell, =>
       @refreshWorkArea()
