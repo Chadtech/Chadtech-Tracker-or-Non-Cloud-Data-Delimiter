@@ -2,8 +2,8 @@
 _ = require 'lodash'
 
 # Utilities
-{putPixel, hexToArray, drawText, drawABox} = require './drawingUtilities.coffee'
-drawABox                                   = require './draw-a-box.coffee'
+{putPixel, hexToArray, drawText, drawABox} = require './drawingUtilities.js'
+drawABox                                   = require './draw-a-box.js'
 
 module.exports = (currentSheet, ctx, glyphs, color, cell, pos) ->
 

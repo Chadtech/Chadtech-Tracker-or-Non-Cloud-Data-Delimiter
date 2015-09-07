@@ -2,7 +2,7 @@
 _ = require 'lodash'
 
 # Utilities
-{putPixel} = require './drawingUtilities.coffee'
+{putPixel} = require './drawingUtilities.js'
 
 module.exports = (ctx, color, cell, pos) ->
 

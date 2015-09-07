@@ -1,26 +1,32 @@
+global.document   = window.document
+global.navigator  = window.navigator
+
+
 # Libraries
-React = require 'react'
-_     = require 'lodash'
-
-# Utilities
-{putPixel, hexToArray, drawText} = require './drawingUtilities.coffee'
-CoordinateIsElement              = require './coordinate-in-array.coffee'
-
-# Dependencies
-LoadGlyphs    = require './load-glyphs.coffee'
-AssetLoader   = require './load-assets.coffee'
-AllCharacters = require './all-characters.coffee'
-Keys          = require './keys.coffee'
-
-# Drawing
-DrawColumnNames   = require './draw-column-names.coffee'
-DrawRowNames      = require './draw-row-names.coffee'
-DrawEveryCell     = require './draw-every-cell.coffee'
-DrawSelectedCell  = require './draw-selected-cell.coffee'
-DrawColumnOptions = require './draw-column-options.coffee'
+React   = require 'react'
+_       = require 'lodash'
 
 # DOM Elements
 {p, a, div, input, img, canvas} = React.DOM
+
+
+# Utilities
+{putPixel, hexToArray, drawText} = require './drawingUtilities.js'
+CoordinateIsElement              = require './coordinate-in-array.js'
+
+
+# Dependencies
+LoadGlyphs    = require './load-glyphs.js'
+AssetLoader   = require './load-assets.js'
+AllCharacters = require './all-characters.js'
+Keys          = require './keys.js'
+
+# Drawing
+DrawColumnNames   = require './draw-column-names.js'
+DrawRowNames      = require './draw-row-names.js'
+DrawEveryCell     = require './draw-every-cell.js'
+DrawSelectedCell  = require './draw-selected-cell.js'
+DrawColumnOptions = require './draw-column-options.js'
 
 
 # Colors
@@ -30,10 +36,12 @@ darkGray    = '#404040'
 darkerGray  = '#202020'
 borderGray  = '#101408'
 
+
 # Images for each character
 glyphs                  = LoadGlyphs AllCharacters
 glyphs.characterWidth   = 11
 glyphs.characterHeight  = 19
+
 
 # Dimensions
 toolbarSize = 52
@@ -41,10 +49,10 @@ cell =
   w: 4 + (glyphs.characterWidth * 5)
   h: 6 + glyphs.characterHeight
 
+
 # Assets
 Assets = AssetLoader()
 
-console.log 'Assets ARE', Assets
 
 Index = React.createClass
 
@@ -74,6 +82,19 @@ Index = React.createClass
     @drawToolBar0()
     @drawToolBar1()
     setTimeout @refreshWorkArea, 3000
+
+
+
+
+    # content = new Buffer "Hello world!", 'utf-8'
+ 
+    # fdialog.saveFile content, (err, path) ->
+    #   console.log 'A'
+    #   if err
+    #     console.log 'BbBBBBBBB', err
+    #   else
+    #     console.log 'SAVED IN ', path
+    #   console.log 'C'
 
 
   setCanvasDimensions: ->
@@ -169,12 +190,15 @@ Index = React.createClass
         @setState selectedCells: @state.selectedCells, =>
           @refreshWorkArea()
 
+
+
   onKeyUp: (event) ->
     if event.which is Keys['command']
       @setState commandIsDown: false, ->
         console.log 'command is marked Up'
 
   onKeyDown: (event) ->
+    # @chooseFile()
     if event.which is Keys['command']
       @setState commandIsDown: true, ->
         console.log 'command is marked down'
@@ -222,7 +246,6 @@ Index = React.createClass
           width:            '100%'
           height:           @state.workareaHeight
           imageRendering:   'pixelated'
-
 
 
 

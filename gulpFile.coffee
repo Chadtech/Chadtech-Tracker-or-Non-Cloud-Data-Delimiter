@@ -1,13 +1,21 @@
-gulp        = require 'gulp'
-stylus      = require 'gulp-stylus'
-jade        = require 'gulp-jade'
-coffee      = require 'gulp-coffee'
-autowatch   = require 'gulp-autowatch'
-coffeeify   = require 'coffeeify'
-browserify  = require 'browserify'
-source      = require 'vinyl-source-stream'
-buffer      = require 'vinyl-buffer'
+gulp          = require 'gulp'
+jade          = require 'gulp-jade'
+stylus        = require 'gulp-stylus'
+coffee        = require 'gulp-coffee'
+autowatch     = require 'gulp-autowatch'
+childProcess  = require 'child_process'
 
+launchWebkit = ->
+
+  logOutput = (err, stdout, stderr) ->
+    if err
+      console.log err
+    else
+      console.log 'STDOUT: ', stdout
+      console.log 'STDERR: ', stderr
+
+  nwCommand = './nwjs.app/Contents/MacOS/nwjs'
+  childProcess.exec nwCommand, logOutput
 
 paths =
   resources: './resources'
@@ -18,17 +26,10 @@ paths =
 resources = './resources'
 
 gulp.task 'coffee', ->
-  bCache = {}
-  browserified = browserify './src/js/index.coffee',
-    debug:            true
-    interestGlobals:  false
-    cache:            bCache
-    extensions:       ['.coffee']
-  browserified.transform coffeeify
-  browserified.bundle()
-    .pipe source 'index.js'
-    .pipe buffer()
-    .pipe gulp.dest resources
+  gulp.src paths.coffee
+  .pipe coffee()
+  .pipe gulp.dest resources
+
 
 gulp.task 'jade', ->
   gulp.src paths.jade
@@ -42,9 +43,14 @@ gulp.task 'stylus', ->
 
 gulp.task 'watch', ->
   autowatch gulp, paths
+  launchWebkit()
 
-gulp.task 'server', (cb) ->
-  require './server'
+# gulp.task 'server', (cb) ->
+#   require './server'
 
 gulp.task 'default', 
-  ['coffee', 'jade', 'stylus', 'server', 'watch']
+  ['coffee', 'jade', 'watch']
+
+
+
+

@@ -2,7 +2,7 @@
 _ = require 'lodash'
 
 # Utilities
-{putPixel, hexToArray, arrayToHex, drawText} = require './drawingUtilities.coffee'
+{putPixel, hexToArray, arrayToHex, drawText} = require './drawingUtilities.js'
 
 
 module.exports = (currentSheet, ctx, glyphs, color, cell, Assets) ->

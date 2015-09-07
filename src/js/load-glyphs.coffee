@@ -1,3 +1,4 @@
+
 _ = require 'lodash'
 
 module.exports = (allCharacters) ->
@@ -9,12 +10,13 @@ module.exports = (allCharacters) ->
       2: {}
       3: {}
       4: {}
-      5: {}
-      6: {}
+      # 5: {}
+      # 6: {}
 
-  _.forEach [ 0 .. 6 ], (CS) ->
+  _.forEach [ 0 .. 4 ], (CS) ->
     _.forEach allCharacters, (character, characterIndex) ->
-      characters.images[ CS ][ character] = new Image()
+      # characters.images[ CS ][ character] = new Image()
+      characters.images[ CS ][ character ] = document.createElement 'IMG'
 
       fileName = '' + characterIndex
       while fileName.length < 3
