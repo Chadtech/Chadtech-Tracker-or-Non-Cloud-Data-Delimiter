@@ -11,6 +11,9 @@ module.exports = (currentSheet, ctx, glyphs, color, cell) ->
 
     xCor = (columnIndex * (cell.w - 1)) + (cell.w * 2) + 5
     yCor = cell.h + 5
+    
+    textXOffset = (cell.w - (11 * ('' + columnIndex).length)) // 2
+    textXOffset -= 2
 
-    drawText ctx, glyphs, 3, ('' + (columnIndex)), [ xCor + 3, yCor + 3 ]
+    drawText ctx, glyphs, 1, ('' + (columnIndex)), [ xCor + textXOffset, yCor + 3 ]
     drawABox ctx, color, cell, [ xCor, yCor ]
