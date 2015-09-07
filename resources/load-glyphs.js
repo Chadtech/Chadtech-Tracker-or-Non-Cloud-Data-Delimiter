@@ -4,7 +4,10 @@
   _ = require('lodash');
 
   module.exports = function(allCharacters) {
-    var characters;
+    var characters, image;
+    image = function() {
+      return document.createElement('IMG');
+    };
     characters = {
       images: {
         0: {},
@@ -16,13 +19,15 @@
     };
     _.forEach([0, 1, 2, 3, 4], function(CS) {
       return _.forEach(allCharacters, function(character, characterIndex) {
-        var fileName;
-        characters.images[CS][character] = document.createElement('IMG');
+        var fileName, fontName;
+        characters.images[CS][character] = image();
         fileName = '' + characterIndex;
         while (fileName.length < 3) {
           fileName = '0' + fileName;
         }
-        fileName = './hfnssC' + CS + '/hfnssC' + CS + '_' + fileName + '.png';
+        fontName = './hfnssC' + CS;
+        fileName = fontName + '/' + fontName;
+        fileName += '_' + fileName + '.png';
         return characters.images[CS][character].src = fileName;
       });
     });
