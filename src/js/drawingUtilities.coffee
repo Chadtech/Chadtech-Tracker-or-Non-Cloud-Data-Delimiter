@@ -2,14 +2,14 @@ _ = require 'lodash'
 
 module.exports =
 
-  putPixel: (canvas, color, pos) ->
-    newPixel          = canvas.createImageData 1, 1
+  putPixel: (ctx, color, pos) ->
+    newPixel          = ctx.createImageData 1, 1
     newPixelsColor    = newPixel.data
     newPixelsColor[0] = color[0]
     newPixelsColor[1] = color[1]
     newPixelsColor[2] = color[2]
     newPixelsColor[3] = 255
-    canvas.putImageData newPixel, pos[0], pos[1]
+    ctx.putImageData newPixel, pos[0], pos[1]
 
   hexToArray: (color) ->
     colorArray = []
@@ -23,10 +23,17 @@ module.exports =
     colorArray.push 255
     colorArray
 
+  arrayToHex: (color) ->
+    colorHex = '#'
+    colorHex += color[0].toString 16
+    colorHex += color[1].toString 16
+    colorHex += color[2].toString 16
 
-  drawText: (canvas, glyphs, CS, text, pos) ->
+    colorHex
+
+  drawText: (ctx, glyphs, CS, text, pos) ->
     _.forEach text, (character, characterIndex) ->
       xCor = pos[0]
       yCor = pos[1]
       xCor += characterIndex * glyphs.characterWidth
-      canvas.drawImage glyphs.images[ CS ][ character ], xCor, yCor
+      ctx.drawImage glyphs.images[ CS ][ character ], xCor, yCor

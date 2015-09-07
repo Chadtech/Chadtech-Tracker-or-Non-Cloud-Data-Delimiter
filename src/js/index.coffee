@@ -7,7 +7,8 @@ _     = require 'lodash'
 CoordinateIsElement              = require './coordinate-in-array.coffee'
 
 # Dependencies
-Init          = require './init.coffee'
+LoadGlyphs    = require './load-glyphs.coffee'
+AssetLoader   = require './load-assets.coffee'
 AllCharacters = require './all-characters.coffee'
 Keys          = require './keys.coffee'
 
@@ -16,6 +17,7 @@ DrawColumnNames   = require './draw-column-names.coffee'
 DrawRowNames      = require './draw-row-names.coffee'
 DrawEveryCell     = require './draw-every-cell.coffee'
 DrawSelectedCell  = require './draw-selected-cell.coffee'
+DrawColumnOptions = require './draw-column-options.coffee'
 
 # DOM Elements
 {p, a, div, input, img, canvas} = React.DOM
@@ -29,7 +31,7 @@ darkerGray  = '#202020'
 borderGray  = '#101408'
 
 # Images for each character
-glyphs                  = Init AllCharacters
+glyphs                  = LoadGlyphs AllCharacters
 glyphs.characterWidth   = 11
 glyphs.characterHeight  = 19
 
@@ -39,7 +41,10 @@ cell =
   w: 4 + (glyphs.characterWidth * 5)
   h: 6 + glyphs.characterHeight
 
+# Assets
+Assets = AssetLoader()
 
+console.log 'Assets ARE', Assets
 
 Index = React.createClass
 
@@ -118,11 +123,13 @@ Index = React.createClass
     workarea      = workarea.getContext '2d'
     currentSheet  = @state.sheets[ @state.currentSheet ]
     cellColor     = hexToArray darkGray
+    edgeColor     = hexToArray darkerGray
     selectedColor = hexToArray lighterGray
 
-    DrawColumnNames  currentSheet, workarea, glyphs, cellColor, cell
-    DrawRowNames     currentSheet, workarea, glyphs, cellColor, cell
-    DrawEveryCell    currentSheet, workarea, glyphs, cellColor, cell
+    DrawColumnNames   currentSheet, workarea, glyphs, edgeColor, cell
+    DrawRowNames      currentSheet, workarea, glyphs, edgeColor, cell
+    DrawEveryCell     currentSheet, workarea, glyphs, cellColor, cell
+    DrawColumnOptions currentSheet, workarea, glyphs, edgeColor, cell, Assets
     for selectedCell in @state.selectedCells
       DrawSelectedCell currentSheet, workarea, glyphs, selectedColor, cell, selectedCell
 
@@ -147,7 +154,10 @@ Index = React.createClass
     mouseY -= cell.h
     mouseY -= toolbarSize + 5
 
-    whichCell = [ mouseY // (cell.h - 1), mouseX // (cell.w - 1) ]
+    whichCell = [ 
+      (mouseY // (cell.h - 1)) - 1
+      (mouseX // (cell.w - 1)) - 1
+    ]
 
     if not @state.commandIsDown
       unless (whichCell[0] < 0) or (whichCell[1] < 0)
