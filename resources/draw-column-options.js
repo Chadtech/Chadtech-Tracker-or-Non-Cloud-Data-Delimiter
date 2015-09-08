@@ -15,7 +15,7 @@
       ctx.drawImage(Assets['X'][0], xCor + xOffset + 5, yCor);
       return ctx.drawImage(Assets['<+'][0], xCor + 1, yCor);
     });
-    xCor = (currentSheet.length * (cell.w - 1)) + (cell.w * 2) + 5;
+    xCor = (currentSheet.length * (cell.w - 1)) + (cell.w * 2) + 6;
     yCor = 5;
     return ctx.drawImage(Assets['<+'][0], xCor + 1, yCor);
   };

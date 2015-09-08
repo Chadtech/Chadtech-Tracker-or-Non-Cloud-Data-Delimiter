@@ -23,7 +23,7 @@ module.exports = (currentSheet, ctx, glyphs, color, cell, Assets) ->
       yCor
 
 
-  xCor = (currentSheet.length * (cell.w - 1)) + (cell.w * 2) + 5
+  xCor = (currentSheet.length * (cell.w - 1)) + (cell.w * 2) + 6
   yCor =  5
 
   ctx.drawImage Assets['<+'][0],

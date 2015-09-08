@@ -56,7 +56,7 @@
   toolbarSize = 52;
 
   cell = {
-    w: 4 + (glyphs.characterWidth * 5),
+    w: 6 + (glyphs.characterWidth * 5),
     h: 6 + glyphs.characterHeight
   };
 
@@ -68,7 +68,7 @@
         windowWidth: window.innerWidth,
         windowHeight: window.innerHeight,
         workareaHeight: window.innerHeight - (2 * (toolbarSize + 5)),
-        sheets: [[['34', '32', '31', '32', '34'], ['32', '30', '31', '30', '32'], ['B', '', 'S', 'S', '']]],
+        sheets: [[['34', '32', '31', '32', '34'], ['32', '30', '31', '30', '32'], ['B', '', 'S', 'S', ''], ['Loud', '', 'Quiet', '', '']]],
         sheetNames: ['Thomas'],
         selectedCells: [[2, 1]],
         currentSheet: 0,
@@ -167,7 +167,7 @@
       mouseX -= cell.w;
       mouseY -= cell.h;
       mouseY -= toolbarSize + 5;
-      whichCell = [(Math.floor(mouseY / (cell.h - 1))) - 1, (Math.floor(mouseX / (cell.w - 1))) - 1];
+      whichCell = [(Math.floor(mouseY / cell.h)) - 1, (Math.floor(mouseX / cell.w)) - 1];
       if (!this.state.commandIsDown) {
         if (!((whichCell[0] < 0) || (whichCell[1] < 0))) {
           return this.setState({

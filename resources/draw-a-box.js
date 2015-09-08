@@ -17,9 +17,11 @@
       var xCor;
       xCor = xOrg + pt;
       putPixel(ctx, color, [xCor, yOrg + cell.h - 1]);
-      return putPixel(ctx, color, [xCor, yOrg]);
+      putPixel(ctx, color, [xCor, yOrg + cell.h]);
+      putPixel(ctx, color, [xCor, yOrg]);
+      return putPixel(ctx, color, [xCor, yOrg + 1]);
     });
-    return _.forEach((function() {
+    _.forEach((function() {
       results1 = [];
       for (var j = 0, ref1 = cell.h - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; 0 <= ref1 ? j++ : j--){ results1.push(j); }
       return results1;
@@ -27,8 +29,11 @@
       var yCor;
       yCor = yOrg + pt;
       putPixel(ctx, color, [xOrg + cell.w - 1, yCor]);
-      return putPixel(ctx, color, [xOrg, yCor]);
+      putPixel(ctx, color, [xOrg + cell.w, yCor]);
+      putPixel(ctx, color, [xOrg, yCor]);
+      return putPixel(ctx, color, [xOrg + 1, yCor]);
     });
+    return putPixel(ctx, color, [xOrg + cell.w, yOrg + cell.h]);
   };
 
 }).call(this);

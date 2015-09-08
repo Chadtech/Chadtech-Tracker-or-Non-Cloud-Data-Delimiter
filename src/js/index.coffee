@@ -50,7 +50,7 @@ glyphs.characterHeight  = 19
 # Dimensions
 toolbarSize = 52
 cell =
-  w: 4 + (glyphs.characterWidth * 5)
+  w: 6 + (glyphs.characterWidth * 5)
   h: 6 + glyphs.characterHeight
 
 
@@ -69,6 +69,7 @@ Index = React.createClass
           [ '34', '32', '31', '32', '34' ] 
           [ '32', '30', '31', '30', '32' ] 
           [ 'B',  '',   'S',  'S',  ''   ] 
+          [ 'Loud',  '', 'Quiet',  '',  ''   ] 
         ]]
     sheetNames: [ 'Thomas' ]
     selectedCells: [ [ 2, 1 ] ]
@@ -79,31 +80,7 @@ Index = React.createClass
 
 
   componentDidMount: ->
-    # var gui = require('nw.gui');
-
-    # // Open a new window.
-    # var win = gui.Window.open('popup.html');
-
-    # // Release the 'win' object here after the new window is closed.
-    # win.on('closed', function() {
-    #   win = null;
-    # });
-
-    # // Listen to main window's close event
-    # gui.Window.get().on('close', function() {
-    #   // Hide the window to give user the feeling of closing immediately
-    #   this.hide();
-
-    #   // If the new window is still open then close it.
-    #   if (win != null)
-    #     win.close(true);
-
-    #   // After closing the new window, close the main window.
-    #   this.close(true);
-    # });
-
     gui.Window.get().on 'resize', @handleResize
-    # document.addEventListener 'resize', @handleResize
 
     document.addEventListener 'keyup',   @onKeyUp
     document.addEventListener 'keydown', @onKeyDown
@@ -116,6 +93,7 @@ Index = React.createClass
     fileExporter = document.getElementById 'fileExporter'
     nwDir        = window.document.createAttribute 'nwdirectory'
     fileExporter.setAttributeNode nwDir
+
 
   setCanvasDimensions: ->
     toolbar0        = document.getElementById 'toolbar0'
@@ -161,7 +139,6 @@ Index = React.createClass
 
 
   refreshWorkArea: ->
-      
     workarea      = document.getElementById 'workarea'
     workarea      = workarea.getContext '2d'
     currentSheet  = @state.sheets[ @state.currentSheet ]
@@ -198,8 +175,8 @@ Index = React.createClass
     mouseY -= toolbarSize + 5
 
     whichCell = [ 
-      (mouseY // (cell.h - 1)) - 1
-      (mouseX // (cell.w - 1)) - 1
+      (mouseY // cell.h) - 1
+      (mouseX // cell.w) - 1
     ]
 
     if not @state.commandIsDown
