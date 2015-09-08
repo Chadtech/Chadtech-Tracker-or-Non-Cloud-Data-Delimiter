@@ -206,11 +206,31 @@
             fileName = '/' + _this.state.sheetNames[csvIndex];
             fileName += '.csv';
             filePath += fileName;
-            return fs.writeFileSync(filePath, csv);
+            fs.writeFileSync(filePath, csv);
+            return _this.setState({
+              filePath: filePath
+            });
           });
         };
       })(this));
       return fileExporter.click();
+    },
+    handleSave: function() {
+      var csvs;
+      csvs = ConvertToCSV(this.state.sheets);
+      csvs = _.map(csvs, function(csv) {
+        return new Buffer(csv, 'utf-8');
+      });
+      return _.forEach(csvs, (function(_this) {
+        return function(csv, csvIndex) {
+          var fileName, filePath;
+          filePath = _this.state.filePath;
+          fileName = '/' + _this.state.sheetNames[csvIndex];
+          fileName += '.csv';
+          filePath += fileName;
+          return fs.writeFileSync(filePath, csv);
+        };
+      })(this));
     },
     onKeyUp: function(event) {
       if (event.which === Keys['command']) {
@@ -223,11 +243,18 @@
     },
     onKeyDown: function(event) {
       if (event.which === Keys['command']) {
-        return this.setState({
+        this.setState({
           commandIsDown: true
         }, function() {
           return console.log('command is marked down');
         });
+      }
+      if (event.which === Keys['s']) {
+        if (this.state.filePath) {
+          return this.handleSave();
+        } else {
+          return this.handleSaveAs();
+        }
       }
     },
     render: function() {

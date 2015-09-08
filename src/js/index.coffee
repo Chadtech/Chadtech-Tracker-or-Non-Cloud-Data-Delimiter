@@ -189,7 +189,6 @@ Index = React.createClass
         @setState selectedCells: @state.selectedCells, =>
           @refreshWorkArea()
 
-    # @handleSaveAs()
 
   handleSaveAs: ->
 
@@ -206,8 +205,21 @@ Index = React.createClass
         fileName += '.csv'
         filePath += fileName
         fs.writeFileSync filePath, csv
+        @setState filePath: filePath
 
     fileExporter.click()
+
+  handleSave: ->
+    csvs = ConvertToCSV @state.sheets
+    csvs = _.map csvs, (csv) ->
+      new Buffer csv, 'utf-8'
+
+    _.forEach csvs, (csv, csvIndex) =>
+      filePath = @state.filePath
+      fileName = '/' + @state.sheetNames[ csvIndex ]
+      fileName += '.csv'
+      filePath += fileName
+      fs.writeFileSync filePath, csv
 
 
   onKeyUp: (event) ->
@@ -216,10 +228,17 @@ Index = React.createClass
         console.log 'command is marked Up'
 
   onKeyDown: (event) ->
-    # @chooseFile()
     if event.which is Keys['command']
       @setState commandIsDown: true, ->
         console.log 'command is marked down'
+
+    if event.which is Keys['s']
+      if @state.filePath
+        @handleSave()
+      else 
+        @handleSaveAs()
+      
+
 
   render: ->
 

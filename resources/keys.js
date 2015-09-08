@@ -9,7 +9,8 @@
     shift: 16,
     command: 19,
     control: 17,
-    command: 91
+    command: 91,
+    s: 83
   };
 
 }).call(this);

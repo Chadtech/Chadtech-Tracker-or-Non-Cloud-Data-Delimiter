@@ -9,3 +9,4 @@ module.exports =
   command:    19
   control:    17
   command:    91
+  s:          83
