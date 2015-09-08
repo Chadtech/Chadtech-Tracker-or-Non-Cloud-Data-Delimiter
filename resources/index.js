@@ -1,5 +1,5 @@
 (function() {
-  var AllCharacters, AssetLoader, Assets, ConvertToCSV, CoordinateIsElement, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawRowNames, DrawSelectedCell, Index, Keys, LoadGlyphs, React, _, a, borderGray, canvas, cell, darkGray, darkerGray, div, drawText, fdialogs, glyphs, gray, hexToArray, img, injectionPoint, input, lighterGray, p, putPixel, ref, ref1, toolbarSize;
+  var AllCharacters, AssetLoader, Assets, ConvertToCSV, CoordinateIsElement, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawRowNames, DrawSelectedCell, Index, Keys, LoadGlyphs, React, _, a, borderGray, canvas, cell, darkGray, darkerGray, div, drawText, glyphs, gray, gui, hexToArray, img, injectionPoint, input, lighterGray, p, putPixel, ref, ref1, toolbarSize;
 
   global.document = window.document;
 
@@ -9,7 +9,7 @@
 
   _ = require('lodash');
 
-  fdialogs = require('node-webkit-fdialogs');
+  gui = require('nw.gui');
 
   ref = React.DOM, p = ref.p, a = ref.a, div = ref.div, input = ref.input, img = ref.img, canvas = ref.canvas;
 
@@ -79,7 +79,7 @@
     },
     componentDidMount: function() {
       var fileExporter, nwDir;
-      window.addEventListener('resize', this.handleResize);
+      gui.Window.get().on('resize', this.handleResize);
       document.addEventListener('keyup', this.onKeyUp);
       document.addEventListener('keydown', this.onKeyDown);
       this.setCanvasDimensions();
@@ -93,14 +93,15 @@
     setCanvasDimensions: function() {
       var toolbar0, toolbar1, workarea;
       toolbar0 = document.getElementById('toolbar0');
-      toolbar0.width = window.innerWidth;
+      toolbar0.width = this.state.windowWidth;
       toolbar0.height = toolbarSize;
       toolbar1 = document.getElementById('toolbar1');
-      toolbar1.width = window.innerWidth;
+      toolbar1.width = this.state.windowHeight;
       toolbar1.height = toolbarSize;
       workarea = document.getElementById('workarea');
-      workarea.width = window.innerWidth;
-      return workarea.height = window.innerHeight - (2 * (toolbarSize + 5));
+      workarea.width = this.state.windowWidth;
+      workarea.height = this.state.windowHeight - (2 * (toolbarSize + 5));
+      return this.refreshWorkArea();
     },
     handleResize: function() {
       return this.setState({
@@ -110,7 +111,7 @@
           return _this.setState({
             windowHeight: window.innerHeight
           }, function() {
-            _this.setCanvasDimensions;
+            _this.setCanvasDimensions();
             _this.drawToolBar0();
             return _this.drawToolBar1();
           });
@@ -169,7 +170,7 @@
       whichCell = [(Math.floor(mouseY / (cell.h - 1))) - 1, (Math.floor(mouseX / (cell.w - 1))) - 1];
       if (!this.state.commandIsDown) {
         if (!((whichCell[0] < 0) || (whichCell[1] < 0))) {
-          this.setState({
+          return this.setState({
             selectedCells: [whichCell]
           }, (function(_this) {
             return function() {
@@ -180,7 +181,7 @@
       } else {
         if (!CoordinateIsElement(this.state.selectedCells, whichCell)) {
           this.state.selectedCells.push(whichCell);
-          this.setState({
+          return this.setState({
             selectedCells: this.state.selectedCells
           }, (function(_this) {
             return function() {
@@ -189,7 +190,6 @@
           })(this));
         }
       }
-      return this.handleSaveAs();
     },
     handleSaveAs: function() {
       var csvs, fileExporter;

@@ -5,7 +5,9 @@ global.navigator  = window.navigator
 # Libraries
 React    = require 'react'
 _        = require 'lodash'
-fdialogs = require 'node-webkit-fdialogs'
+gui      = require 'nw.gui'
+
+
 
 # DOM Elements
 {p, a, div, input, img, canvas} = React.DOM
@@ -77,7 +79,31 @@ Index = React.createClass
 
 
   componentDidMount: ->
-    window.addEventListener 'resize', @handleResize
+    # var gui = require('nw.gui');
+
+    # // Open a new window.
+    # var win = gui.Window.open('popup.html');
+
+    # // Release the 'win' object here after the new window is closed.
+    # win.on('closed', function() {
+    #   win = null;
+    # });
+
+    # // Listen to main window's close event
+    # gui.Window.get().on('close', function() {
+    #   // Hide the window to give user the feeling of closing immediately
+    #   this.hide();
+
+    #   // If the new window is still open then close it.
+    #   if (win != null)
+    #     win.close(true);
+
+    #   // After closing the new window, close the main window.
+    #   this.close(true);
+    # });
+
+    gui.Window.get().on 'resize', @handleResize
+    # document.addEventListener 'resize', @handleResize
 
     document.addEventListener 'keyup',   @onKeyUp
     document.addEventListener 'keydown', @onKeyDown
@@ -93,23 +119,25 @@ Index = React.createClass
 
   setCanvasDimensions: ->
     toolbar0        = document.getElementById 'toolbar0'
-    toolbar0.width  = window.innerWidth
+    toolbar0.width  = @state.windowWidth
     toolbar0.height = toolbarSize
 
     toolbar1        = document.getElementById 'toolbar1'
-    toolbar1.width  = window.innerWidth
+    toolbar1.width  = @state.windowHeight
     toolbar1.height = toolbarSize
 
     workarea        = document.getElementById 'workarea'
-    workarea.width  = window.innerWidth
-    workarea.height = window.innerHeight - (2 * (toolbarSize + 5))
+    workarea.width  = @state.windowWidth
+    workarea.height = @state.windowHeight - (2 * (toolbarSize + 5))
+
+    @refreshWorkArea()
 
 
   handleResize: ->
     @setState windowWidth:  window.innerWidth, =>
       @setState windowHeight: window.innerHeight, =>
 
-        @setCanvasDimensions
+        @setCanvasDimensions()
         @drawToolBar0()
         @drawToolBar1()
 
@@ -184,7 +212,7 @@ Index = React.createClass
         @setState selectedCells: @state.selectedCells, =>
           @refreshWorkArea()
 
-    @handleSaveAs()
+    # @handleSaveAs()
 
   handleSaveAs: ->
 
