@@ -25,6 +25,7 @@ AssetLoader   = require './load-assets.js'
 AllCharacters = require './all-characters.js'
 Keys          = require './keys.js'
 
+
 # Drawing
 DrawColumnNames   = require './draw-column-names.js'
 DrawRowNames      = require './draw-row-names.js'
@@ -199,13 +200,14 @@ Index = React.createClass
     fileExporter = document.getElementById 'fileExporter'
 
     fileExporter.addEventListener 'change', (event) =>
+      @setState filePath: event.target.value
       _.forEach csvs, (csv, csvIndex) =>
         filePath = event.target.value
         fileName = '/' + @state.sheetNames[ csvIndex ]
         fileName += '.csv'
         filePath += fileName
         fs.writeFileSync filePath, csv
-        @setState filePath: filePath
+        
 
     fileExporter.click()
 
@@ -284,12 +286,6 @@ Index = React.createClass
           height:           @state.workareaHeight
           imageRendering:   'pixelated'
 
-      input
-        id: 'fileExporter'
-        type: 'file'
-        style:
-          display: 'none'
-        nwsaveas: ''
 
 
 Index          = React.createElement Index

@@ -200,16 +200,16 @@
       fileExporter = document.getElementById('fileExporter');
       fileExporter.addEventListener('change', (function(_this) {
         return function(event) {
+          _this.setState({
+            filePath: event.target.value
+          });
           return _.forEach(csvs, function(csv, csvIndex) {
             var fileName, filePath;
             filePath = event.target.value;
             fileName = '/' + _this.state.sheetNames[csvIndex];
             fileName += '.csv';
             filePath += fileName;
-            fs.writeFileSync(filePath, csv);
-            return _this.setState({
-              filePath: filePath
-            });
+            return fs.writeFileSync(filePath, csv);
           });
         };
       })(this));
@@ -300,13 +300,6 @@
           height: this.state.workareaHeight,
           imageRendering: 'pixelated'
         }
-      }), input({
-        id: 'fileExporter',
-        type: 'file',
-        style: {
-          display: 'none'
-        },
-        nwsaveas: ''
       }));
     }
   });
