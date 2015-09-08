@@ -1,5 +1,5 @@
 (function() {
-  var AllCharacters, AssetLoader, Assets, CoordinateIsElement, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawRowNames, DrawSelectedCell, Index, Keys, LoadGlyphs, React, _, a, borderGray, canvas, cell, darkGray, darkerGray, div, drawText, glyphs, gray, hexToArray, img, injectionPoint, input, lighterGray, p, putPixel, ref, ref1, toolbarSize;
+  var AllCharacters, AssetLoader, Assets, ConvertToCSV, CoordinateIsElement, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawRowNames, DrawSelectedCell, Index, Keys, LoadGlyphs, React, _, a, borderGray, canvas, cell, darkGray, darkerGray, div, drawText, fdialogs, glyphs, gray, hexToArray, img, injectionPoint, input, lighterGray, p, putPixel, ref, ref1, toolbarSize;
 
   global.document = window.document;
 
@@ -9,11 +9,15 @@
 
   _ = require('lodash');
 
+  fdialogs = require('node-webkit-fdialogs');
+
   ref = React.DOM, p = ref.p, a = ref.a, div = ref.div, input = ref.input, img = ref.img, canvas = ref.canvas;
 
   ref1 = require('./drawingUtilities.js'), putPixel = ref1.putPixel, hexToArray = ref1.hexToArray, drawText = ref1.drawText;
 
   CoordinateIsElement = require('./coordinate-in-array.js');
+
+  ConvertToCSV = require('./convert-sheets-to-csvs.js');
 
   LoadGlyphs = require('./load-glyphs.js');
 
@@ -65,20 +69,26 @@
         windowHeight: window.innerHeight,
         workareaHeight: window.innerHeight - (2 * (toolbarSize + 5)),
         sheets: [[['34', '32', '31', '32', '34'], ['32', '30', '31', '30', '32'], ['B', '', 'S', 'S', '']]],
+        sheetNames: ['Thomas'],
         selectedCells: [[2, 1]],
         currentSheet: 0,
         rowNameRadix: 8,
-        commandIsDown: false
+        commandIsDown: false,
+        filePath: ''
       };
     },
     componentDidMount: function() {
+      var fileExporter, nwDir;
       window.addEventListener('resize', this.handleResize);
       document.addEventListener('keyup', this.onKeyUp);
       document.addEventListener('keydown', this.onKeyDown);
       this.setCanvasDimensions();
       this.drawToolBar0();
       this.drawToolBar1();
-      return setTimeout(this.refreshWorkArea, 3000);
+      setTimeout(this.refreshWorkArea, 3000);
+      fileExporter = document.getElementById('fileExporter');
+      nwDir = window.document.createAttribute('nwdirectory');
+      return fileExporter.setAttributeNode(nwDir);
     },
     setCanvasDimensions: function() {
       var toolbar0, toolbar1, workarea;
@@ -159,7 +169,7 @@
       whichCell = [(Math.floor(mouseY / (cell.h - 1))) - 1, (Math.floor(mouseX / (cell.w - 1))) - 1];
       if (!this.state.commandIsDown) {
         if (!((whichCell[0] < 0) || (whichCell[1] < 0))) {
-          return this.setState({
+          this.setState({
             selectedCells: [whichCell]
           }, (function(_this) {
             return function() {
@@ -170,7 +180,7 @@
       } else {
         if (!CoordinateIsElement(this.state.selectedCells, whichCell)) {
           this.state.selectedCells.push(whichCell);
-          return this.setState({
+          this.setState({
             selectedCells: this.state.selectedCells
           }, (function(_this) {
             return function() {
@@ -179,6 +189,28 @@
           })(this));
         }
       }
+      return this.handleSaveAs();
+    },
+    handleSaveAs: function() {
+      var csvs, fileExporter;
+      csvs = ConvertToCSV(this.state.sheets);
+      csvs = _.map(csvs, function(csv) {
+        return new Buffer(csv, 'utf-8');
+      });
+      fileExporter = document.getElementById('fileExporter');
+      fileExporter.addEventListener('change', (function(_this) {
+        return function(event) {
+          return _.forEach(csvs, function(csv, csvIndex) {
+            var fileName, filePath;
+            filePath = event.target.value;
+            fileName = '/' + _this.state.sheetNames[csvIndex];
+            fileName += '.csv';
+            filePath += fileName;
+            return fs.writeFileSync(filePath, csv);
+          });
+        };
+      })(this));
+      return fileExporter.click();
     },
     onKeyUp: function(event) {
       if (event.which === Keys['command']) {
@@ -241,6 +273,13 @@
           height: this.state.workareaHeight,
           imageRendering: 'pixelated'
         }
+      }), input({
+        id: 'fileExporter',
+        type: 'file',
+        style: {
+          display: 'none'
+        },
+        nwsaveas: ''
       }));
     }
   });

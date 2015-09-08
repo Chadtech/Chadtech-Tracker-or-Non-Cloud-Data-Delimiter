@@ -25,9 +25,8 @@
         while (fileName.length < 3) {
           fileName = '0' + fileName;
         }
-        fontName = './hfnssC' + CS;
-        fileName = fontName + '/' + fontName;
-        fileName += '_' + fileName + '.png';
+        fontName = './hfnssC' + CS + '/hfnssC' + CS + '_';
+        fileName = fontName + fileName + '.png';
         return characters.images[CS][character].src = fileName;
       });
     });

@@ -3,8 +3,9 @@ global.navigator  = window.navigator
 
 
 # Libraries
-React   = require 'react'
-_       = require 'lodash'
+React    = require 'react'
+_        = require 'lodash'
+fdialogs = require 'node-webkit-fdialogs'
 
 # DOM Elements
 {p, a, div, input, img, canvas} = React.DOM
@@ -13,6 +14,7 @@ _       = require 'lodash'
 # Utilities
 {putPixel, hexToArray, drawText} = require './drawingUtilities.js'
 CoordinateIsElement              = require './coordinate-in-array.js'
+ConvertToCSV                     = require './convert-sheets-to-csvs.js'
 
 
 # Dependencies
@@ -62,14 +64,16 @@ Index = React.createClass
     windowHeight:   window.innerHeight
     workareaHeight: window.innerHeight - (2 * (toolbarSize + 5))
     sheets: [[ 
-          [ '34', '32', '31', '32', '34'] 
+          [ '34', '32', '31', '32', '34' ] 
           [ '32', '30', '31', '30', '32' ] 
-          [ 'B', '', 'S', 'S', '' ] 
+          [ 'B',  '',   'S',  'S',  ''   ] 
         ]]
+    sheetNames: [ 'Thomas' ]
     selectedCells: [ [ 2, 1 ] ]
     currentSheet:  0
     rowNameRadix:  8
     commandIsDown: false
+    filePath:      ''
 
 
   componentDidMount: ->
@@ -83,19 +87,9 @@ Index = React.createClass
     @drawToolBar1()
     setTimeout @refreshWorkArea, 3000
 
-
-
-
-    # content = new Buffer "Hello world!", 'utf-8'
- 
-    # fdialog.saveFile content, (err, path) ->
-    #   console.log 'A'
-    #   if err
-    #     console.log 'BbBBBBBBB', err
-    #   else
-    #     console.log 'SAVED IN ', path
-    #   console.log 'C'
-
+    fileExporter = document.getElementById 'fileExporter'
+    nwDir        = window.document.createAttribute 'nwdirectory'
+    fileExporter.setAttributeNode nwDir
 
   setCanvasDimensions: ->
     toolbar0        = document.getElementById 'toolbar0'
@@ -190,6 +184,25 @@ Index = React.createClass
         @setState selectedCells: @state.selectedCells, =>
           @refreshWorkArea()
 
+    @handleSaveAs()
+
+  handleSaveAs: ->
+
+    csvs = ConvertToCSV @state.sheets
+    csvs = _.map csvs, (csv) ->
+      new Buffer csv, 'utf-8'
+
+    fileExporter = document.getElementById 'fileExporter'
+
+    fileExporter.addEventListener 'change', (event) =>
+      _.forEach csvs, (csv, csvIndex) =>
+        filePath = event.target.value
+        fileName = '/' + @state.sheetNames[ csvIndex ]
+        fileName += '.csv'
+        filePath += fileName
+        fs.writeFileSync filePath, csv
+
+    fileExporter.click()
 
 
   onKeyUp: (event) ->
@@ -247,6 +260,12 @@ Index = React.createClass
           height:           @state.workareaHeight
           imageRendering:   'pixelated'
 
+      input
+        id: 'fileExporter'
+        type: 'file'
+        style:
+          display: 'none'
+        nwsaveas: ''
 
 
 Index          = React.createElement Index
