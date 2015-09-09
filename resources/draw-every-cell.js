@@ -8,13 +8,17 @@
   drawABox = require('./draw-a-box.js');
 
   module.exports = function(currentSheet, ctx, glyphs, color, cell) {
+    var corCalc;
+    corCalc = function(index, dimension) {
+      return (index * (dimension - 1)) + (dimension * 2);
+    };
     return _.forEach(currentSheet, function(column, columnIndex) {
       return _.forEach(column, function(datum, datumIndex) {
         var xCor, yCor;
-        xCor = (columnIndex * (cell.w - 1)) + (cell.w * 2) + 7;
-        yCor = (datumIndex * (cell.h - 1)) + (cell.h * 2) + 7;
-        drawText(ctx, glyphs, 1, datum, [xCor + 4, yCor + 5]);
-        return drawABox(ctx, color, cell, [xCor, yCor]);
+        xCor = corCalc(columnIndex, cell.w);
+        yCor = corCalc(datumIndex, cell.h);
+        drawABox(ctx, color, cell, [xCor, yCor]);
+        return drawText(ctx, glyphs, 1, datum, [xCor + 4, yCor + 5]);
       });
     });
   };

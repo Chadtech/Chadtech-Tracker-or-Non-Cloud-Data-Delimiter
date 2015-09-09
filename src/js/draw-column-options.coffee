@@ -7,16 +7,16 @@ _ = require 'lodash'
 
 module.exports = (currentSheet, ctx, glyphs, color, cell, Assets) ->
 
+  xCalc = (index) =>
+    index * (cell.w - 1) + (cell.w * 2)
+  yCor = 0
+
   _.forEach currentSheet, (column, columnIndex) ->
 
-    xCor = (columnIndex * (cell.w - 1)) + (cell.w * 2) + 8
-    yCor = 8
+    xCor = xCalc columnIndex
 
-    ctx.drawImage Assets['X'][0], xCor + 35, yCor
-    ctx.drawImage Assets['<+'][0], xCor, yCor
+    ctx.drawImage Assets['X'][0],  xCor + 35, yCor
+    ctx.drawImage Assets['<+'][0], xCor,      yCor
 
-
-  xCor = (currentSheet.length * (cell.w - 1)) + (cell.w * 2) + 8
-  yCor =  8
-
+  xCor = xCalc currentSheet.length
   ctx.drawImage Assets['<+'][0], xCor, yCor

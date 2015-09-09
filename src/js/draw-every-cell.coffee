@@ -7,11 +7,14 @@ drawABox                         = require './draw-a-box.js'
 
 module.exports = (currentSheet, ctx, glyphs, color, cell) ->
 
+  corCalc = (index, dimension) ->
+    (index * (dimension - 1)) + (dimension * 2)
+
   _.forEach currentSheet, (column, columnIndex) ->
     _.forEach column, (datum, datumIndex) ->
 
-      xCor = (columnIndex * (cell.w - 1)) + (cell.w * 2) + 7
-      yCor = (datumIndex * (cell.h - 1)) + (cell.h * 2) + 7
+      xCor = corCalc columnIndex, cell.w
+      yCor = corCalc datumIndex, cell.h
 
-      drawText ctx, glyphs, 1, datum, [ xCor + 4, yCor + 5 ]
       drawABox ctx, color, cell, [ xCor, yCor ]
+      drawText ctx, glyphs, 1, datum, [ xCor + 4, yCor + 5 ]

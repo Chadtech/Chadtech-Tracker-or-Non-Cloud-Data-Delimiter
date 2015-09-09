@@ -1,17 +1,19 @@
 (function() {
-  var _, putPixel;
+  var _, arrayToHex, hexToArray, putPixel, ref;
 
   _ = require('lodash');
 
-  putPixel = require('./drawingUtilities.js').putPixel;
+  ref = require('./drawingUtilities.js'), putPixel = ref.putPixel, hexToArray = ref.hexToArray, arrayToHex = ref.arrayToHex;
 
   module.exports = function(ctx, color, cell, pos) {
-    var i, j, ref, ref1, results, results1, xOrg, yOrg;
+    var i, j, ref1, ref2, results, results1, xOrg, yOrg;
     xOrg = pos[0];
     yOrg = pos[1];
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(xOrg, yOrg, cell.w, cell.h);
     _.forEach((function() {
       results = [];
-      for (var i = 0, ref = cell.w - 1; 0 <= ref ? i <= ref : i >= ref; 0 <= ref ? i++ : i--){ results.push(i); }
+      for (var i = 0, ref1 = cell.w - 1; 0 <= ref1 ? i <= ref1 : i >= ref1; 0 <= ref1 ? i++ : i--){ results.push(i); }
       return results;
     }).apply(this), function(pt) {
       var xCor;
@@ -23,7 +25,7 @@
     });
     _.forEach((function() {
       results1 = [];
-      for (var j = 0, ref1 = cell.h - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; 0 <= ref1 ? j++ : j--){ results1.push(j); }
+      for (var j = 0, ref2 = cell.h - 1; 0 <= ref2 ? j <= ref2 : j >= ref2; 0 <= ref2 ? j++ : j--){ results1.push(j); }
       return results1;
     }).apply(this), function(pt) {
       var yCor;

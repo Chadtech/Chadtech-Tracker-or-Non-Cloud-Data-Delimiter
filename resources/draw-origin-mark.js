@@ -9,8 +9,8 @@
 
   module.exports = function(currentSheet, ctx, glyphs, color, cell, sheetName) {
     var bigBox, xCor, xOffSet, yCor;
-    xCor = 8;
-    yCor = 8;
+    xCor = 0;
+    yCor = 0;
     bigBox = {
       h: cell.h * 2,
       w: cell.w * 2

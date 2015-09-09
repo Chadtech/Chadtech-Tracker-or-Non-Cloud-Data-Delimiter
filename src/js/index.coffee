@@ -66,12 +66,16 @@ Index = React.createClass
   getInitialState: ->
     windowWidth:    window.innerWidth
     windowHeight:   window.innerHeight
-    workareaHeight: window.innerHeight - (2 * (toolbarSize + 5))
+    workareaHeight: window.innerHeight - (2 * toolbarSize)
     sheets: [[ 
-          [ '34', '32', '31', '32', '34' ] 
-          [ '32', '30', '31', '30', '32' ] 
-          [ 'B',  '',   'S',  'S',  ''   ] 
-          [ 'Loud',  '', 'Quiet',  '',  ''   ] 
+          [ '34', '32', '31', '32', '34', '34', '32', '31', '32', '34' ] 
+          [ '32', '30', '31', '30', '32', '32', '30', '31', '30', '32' ] 
+          [ 'B',  '',   'S',  'S',  '', 'B',  '',   'S',  'S',  ''   ] 
+          [ 'Loud',  '', 'Quiet',  '',  '', 'Loud',  '', 'Quiet',  '',  ''   ] 
+          [ '34', '32', '31', '32', '34', '34', '32', '31', '32', '34' ] 
+          [ '32', '30', '31', '30', '32', '32', '30', '31', '30', '32' ] 
+          [ 'B',  '',   'S',  'S',  '', 'B',  '',   'S',  'S',  ''   ] 
+          [ 'Loud',  '', 'Quiet',  '',  '' , 'Loud',  '', 'Quiet',  '',  ''   ] 
         ]]
     sheetNames: [ 'dollars' ]
     selectedCells: [ [ 2, 1 ] ]
@@ -281,9 +285,9 @@ Index = React.createClass
         id:                 'workarea'
         onMouseDown:        @handleClickWorkArea
         style:
-          backgroundColor:  '#000000'
+          backgroundColor:  darkerGray
           position:         'absolute'
-          top:              toolbarSize + 5
+          top:              toolbarSize
           left:             0
           width:            '100%'
           height:           @state.workareaHeight

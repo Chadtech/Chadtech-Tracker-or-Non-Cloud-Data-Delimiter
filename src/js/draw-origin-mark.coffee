@@ -8,8 +8,8 @@ drawABox                                      = require './draw-a-box.js'
 
 module.exports = (currentSheet, ctx, glyphs, color, cell, sheetName) ->
 
-  xCor = 8
-  yCor = 8
+  xCor = 0
+  yCor = 0
 
   bigBox = 
     h: cell.h * 2

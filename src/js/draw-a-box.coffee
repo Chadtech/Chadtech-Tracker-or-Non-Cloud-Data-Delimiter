@@ -2,12 +2,15 @@
 _ = require 'lodash'
 
 # Utilities
-{putPixel} = require './drawingUtilities.js'
+{putPixel, hexToArray, arrayToHex} = require './drawingUtilities.js'
 
 module.exports = (ctx, color, cell, pos) ->
 
   xOrg = pos[0]
   yOrg = pos[1]
+
+  ctx.fillStyle = '#000000'
+  ctx.fillRect xOrg, yOrg, cell.w, cell.h
 
   _.forEach [ 0 .. cell.w - 1 ], (pt) ->
     xCor = xOrg + pt
@@ -22,5 +25,7 @@ module.exports = (ctx, color, cell, pos) ->
     putPixel ctx, color, [ xOrg + cell.w, yCor ]
     putPixel ctx, color, [ xOrg, yCor ]
     putPixel ctx, color, [ xOrg + 1, yCor ]
+
+
 
   putPixel ctx, color, [ xOrg + cell.w, yOrg + cell.h ]
