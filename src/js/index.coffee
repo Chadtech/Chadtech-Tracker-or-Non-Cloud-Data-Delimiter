@@ -8,7 +8,6 @@ _        = require 'lodash'
 gui      = require 'nw.gui'
 
 
-
 # DOM Elements
 {p, a, div, input, img, canvas} = React.DOM
 
@@ -32,6 +31,8 @@ DrawRowNames      = require './draw-row-names.js'
 DrawEveryCell     = require './draw-every-cell.js'
 DrawSelectedCell  = require './draw-selected-cell.js'
 DrawColumnOptions = require './draw-column-options.js'
+DrawRowOptions    = require './draw-row-options.js'
+DrawOriginMark    = require './draw-origin-mark.js'
 
 
 # Colors
@@ -52,7 +53,7 @@ glyphs.characterHeight  = 19
 toolbarSize = 52
 cell =
   w: 6 + (glyphs.characterWidth * 5)
-  h: 6 + glyphs.characterHeight
+  h: 7 + glyphs.characterHeight
 
 
 # Assets
@@ -72,7 +73,7 @@ Index = React.createClass
           [ 'B',  '',   'S',  'S',  ''   ] 
           [ 'Loud',  '', 'Quiet',  '',  ''   ] 
         ]]
-    sheetNames: [ 'Thomas' ]
+    sheetNames: [ 'dollars' ]
     selectedCells: [ [ 2, 1 ] ]
     currentSheet:  0
     rowNameRadix:  8
@@ -143,14 +144,17 @@ Index = React.createClass
     workarea      = document.getElementById 'workarea'
     workarea      = workarea.getContext '2d'
     currentSheet  = @state.sheets[ @state.currentSheet ]
+    sheetName     = @state.sheetNames[ @state.currentSheet ]
     cellColor     = hexToArray darkGray
     edgeColor     = hexToArray darkerGray
     selectedColor = hexToArray lighterGray
 
+    DrawOriginMark    currentSheet, workarea, glyphs, edgeColor, cell, sheetName
     DrawColumnNames   currentSheet, workarea, glyphs, edgeColor, cell
     DrawRowNames      currentSheet, workarea, glyphs, edgeColor, cell
     DrawEveryCell     currentSheet, workarea, glyphs, cellColor, cell
     DrawColumnOptions currentSheet, workarea, glyphs, edgeColor, cell, Assets
+    DrawRowOptions    currentSheet, workarea, glyphs, edgeColor, cell, Assets
     for selectedCell in @state.selectedCells
       DrawSelectedCell currentSheet, workarea, glyphs, selectedColor, cell, selectedCell
 
@@ -192,7 +196,6 @@ Index = React.createClass
 
 
   handleSaveAs: ->
-
     csvs = ConvertToCSV @state.sheets
     csvs = _.map csvs, (csv) ->
       new Buffer csv, 'utf-8'

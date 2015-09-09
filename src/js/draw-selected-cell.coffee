@@ -12,5 +12,5 @@ module.exports = (currentSheet, ctx, glyphs, color, cell, pos) ->
 
   datum = currentSheet[ pos[1] ][ pos[0] ]
 
-  drawText ctx, glyphs, 0, datum, [ xCor + 4, yCor + 4 ]
+  drawText ctx, glyphs, 0, datum, [ xCor + 4, yCor + 5 ]
   drawABox ctx, color, cell, [ xCor, yCor ]

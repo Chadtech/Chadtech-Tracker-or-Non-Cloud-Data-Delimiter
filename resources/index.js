@@ -1,5 +1,5 @@
 (function() {
-  var AllCharacters, AssetLoader, Assets, ConvertToCSV, CoordinateIsElement, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawRowNames, DrawSelectedCell, Index, Keys, LoadGlyphs, React, _, a, borderGray, canvas, cell, darkGray, darkerGray, div, drawText, glyphs, gray, gui, hexToArray, img, injectionPoint, input, lighterGray, p, putPixel, ref, ref1, toolbarSize;
+  var AllCharacters, AssetLoader, Assets, ConvertToCSV, CoordinateIsElement, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawOriginMark, DrawRowNames, DrawRowOptions, DrawSelectedCell, Index, Keys, LoadGlyphs, React, _, a, borderGray, canvas, cell, darkGray, darkerGray, div, drawText, glyphs, gray, gui, hexToArray, img, injectionPoint, input, lighterGray, p, putPixel, ref, ref1, toolbarSize;
 
   global.document = window.document;
 
@@ -37,6 +37,10 @@
 
   DrawColumnOptions = require('./draw-column-options.js');
 
+  DrawRowOptions = require('./draw-row-options.js');
+
+  DrawOriginMark = require('./draw-origin-mark.js');
+
   lighterGray = '#c0c0c0';
 
   gray = '#808080';
@@ -57,7 +61,7 @@
 
   cell = {
     w: 6 + (glyphs.characterWidth * 5),
-    h: 6 + glyphs.characterHeight
+    h: 7 + glyphs.characterHeight
   };
 
   Assets = AssetLoader();
@@ -69,7 +73,7 @@
         windowHeight: window.innerHeight,
         workareaHeight: window.innerHeight - (2 * (toolbarSize + 5)),
         sheets: [[['34', '32', '31', '32', '34'], ['32', '30', '31', '30', '32'], ['B', '', 'S', 'S', ''], ['Loud', '', 'Quiet', '', '']]],
-        sheetNames: ['Thomas'],
+        sheetNames: ['dollars'],
         selectedCells: [[2, 1]],
         currentSheet: 0,
         rowNameRadix: 8,
@@ -141,17 +145,20 @@
       return results;
     },
     refreshWorkArea: function() {
-      var cellColor, currentSheet, edgeColor, i, len, ref2, results, selectedCell, selectedColor, workarea;
+      var cellColor, currentSheet, edgeColor, i, len, ref2, results, selectedCell, selectedColor, sheetName, workarea;
       workarea = document.getElementById('workarea');
       workarea = workarea.getContext('2d');
       currentSheet = this.state.sheets[this.state.currentSheet];
+      sheetName = this.state.sheetNames[this.state.currentSheet];
       cellColor = hexToArray(darkGray);
       edgeColor = hexToArray(darkerGray);
       selectedColor = hexToArray(lighterGray);
+      DrawOriginMark(currentSheet, workarea, glyphs, edgeColor, cell, sheetName);
       DrawColumnNames(currentSheet, workarea, glyphs, edgeColor, cell);
       DrawRowNames(currentSheet, workarea, glyphs, edgeColor, cell);
       DrawEveryCell(currentSheet, workarea, glyphs, cellColor, cell);
       DrawColumnOptions(currentSheet, workarea, glyphs, edgeColor, cell, Assets);
+      DrawRowOptions(currentSheet, workarea, glyphs, edgeColor, cell, Assets);
       ref2 = this.state.selectedCells;
       results = [];
       for (i = 0, len = ref2.length; i < len; i++) {
