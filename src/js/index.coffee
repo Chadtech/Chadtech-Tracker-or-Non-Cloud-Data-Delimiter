@@ -22,7 +22,16 @@ ConvertToCSV                     = require './convert-sheets-to-csvs.js'
 LoadGlyphs    = require './load-glyphs.js'
 AssetLoader   = require './load-assets.js'
 AllCharacters = require './all-characters.js'
-Keys          = require './keys.js'
+Keys          = ((Keys) -> 
+
+  output = {}
+  _.forEach (_.keys Keys), (key) ->
+    output[ Keys[ key ]] = key
+  _.forEach (_.keys Keys), (key) ->
+    output[ key ] = Keys[ key ] 
+  output
+
+  ) require './keys.js'
 
 
 # Drawing
@@ -60,6 +69,7 @@ cell =
 Assets = AssetLoader()
 
 
+
 Index = React.createClass
 
 
@@ -81,8 +91,9 @@ Index = React.createClass
     selectedCells: [ [ 2, 1 ] ]
     currentSheet:  0
     rowNameRadix:  8
-    commandIsDown: false
     filePath:      ''
+    justSelected:  true
+    # keyStates:     keysToKeyStates Keys
 
 
   componentDidMount: ->
@@ -188,10 +199,11 @@ Index = React.createClass
       (mouseX // cell.w) - 1
     ]
 
-    if not @state.commandIsDown
+    if not event.metaKey
       unless (whichCell[0] < 0) or (whichCell[1] < 0)
         @setState selectedCells: [ whichCell ], =>
           @refreshWorkArea()
+          @setState justSelected: true
     else
       unless CoordinateIsElement @state.selectedCells, whichCell
         @state.selectedCells.push whichCell
@@ -232,21 +244,39 @@ Index = React.createClass
 
 
   onKeyUp: (event) ->
-    if event.which is Keys['command']
-      @setState commandIsDown: false, ->
-        console.log 'command is marked Up'
+    # if event.which is Keys['command']
+    #   @setState commandIsDown: false, ->
+    #     console.log 'command is marked Up'
 
   onKeyDown: (event) ->
-    if event.which is Keys['command']
-      @setState commandIsDown: true, ->
-        console.log 'command is marked down'
+    if event.metaKey
 
-    if event.which is Keys['s']
-      if @state.filePath
-        @handleSave()
-      else 
-        @handleSaveAs()
+      if event.which is Keys['s']
+        if @state.filePath
+          @handleSave()
+        else 
+          @handleSaveAs()
+
+    else
       
+      if @state.selectedCells.length is 1
+
+        if @state.justSelected
+          @setState justSelected: false, =>
+            currentSheet  = @state.sheets[ @state.currentSheet ]
+            SC            = @state.selectedCells[0]
+            currentSheet[ SC[ 1 ] ][ SC[ 0 ] ] = Keys[ event.which ]
+            @state.sheets[ @state.currentSheet ] = currentSheet
+            @setState sheets: @state.sheets, =>
+              @refreshWorkArea()
+        else
+          @setState justSelected: false, =>
+            currentSheet  = @state.sheets[ @state.currentSheet ]
+            SC            = @state.selectedCells[0]
+            currentSheet[ SC[ 1 ] ][ SC[ 0 ] ] += Keys[ event.which ]
+            @state.sheets[ @state.currentSheet ] = currentSheet
+            @setState sheets: @state.sheets, =>
+              @refreshWorkArea()
 
 
   render: ->

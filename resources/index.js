@@ -25,7 +25,17 @@
 
   AllCharacters = require('./all-characters.js');
 
-  Keys = require('./keys.js');
+  Keys = (function(Keys) {
+    var output;
+    output = {};
+    _.forEach(_.keys(Keys), function(key) {
+      return output[Keys[key]] = key;
+    });
+    _.forEach(_.keys(Keys), function(key) {
+      return output[key] = Keys[key];
+    });
+    return output;
+  })(require('./keys.js'));
 
   DrawColumnNames = require('./draw-column-names.js');
 
@@ -77,8 +87,8 @@
         selectedCells: [[2, 1]],
         currentSheet: 0,
         rowNameRadix: 8,
-        commandIsDown: false,
-        filePath: ''
+        filePath: '',
+        justSelected: true
       };
     },
     componentDidMount: function() {
@@ -175,13 +185,16 @@
       mouseY -= cell.h;
       mouseY -= toolbarSize + 5;
       whichCell = [(Math.floor(mouseY / cell.h)) - 1, (Math.floor(mouseX / cell.w)) - 1];
-      if (!this.state.commandIsDown) {
+      if (!event.metaKey) {
         if (!((whichCell[0] < 0) || (whichCell[1] < 0))) {
           return this.setState({
             selectedCells: [whichCell]
           }, (function(_this) {
             return function() {
-              return _this.refreshWorkArea();
+              _this.refreshWorkArea();
+              return _this.setState({
+                justSelected: true
+              });
             };
           })(this));
         }
@@ -239,28 +252,53 @@
         };
       })(this));
     },
-    onKeyUp: function(event) {
-      if (event.which === Keys['command']) {
-        return this.setState({
-          commandIsDown: false
-        }, function() {
-          return console.log('command is marked Up');
-        });
-      }
-    },
+    onKeyUp: function(event) {},
     onKeyDown: function(event) {
-      if (event.which === Keys['command']) {
-        this.setState({
-          commandIsDown: true
-        }, function() {
-          return console.log('command is marked down');
-        });
-      }
-      if (event.which === Keys['s']) {
-        if (this.state.filePath) {
-          return this.handleSave();
-        } else {
-          return this.handleSaveAs();
+      if (event.metaKey) {
+        if (event.which === Keys['s']) {
+          if (this.state.filePath) {
+            return this.handleSave();
+          } else {
+            return this.handleSaveAs();
+          }
+        }
+      } else {
+        if (this.state.selectedCells.length === 1) {
+          if (this.state.justSelected) {
+            return this.setState({
+              justSelected: false
+            }, (function(_this) {
+              return function() {
+                var SC, currentSheet;
+                currentSheet = _this.state.sheets[_this.state.currentSheet];
+                SC = _this.state.selectedCells[0];
+                currentSheet[SC[1]][SC[0]] = Keys[event.which];
+                _this.state.sheets[_this.state.currentSheet] = currentSheet;
+                return _this.setState({
+                  sheets: _this.state.sheets
+                }, function() {
+                  return _this.refreshWorkArea();
+                });
+              };
+            })(this));
+          } else {
+            return this.setState({
+              justSelected: false
+            }, (function(_this) {
+              return function() {
+                var SC, currentSheet;
+                currentSheet = _this.state.sheets[_this.state.currentSheet];
+                SC = _this.state.selectedCells[0];
+                currentSheet[SC[1]][SC[0]] += Keys[event.which];
+                _this.state.sheets[_this.state.currentSheet] = currentSheet;
+                return _this.setState({
+                  sheets: _this.state.sheets
+                }, function() {
+                  return _this.refreshWorkArea();
+                });
+              };
+            })(this));
+          }
         }
       }
     },
