@@ -1,5 +1,5 @@
 (function() {
-  var _, drawABox, drawText, hexToArray, putPixel, ref;
+  var _, drawABox, drawText, hexToArray, putPixel, ref, zeroPadder;
 
   _ = require('lodash');
 
@@ -7,16 +7,19 @@
 
   drawABox = require('./draw-a-box.js');
 
-  module.exports = function(currentSheet, ctx, glyphs, color, cell) {
+  zeroPadder = require('./general-utilities.js').zeroPadder;
+
+  module.exports = function(sheet, ctx, glyphs, color, cell) {
     var corCalc;
     corCalc = function(index, dimension) {
       return (index * (dimension - 1)) + (dimension * 2);
     };
-    return _.forEach(currentSheet, function(column, columnIndex) {
-      return _.forEach(column, function(datum, datumIndex) {
-        var xCor, yCor;
+    return _.forEach(sheet, function(column, columnIndex) {
+      return _.forEach(column, function(row, rowIndex) {
+        var datum, xCor, yCor;
         xCor = corCalc(columnIndex, cell.w);
-        yCor = corCalc(datumIndex, cell.h);
+        yCor = corCalc(rowIndex, cell.h);
+        datum = row;
         drawABox(ctx, color, cell, [xCor, yCor]);
         return drawText(ctx, glyphs, 1, datum, [xCor + 4, yCor + 5]);
       });

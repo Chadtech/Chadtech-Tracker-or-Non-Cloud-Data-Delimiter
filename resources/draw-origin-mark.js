@@ -7,7 +7,7 @@
 
   drawABox = require('./draw-a-box.js');
 
-  module.exports = function(currentSheet, ctx, glyphs, color, cell, sheetName) {
+  module.exports = function(sheetName, ctx, glyphs, color, cell) {
     var bigBox, xCor, xOffSet, yCor;
     xCor = 0;
     yCor = 0;

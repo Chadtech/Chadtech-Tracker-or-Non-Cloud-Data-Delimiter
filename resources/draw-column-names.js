@@ -1,14 +1,14 @@
 (function() {
-  var _, drawABox, drawText, hexToArray, putPixel, ref;
+  var _, drawABox, drawText;
 
   _ = require('lodash');
 
-  ref = require('./drawingUtilities.js'), putPixel = ref.putPixel, hexToArray = ref.hexToArray, drawText = ref.drawText;
+  drawText = require('./drawingUtilities.js').drawText;
 
   drawABox = require('./draw-a-box.js');
 
-  module.exports = function(currentSheet, ctx, glyphs, color, cell) {
-    return _.forEach(currentSheet, function(column, columnIndex) {
+  module.exports = function(sheet, ctx, glyphs, color, cell) {
+    return _.forEach(sheet, function(column, columnIndex) {
       var textXOffset, xCor, yCor;
       xCor = (columnIndex * (cell.w - 1)) + (cell.w * 2);
       yCor = cell.h;

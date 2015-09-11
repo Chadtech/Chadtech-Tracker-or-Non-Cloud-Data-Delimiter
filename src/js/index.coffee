@@ -15,8 +15,7 @@ gui      = require 'nw.gui'
 # Utilities
 {putPixel, hexToArray, drawText} = require './drawingUtilities.js'
 CoordinateIsElement              = require './coordinate-in-array.js'
-ConvertToCSV                     = require './convert-sheets-to-csvs.js'
-
+{convertToCSVs, zeroPadder }     = require './general-utilities.js'
 
 # Dependencies
 LoadGlyphs    = require './load-glyphs.js'
@@ -69,15 +68,9 @@ cell =
 Assets = AssetLoader()
 
 
-
-Index = React.createClass
-
-
-  getInitialState: ->
-    windowWidth:    window.innerWidth
-    windowHeight:   window.innerHeight
-    workareaHeight: window.innerHeight - (2 * toolbarSize)
-    sheets: [[ 
+# Default Data for Development
+currentSheet = 0
+Sheets = [[ 
           [ '34', '32', '31', '32', '34', '34', '32', '31', '32', '34' ] 
           [ '32', '30', '31', '30', '32', '32', '30', '31', '30', '32' ] 
           [ 'B',  '',   'S',  'S',  '', 'B',  '',   'S',  'S',  ''   ] 
@@ -87,13 +80,23 @@ Index = React.createClass
           [ 'B',  '',   'S',  'S',  '', 'B',  '',   'S',  'S',  ''   ] 
           [ 'Loud',  '', 'Quiet',  '',  '' , 'Loud',  '', 'Quiet',  '',  ''   ] 
         ]]
-    sheetNames: [ 'dollars' ]
-    selectedCells: [ [ 2, 1 ] ]
-    currentSheet:  0
-    rowNameRadix:  8
-    filePath:      ''
-    justSelected:  true
-    # keyStates:     keysToKeyStates Keys
+
+
+
+
+Index = React.createClass
+
+
+  getInitialState: ->
+    windowWidth:    window.innerWidth
+    windowHeight:   window.innerHeight
+    workareaHeight: window.innerHeight - (2 * toolbarSize)
+    sheetNames:     [ 'dollars' ]
+    selectedCells:  [ [ 2, 1 ] ]
+    currentSheet:   0
+    rowNameRadix:   8
+    filePath:       ''
+    justSelected:   true
 
 
   componentDidMount: ->
@@ -105,11 +108,44 @@ Index = React.createClass
     @setCanvasDimensions()
     @drawToolBar0()
     @drawToolBar1()
-    setTimeout @refreshWorkArea, 3000
+    setTimeout @refreshWorkArea, 5000
 
     fileExporter = document.getElementById 'fileExporter'
     nwDir        = window.document.createAttribute 'nwdirectory'
     fileExporter.setAttributeNode nwDir
+
+    # @setState a: ''
+    # @setState a: ''
+    # @setState a: ''
+
+
+    # dataToPutInState = []
+
+    # _.forEach Sheets, (sheet, sheetIndex) =>
+    #   stateSetter = @setState
+
+    #   columnSizeObject = {}
+    #   columnSizeObject[ 'columnSize' + zeroPadder 2, sheetIndex ] = sheet.length
+    #   @setState columnSizeObject
+
+    #   rowSizeObject = {}
+    #   rowSizeObject[ 'rowSize' + zeroPadder 2, sheetIndex ] = sheet[0].length
+    #   @setState rowSizeObject
+
+    #   _.forEach sheet, (column, columnIndex) =>
+    #     _.forEach column, (row, rowIndex) =>
+    #       dataKey  = 's' + zeroPadder 2, sheetIndex
+    #       dataKey += 'c' + zeroPadder 3, columnIndex
+    #       dataKey += 'r' + zeroPadder 3, rowIndex
+
+    #       dataObject = ( 
+    #         (a, b) -> 
+    #           output = {}
+    #           output[ b ] = a
+    #           output
+    #       )(row, dataKey)
+
+    #       @setState dataObject
 
 
   setCanvasDimensions: ->
@@ -125,7 +161,7 @@ Index = React.createClass
     workarea.width  = @state.windowWidth
     workarea.height = @state.windowHeight - (2 * (toolbarSize + 5))
 
-    @refreshWorkArea()
+    # @refreshWorkArea()
 
 
   handleResize: ->
@@ -158,20 +194,19 @@ Index = React.createClass
   refreshWorkArea: ->
     workarea      = document.getElementById 'workarea'
     workarea      = workarea.getContext '2d'
-    currentSheet  = @state.sheets[ @state.currentSheet ]
     sheetName     = @state.sheetNames[ @state.currentSheet ]
     cellColor     = hexToArray darkGray
     edgeColor     = hexToArray darkerGray
     selectedColor = hexToArray lighterGray
 
-    DrawOriginMark    currentSheet, workarea, glyphs, edgeColor, cell, sheetName
-    DrawColumnNames   currentSheet, workarea, glyphs, edgeColor, cell
-    DrawRowNames      currentSheet, workarea, glyphs, edgeColor, cell
-    DrawEveryCell     currentSheet, workarea, glyphs, cellColor, cell
-    DrawColumnOptions currentSheet, workarea, glyphs, edgeColor, cell, Assets
-    DrawRowOptions    currentSheet, workarea, glyphs, edgeColor, cell, Assets
+    DrawOriginMark    sheetName,              workarea, glyphs, edgeColor, cell
+    DrawColumnNames   Sheets[ currentSheet ], workarea, glyphs, edgeColor, cell
+    DrawRowNames      Sheets[ currentSheet ], workarea, glyphs, edgeColor, cell
+    DrawEveryCell     Sheets[ currentSheet ], workarea, glyphs, cellColor, cell
+    DrawColumnOptions Sheets[ currentSheet ], workarea, glyphs, edgeColor, cell, Assets
+    DrawRowOptions    Sheets[ currentSheet ], workarea, glyphs, edgeColor, cell, Assets
     for selectedCell in @state.selectedCells
-      DrawSelectedCell currentSheet, workarea, glyphs, selectedColor, cell, selectedCell
+      DrawSelectedCell Sheets[ currentSheet ], workarea, glyphs, selectedColor, cell, selectedCell
 
 
     # # pastin = =>
@@ -212,7 +247,7 @@ Index = React.createClass
 
 
   handleSaveAs: ->
-    csvs = ConvertToCSV @state.sheets
+    csvs = convertToCSVs @state.sheets
     csvs = _.map csvs, (csv) ->
       new Buffer csv, 'utf-8'
 
@@ -231,7 +266,7 @@ Index = React.createClass
     fileExporter.click()
 
   handleSave: ->
-    csvs = ConvertToCSV @state.sheets
+    csvs = convertToCSVs @state.sheets
     csvs = _.map csvs, (csv) ->
       new Buffer csv, 'utf-8'
 
@@ -263,20 +298,23 @@ Index = React.createClass
 
         if @state.justSelected
           @setState justSelected: false, =>
-            currentSheet  = @state.sheets[ @state.currentSheet ]
-            SC            = @state.selectedCells[0]
-            currentSheet[ SC[ 1 ] ][ SC[ 0 ] ] = Keys[ event.which ]
-            @state.sheets[ @state.currentSheet ] = currentSheet
-            @setState sheets: @state.sheets, =>
-              @refreshWorkArea()
-        else
-          @setState justSelected: false, =>
-            currentSheet  = @state.sheets[ @state.currentSheet ]
-            SC            = @state.selectedCells[0]
-            currentSheet[ SC[ 1 ] ][ SC[ 0 ] ] += Keys[ event.which ]
-            @state.sheets[ @state.currentSheet ] = currentSheet
-            @setState sheets: @state.sheets, =>
-              @refreshWorkArea()
+            # currentSheet  = @state.sheets[ @state.currentSheet ]
+            # SC            = @state.selectedCells[0]
+            # currentSheet[ SC[ 1 ] ][ SC[ 0 ] ] = Keys[ event.which ]
+            # @state.sheets[ @state.currentSheet ] = currentSheet
+            # datum = {}
+            # datum[ 's' + (zeroPadder 2, @state.currentSheet) + 'c' + (zeroPadder 3, @state.selectedCells[0][1]) + 'r' + (zeroPadder 3, @state.selectedCells[0][0] )] = Keys[event.which]
+            # console.log datum
+            # @setState datum, =>
+            #   @refreshWorkArea()
+        # else
+        #   @setState justSelected: false, =>
+        #     currentSheet  = @state.sheets[ @state.currentSheet ]
+        #     SC            = @state.selectedCells[0]
+        #     currentSheet[ SC[ 1 ] ][ SC[ 0 ] ] += Keys[ event.which ]
+        #     @state.sheets[ @state.currentSheet ] = currentSheet
+        #     @setState sheets: @state.sheets, =>
+        #       @refreshWorkArea()
 
 
   render: ->

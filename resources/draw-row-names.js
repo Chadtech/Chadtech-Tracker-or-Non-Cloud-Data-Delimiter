@@ -7,8 +7,8 @@
 
   drawABox = require('./draw-a-box.js');
 
-  module.exports = function(currentSheet, ctx, glyphs, color, cell) {
-    return _.forEach(currentSheet[0], function(row, rowIndex) {
+  module.exports = function(sheet, ctx, glyphs, color, cell) {
+    return _.forEach(sheet[0], function(row, rowIndex) {
       var textXOffset, xCor, yCor;
       xCor = cell.w;
       yCor = (rowIndex * (cell.h - 1)) + (cell.h * 2);

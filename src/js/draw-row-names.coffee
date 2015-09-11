@@ -5,9 +5,9 @@ _ = require 'lodash'
 {putPixel, hexToArray, drawText} = require './drawingUtilities.js'
 drawABox                         = require './draw-a-box.js'
 
-module.exports = (currentSheet, ctx, glyphs, color, cell) ->
+module.exports = (sheet, ctx, glyphs, color, cell) ->
 
-  _.forEach currentSheet[0], (row, rowIndex) ->
+  _.forEach sheet[0], (row, rowIndex) ->
 
     xCor = cell.w
     yCor = (rowIndex * (cell.h - 1)) + (cell.h * 2)

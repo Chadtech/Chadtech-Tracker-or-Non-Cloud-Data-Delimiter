@@ -2,12 +2,12 @@
 _ = require 'lodash'
 
 # Utilities
-{putPixel, hexToArray, drawText} = require './drawingUtilities.js'
-drawABox                         = require './draw-a-box.js'
+{drawText}    = require './drawingUtilities.js'
+drawABox      = require './draw-a-box.js'
 
-module.exports = (currentSheet, ctx, glyphs, color, cell) ->
+module.exports = (sheet, ctx, glyphs, color, cell) ->
 
-  _.forEach currentSheet, (column, columnIndex) ->
+  _.forEach sheet, (column, columnIndex) ->
 
     xCor = (columnIndex * (cell.w - 1)) + (cell.w * 2)
     yCor = cell.h

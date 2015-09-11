@@ -6,7 +6,7 @@ _ = require 'lodash'
 drawABox                                      = require './draw-a-box.js'
 
 
-module.exports = (currentSheet, ctx, glyphs, color, cell, sheetName) ->
+module.exports = (sheetName, ctx, glyphs, color, cell) ->
 
   xCor = 0
   yCor = 0

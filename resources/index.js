@@ -1,5 +1,5 @@
 (function() {
-  var AllCharacters, AssetLoader, Assets, ConvertToCSV, CoordinateIsElement, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawOriginMark, DrawRowNames, DrawRowOptions, DrawSelectedCell, Index, Keys, LoadGlyphs, React, _, a, borderGray, canvas, cell, darkGray, darkerGray, div, drawText, glyphs, gray, gui, hexToArray, img, injectionPoint, input, lighterGray, p, putPixel, ref, ref1, toolbarSize;
+  var AllCharacters, AssetLoader, Assets, CoordinateIsElement, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawOriginMark, DrawRowNames, DrawRowOptions, DrawSelectedCell, Index, Keys, LoadGlyphs, React, Sheets, _, a, borderGray, canvas, cell, convertToCSVs, currentSheet, darkGray, darkerGray, div, drawText, glyphs, gray, gui, hexToArray, img, injectionPoint, input, lighterGray, p, putPixel, ref, ref1, ref2, toolbarSize, zeroPadder;
 
   global.document = window.document;
 
@@ -17,7 +17,7 @@
 
   CoordinateIsElement = require('./coordinate-in-array.js');
 
-  ConvertToCSV = require('./convert-sheets-to-csvs.js');
+  ref2 = require('./general-utilities.js'), convertToCSVs = ref2.convertToCSVs, zeroPadder = ref2.zeroPadder;
 
   LoadGlyphs = require('./load-glyphs.js');
 
@@ -76,13 +76,16 @@
 
   Assets = AssetLoader();
 
+  currentSheet = 0;
+
+  Sheets = [[['34', '32', '31', '32', '34', '34', '32', '31', '32', '34'], ['32', '30', '31', '30', '32', '32', '30', '31', '30', '32'], ['B', '', 'S', 'S', '', 'B', '', 'S', 'S', ''], ['Loud', '', 'Quiet', '', '', 'Loud', '', 'Quiet', '', ''], ['34', '32', '31', '32', '34', '34', '32', '31', '32', '34'], ['32', '30', '31', '30', '32', '32', '30', '31', '30', '32'], ['B', '', 'S', 'S', '', 'B', '', 'S', 'S', ''], ['Loud', '', 'Quiet', '', '', 'Loud', '', 'Quiet', '', '']]];
+
   Index = React.createClass({
     getInitialState: function() {
       return {
         windowWidth: window.innerWidth,
         windowHeight: window.innerHeight,
         workareaHeight: window.innerHeight - (2 * toolbarSize),
-        sheets: [[['34', '32', '31', '32', '34', '34', '32', '31', '32', '34'], ['32', '30', '31', '30', '32', '32', '30', '31', '30', '32'], ['B', '', 'S', 'S', '', 'B', '', 'S', 'S', ''], ['Loud', '', 'Quiet', '', '', 'Loud', '', 'Quiet', '', ''], ['34', '32', '31', '32', '34', '34', '32', '31', '32', '34'], ['32', '30', '31', '30', '32', '32', '30', '31', '30', '32'], ['B', '', 'S', 'S', '', 'B', '', 'S', 'S', ''], ['Loud', '', 'Quiet', '', '', 'Loud', '', 'Quiet', '', '']]],
         sheetNames: ['dollars'],
         selectedCells: [[2, 1]],
         currentSheet: 0,
@@ -99,7 +102,7 @@
       this.setCanvasDimensions();
       this.drawToolBar0();
       this.drawToolBar1();
-      setTimeout(this.refreshWorkArea, 3000);
+      setTimeout(this.refreshWorkArea, 5000);
       fileExporter = document.getElementById('fileExporter');
       nwDir = window.document.createAttribute('nwdirectory');
       return fileExporter.setAttributeNode(nwDir);
@@ -114,8 +117,7 @@
       toolbar1.height = toolbarSize;
       workarea = document.getElementById('workarea');
       workarea.width = this.state.windowWidth;
-      workarea.height = this.state.windowHeight - (2 * (toolbarSize + 5));
-      return this.refreshWorkArea();
+      return workarea.height = this.state.windowHeight - (2 * (toolbarSize + 5));
     },
     handleResize: function() {
       return this.setState({
@@ -133,47 +135,46 @@
       })(this));
     },
     drawToolBar0: function() {
-      var borderColor, i, point, ref2, results, toolbar0;
+      var borderColor, i, point, ref3, results, toolbar0;
       toolbar0 = document.getElementById('toolbar0');
       toolbar0 = toolbar0.getContext('2d');
       results = [];
-      for (point = i = 0, ref2 = this.state.windowWidth - 1; 0 <= ref2 ? i <= ref2 : i >= ref2; point = 0 <= ref2 ? ++i : --i) {
+      for (point = i = 0, ref3 = this.state.windowWidth - 1; 0 <= ref3 ? i <= ref3 : i >= ref3; point = 0 <= ref3 ? ++i : --i) {
         borderColor = hexToArray(borderGray);
         results.push(putPixel(toolbar0, borderColor, [point, toolbarSize - 1]));
       }
       return results;
     },
     drawToolBar1: function() {
-      var borderColor, i, point, ref2, results, toolbar1;
+      var borderColor, i, point, ref3, results, toolbar1;
       toolbar1 = document.getElementById('toolbar1');
       toolbar1 = toolbar1.getContext('2d');
       results = [];
-      for (point = i = 0, ref2 = this.state.windowWidth - 1; 0 <= ref2 ? i <= ref2 : i >= ref2; point = 0 <= ref2 ? ++i : --i) {
+      for (point = i = 0, ref3 = this.state.windowWidth - 1; 0 <= ref3 ? i <= ref3 : i >= ref3; point = 0 <= ref3 ? ++i : --i) {
         borderColor = hexToArray(borderGray);
         results.push(putPixel(toolbar1, borderColor, [point, 0]));
       }
       return results;
     },
     refreshWorkArea: function() {
-      var cellColor, currentSheet, edgeColor, i, len, ref2, results, selectedCell, selectedColor, sheetName, workarea;
+      var cellColor, edgeColor, i, len, ref3, results, selectedCell, selectedColor, sheetName, workarea;
       workarea = document.getElementById('workarea');
       workarea = workarea.getContext('2d');
-      currentSheet = this.state.sheets[this.state.currentSheet];
       sheetName = this.state.sheetNames[this.state.currentSheet];
       cellColor = hexToArray(darkGray);
       edgeColor = hexToArray(darkerGray);
       selectedColor = hexToArray(lighterGray);
-      DrawOriginMark(currentSheet, workarea, glyphs, edgeColor, cell, sheetName);
-      DrawColumnNames(currentSheet, workarea, glyphs, edgeColor, cell);
-      DrawRowNames(currentSheet, workarea, glyphs, edgeColor, cell);
-      DrawEveryCell(currentSheet, workarea, glyphs, cellColor, cell);
-      DrawColumnOptions(currentSheet, workarea, glyphs, edgeColor, cell, Assets);
-      DrawRowOptions(currentSheet, workarea, glyphs, edgeColor, cell, Assets);
-      ref2 = this.state.selectedCells;
+      DrawOriginMark(sheetName, workarea, glyphs, edgeColor, cell);
+      DrawColumnNames(Sheets[currentSheet], workarea, glyphs, edgeColor, cell);
+      DrawRowNames(Sheets[currentSheet], workarea, glyphs, edgeColor, cell);
+      DrawEveryCell(Sheets[currentSheet], workarea, glyphs, cellColor, cell);
+      DrawColumnOptions(Sheets[currentSheet], workarea, glyphs, edgeColor, cell, Assets);
+      DrawRowOptions(Sheets[currentSheet], workarea, glyphs, edgeColor, cell, Assets);
+      ref3 = this.state.selectedCells;
       results = [];
-      for (i = 0, len = ref2.length; i < len; i++) {
-        selectedCell = ref2[i];
-        results.push(DrawSelectedCell(currentSheet, workarea, glyphs, selectedColor, cell, selectedCell));
+      for (i = 0, len = ref3.length; i < len; i++) {
+        selectedCell = ref3[i];
+        results.push(DrawSelectedCell(Sheets[currentSheet], workarea, glyphs, selectedColor, cell, selectedCell));
       }
       return results;
     },
@@ -213,7 +214,7 @@
     },
     handleSaveAs: function() {
       var csvs, fileExporter;
-      csvs = ConvertToCSV(this.state.sheets);
+      csvs = convertToCSVs(this.state.sheets);
       csvs = _.map(csvs, function(csv) {
         return new Buffer(csv, 'utf-8');
       });
@@ -237,7 +238,7 @@
     },
     handleSave: function() {
       var csvs;
-      csvs = ConvertToCSV(this.state.sheets);
+      csvs = convertToCSVs(this.state.sheets);
       csvs = _.map(csvs, function(csv) {
         return new Buffer(csv, 'utf-8');
       });
@@ -268,35 +269,7 @@
             return this.setState({
               justSelected: false
             }, (function(_this) {
-              return function() {
-                var SC, currentSheet;
-                currentSheet = _this.state.sheets[_this.state.currentSheet];
-                SC = _this.state.selectedCells[0];
-                currentSheet[SC[1]][SC[0]] = Keys[event.which];
-                _this.state.sheets[_this.state.currentSheet] = currentSheet;
-                return _this.setState({
-                  sheets: _this.state.sheets
-                }, function() {
-                  return _this.refreshWorkArea();
-                });
-              };
-            })(this));
-          } else {
-            return this.setState({
-              justSelected: false
-            }, (function(_this) {
-              return function() {
-                var SC, currentSheet;
-                currentSheet = _this.state.sheets[_this.state.currentSheet];
-                SC = _this.state.selectedCells[0];
-                currentSheet[SC[1]][SC[0]] += Keys[event.which];
-                _this.state.sheets[_this.state.currentSheet] = currentSheet;
-                return _this.setState({
-                  sheets: _this.state.sheets
-                }, function() {
-                  return _this.refreshWorkArea();
-                });
-              };
+              return function() {};
             })(this));
           }
         }

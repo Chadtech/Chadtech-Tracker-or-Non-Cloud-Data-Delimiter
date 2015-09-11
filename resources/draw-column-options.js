@@ -5,7 +5,7 @@
 
   ref = require('./drawingUtilities.js'), putPixel = ref.putPixel, hexToArray = ref.hexToArray, arrayToHex = ref.arrayToHex, drawText = ref.drawText;
 
-  module.exports = function(currentSheet, ctx, glyphs, color, cell, Assets) {
+  module.exports = function(sheet, ctx, glyphs, color, cell, Assets) {
     var xCalc, xCor, yCor;
     xCalc = (function(_this) {
       return function(index) {
@@ -13,13 +13,13 @@
       };
     })(this);
     yCor = 0;
-    _.forEach(currentSheet, function(column, columnIndex) {
+    _.forEach(sheet, function(column, columnIndex) {
       var xCor;
       xCor = xCalc(columnIndex);
       ctx.drawImage(Assets['X'][0], xCor + 35, yCor);
       return ctx.drawImage(Assets['<+'][0], xCor, yCor);
     });
-    xCor = xCalc(currentSheet.length);
+    xCor = xCalc(sheet.length);
     return ctx.drawImage(Assets['<+'][0], xCor, yCor);
   };
 
