@@ -1,5 +1,5 @@
 (function() {
-  var AllCharacters, AssetLoader, Assets, CoordinateIsElement, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawOriginMark, DrawRowNames, DrawRowOptions, DrawSelectedCell, Index, Keys, LoadGlyphs, React, Sheets, _, a, borderGray, canvas, cell, convertToCSVs, currentSheet, darkGray, darkerGray, div, drawText, glyphs, gray, gui, hexToArray, img, injectionPoint, input, lighterGray, p, putPixel, ref, ref1, ref2, toolbarSize, zeroPadder;
+  var AllCharacters, AssetLoader, Assets, CoordinateIsElement, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawNormalCell, DrawOriginMark, DrawRowNames, DrawRowOptions, DrawSelectedCell, Index, Keys, LoadGlyphs, React, Sheets, _, a, borderGray, canvas, cell, cellColor, convertToCSVs, currentSheet, darkGray, darkerGray, div, doNothing, drawText, edgeColor, glyphs, gray, gui, hexToArray, img, injectionPoint, input, justSelected, lighterGray, p, putPixel, ref, ref1, ref2, selectedCells, selectedColor, toolbarSize, zeroPadder;
 
   global.document = window.document;
 
@@ -17,7 +17,7 @@
 
   CoordinateIsElement = require('./coordinate-in-array.js');
 
-  ref2 = require('./general-utilities.js'), convertToCSVs = ref2.convertToCSVs, zeroPadder = ref2.zeroPadder;
+  ref2 = require('./general-utilities.js'), convertToCSVs = ref2.convertToCSVs, zeroPadder = ref2.zeroPadder, doNothing = ref2.doNothing;
 
   LoadGlyphs = require('./load-glyphs.js');
 
@@ -51,6 +51,8 @@
 
   DrawOriginMark = require('./draw-origin-mark.js');
 
+  DrawNormalCell = require('./draw-normal-cell.js');
+
   lighterGray = '#c0c0c0';
 
   gray = '#808080';
@@ -60,6 +62,12 @@
   darkerGray = '#202020';
 
   borderGray = '#101408';
+
+  cellColor = hexToArray(darkGray);
+
+  edgeColor = hexToArray(darkerGray);
+
+  selectedColor = hexToArray(lighterGray);
 
   glyphs = LoadGlyphs(AllCharacters);
 
@@ -80,6 +88,10 @@
 
   Sheets = [[['34', '32', '31', '32', '34', '34', '32', '31', '32', '34'], ['32', '30', '31', '30', '32', '32', '30', '31', '30', '32'], ['B', '', 'S', 'S', '', 'B', '', 'S', 'S', ''], ['Loud', '', 'Quiet', '', '', 'Loud', '', 'Quiet', '', ''], ['34', '32', '31', '32', '34', '34', '32', '31', '32', '34'], ['32', '30', '31', '30', '32', '32', '30', '31', '30', '32'], ['B', '', 'S', 'S', '', 'B', '', 'S', 'S', ''], ['Loud', '', 'Quiet', '', '', 'Loud', '', 'Quiet', '', '']]];
 
+  selectedCells = [[2, 3]];
+
+  justSelected = true;
+
   Index = React.createClass({
     getInitialState: function() {
       return {
@@ -87,11 +99,9 @@
         windowHeight: window.innerHeight,
         workareaHeight: window.innerHeight - (2 * toolbarSize),
         sheetNames: ['dollars'],
-        selectedCells: [[2, 1]],
         currentSheet: 0,
         rowNameRadix: 8,
-        filePath: '',
-        justSelected: true
+        filePath: ''
       };
     },
     componentDidMount: function() {
@@ -156,59 +166,62 @@
       }
       return results;
     },
+    drawSelectedCellsNormal: function() {
+      var i, len, results, selectedCell, workarea;
+      workarea = document.getElementById('workarea');
+      workarea = workarea.getContext('2d');
+      results = [];
+      for (i = 0, len = selectedCells.length; i < len; i++) {
+        selectedCell = selectedCells[i];
+        results.push(DrawNormalCell(Sheets[currentSheet], workarea, glyphs, cellColor, cell, selectedCell));
+      }
+      return results;
+    },
+    drawSelectedCellsSelected: function() {
+      var i, len, results, selectedCell, workarea;
+      workarea = document.getElementById('workarea');
+      workarea = workarea.getContext('2d');
+      results = [];
+      for (i = 0, len = selectedCells.length; i < len; i++) {
+        selectedCell = selectedCells[i];
+        results.push(DrawSelectedCell(Sheets[currentSheet], workarea, glyphs, selectedColor, cell, selectedCell));
+      }
+      return results;
+    },
     refreshWorkArea: function() {
-      var cellColor, edgeColor, i, len, ref3, results, selectedCell, selectedColor, sheetName, workarea;
+      var sheetName, workarea;
       workarea = document.getElementById('workarea');
       workarea = workarea.getContext('2d');
       sheetName = this.state.sheetNames[this.state.currentSheet];
-      cellColor = hexToArray(darkGray);
-      edgeColor = hexToArray(darkerGray);
-      selectedColor = hexToArray(lighterGray);
       DrawOriginMark(sheetName, workarea, glyphs, edgeColor, cell);
       DrawColumnNames(Sheets[currentSheet], workarea, glyphs, edgeColor, cell);
       DrawRowNames(Sheets[currentSheet], workarea, glyphs, edgeColor, cell);
       DrawEveryCell(Sheets[currentSheet], workarea, glyphs, cellColor, cell);
       DrawColumnOptions(Sheets[currentSheet], workarea, glyphs, edgeColor, cell, Assets);
       DrawRowOptions(Sheets[currentSheet], workarea, glyphs, edgeColor, cell, Assets);
-      ref3 = this.state.selectedCells;
-      results = [];
-      for (i = 0, len = ref3.length; i < len; i++) {
-        selectedCell = ref3[i];
-        results.push(DrawSelectedCell(Sheets[currentSheet], workarea, glyphs, selectedColor, cell, selectedCell));
-      }
-      return results;
+      return this.drawSelectedCellsSelected();
     },
     handleClickWorkArea: function(event) {
-      var mouseX, mouseY, whichCell;
+      var mouseX, mouseY, whichCell, workarea;
       mouseX = event.clientX;
       mouseY = event.clientY;
       mouseX -= cell.w;
       mouseY -= cell.h;
       mouseY -= toolbarSize + 5;
       whichCell = [(Math.floor(mouseY / cell.h)) - 1, (Math.floor(mouseX / cell.w)) - 1];
+      workarea = document.getElementById('workarea');
+      workarea = workarea.getContext('2d');
       if (!event.metaKey) {
         if (!((whichCell[0] < 0) || (whichCell[1] < 0))) {
-          return this.setState({
-            selectedCells: [whichCell]
-          }, (function(_this) {
-            return function() {
-              _this.refreshWorkArea();
-              return _this.setState({
-                justSelected: true
-              });
-            };
-          })(this));
+          this.drawSelectedCellsNormal();
+          selectedCells = [whichCell];
+          this.drawSelectedCellsSelected();
+          return justSelected = true;
         }
       } else {
-        if (!CoordinateIsElement(this.state.selectedCells, whichCell)) {
-          this.state.selectedCells.push(whichCell);
-          return this.setState({
-            selectedCells: this.state.selectedCells
-          }, (function(_this) {
-            return function() {
-              return _this.refreshWorkArea();
-            };
-          })(this));
+        if (!CoordinateIsElement(selectedCells, whichCell)) {
+          selectedCells.push(whichCell);
+          return DrawSelectedCell(Sheets[currentSheet], workarea, glyphs, selectedColor, cell, whichCell);
         }
       }
     },
@@ -255,6 +268,9 @@
     },
     onKeyUp: function(event) {},
     onKeyDown: function(event) {
+      var SC, workarea;
+      workarea = document.getElementById('workarea');
+      workarea = workarea.getContext('2d');
       if (event.metaKey) {
         if (event.which === Keys['s']) {
           if (this.state.filePath) {
@@ -264,13 +280,55 @@
           }
         }
       } else {
-        if (this.state.selectedCells.length === 1) {
-          if (this.state.justSelected) {
-            return this.setState({
-              justSelected: false
-            }, (function(_this) {
-              return function() {};
-            })(this));
+        if (selectedCells.length === 1) {
+          switch (event.which) {
+            case Keys['backspace']:
+              if (justSelected) {
+                justSelected = false;
+                SC = selectedCells[0];
+                Sheets[currentSheet][SC[1]][SC[0]] = '';
+                return DrawSelectedCell(Sheets[currentSheet], workarea, glyphs, selectedColor, cell, SC);
+              } else {
+                SC = selectedCells[0];
+                Sheets[currentSheet][SC[1]][SC[0]] = '';
+                return DrawSelectedCell(Sheets[currentSheet], workarea, glyphs, selectedColor, cell, SC);
+              }
+              break;
+            case Keys['down']:
+              justSelected = true;
+              this.drawSelectedCellsNormal();
+              selectedCells[0][0]++;
+              return this.drawSelectedCellsSelected();
+            case Keys['up']:
+              justSelected = true;
+              this.drawSelectedCellsNormal();
+              selectedCells[0][0]--;
+              return this.drawSelectedCellsSelected();
+            case Keys['right']:
+              justSelected = true;
+              this.drawSelectedCellsNormal();
+              selectedCells[0][1]++;
+              return this.drawSelectedCellsSelected();
+            case Keys['left']:
+              justSelected = true;
+              this.drawSelectedCellsNormal();
+              selectedCells[0][1]--;
+              return this.drawSelectedCellsSelected();
+            case Keys['ctrl']:
+              return doNothing();
+            case Keys['shift']:
+              return doNothing();
+            default:
+              if (justSelected) {
+                justSelected = false;
+                SC = selectedCells[0];
+                Sheets[currentSheet][SC[1]][SC[0]] = Keys[event.which];
+                return DrawSelectedCell(Sheets[currentSheet], workarea, glyphs, selectedColor, cell, SC);
+              } else {
+                SC = selectedCells[0];
+                Sheets[currentSheet][SC[1]][SC[0]] += Keys[event.which];
+                return DrawSelectedCell(Sheets[currentSheet], workarea, glyphs, selectedColor, cell, SC);
+              }
           }
         }
       }

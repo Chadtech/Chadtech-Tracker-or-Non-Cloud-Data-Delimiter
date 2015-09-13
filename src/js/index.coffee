@@ -15,7 +15,7 @@ gui      = require 'nw.gui'
 # Utilities
 {putPixel, hexToArray, drawText} = require './drawingUtilities.js'
 CoordinateIsElement              = require './coordinate-in-array.js'
-{convertToCSVs, zeroPadder }     = require './general-utilities.js'
+{convertToCSVs, zeroPadder, doNothing }     = require './general-utilities.js'
 
 # Dependencies
 LoadGlyphs    = require './load-glyphs.js'
@@ -41,6 +41,7 @@ DrawSelectedCell  = require './draw-selected-cell.js'
 DrawColumnOptions = require './draw-column-options.js'
 DrawRowOptions    = require './draw-row-options.js'
 DrawOriginMark    = require './draw-origin-mark.js'
+DrawNormalCell    = require './draw-normal-cell.js'
 
 
 # Colors
@@ -49,6 +50,10 @@ gray        = '#808080'
 darkGray    = '#404040'
 darkerGray  = '#202020'
 borderGray  = '#101408'
+
+cellColor     = hexToArray darkGray
+edgeColor     = hexToArray darkerGray
+selectedColor = hexToArray lighterGray
 
 
 # Images for each character
@@ -70,7 +75,7 @@ Assets = AssetLoader()
 
 # Default Data for Development
 currentSheet = 0
-Sheets = [[ 
+Sheets = [ [ 
           [ '34', '32', '31', '32', '34', '34', '32', '31', '32', '34' ] 
           [ '32', '30', '31', '30', '32', '32', '30', '31', '30', '32' ] 
           [ 'B',  '',   'S',  'S',  '', 'B',  '',   'S',  'S',  ''   ] 
@@ -79,8 +84,9 @@ Sheets = [[
           [ '32', '30', '31', '30', '32', '32', '30', '31', '30', '32' ] 
           [ 'B',  '',   'S',  'S',  '', 'B',  '',   'S',  'S',  ''   ] 
           [ 'Loud',  '', 'Quiet',  '',  '' , 'Loud',  '', 'Quiet',  '',  ''   ] 
-        ]]
-
+        ] ]
+selectedCells = [ [ 2, 3] ]
+justSelected = true
 
 
 
@@ -92,11 +98,10 @@ Index = React.createClass
     windowHeight:   window.innerHeight
     workareaHeight: window.innerHeight - (2 * toolbarSize)
     sheetNames:     [ 'dollars' ]
-    selectedCells:  [ [ 2, 1 ] ]
     currentSheet:   0
     rowNameRadix:   8
     filePath:       ''
-    justSelected:   true
+
 
 
   componentDidMount: ->
@@ -191,13 +196,23 @@ Index = React.createClass
       putPixel toolbar1, borderColor, [ point, 0 ]
 
 
+  drawSelectedCellsNormal: ->
+    workarea = document.getElementById 'workarea'
+    workarea = workarea.getContext '2d'
+    for selectedCell in selectedCells
+      DrawNormalCell Sheets[ currentSheet ], workarea, glyphs, cellColor, cell, selectedCell      
+
+
+  drawSelectedCellsSelected: ->
+    workarea = document.getElementById 'workarea'
+    workarea = workarea.getContext '2d'
+    for selectedCell in selectedCells
+      DrawSelectedCell Sheets[ currentSheet ], workarea, glyphs, selectedColor, cell, selectedCell
+
   refreshWorkArea: ->
-    workarea      = document.getElementById 'workarea'
-    workarea      = workarea.getContext '2d'
-    sheetName     = @state.sheetNames[ @state.currentSheet ]
-    cellColor     = hexToArray darkGray
-    edgeColor     = hexToArray darkerGray
-    selectedColor = hexToArray lighterGray
+    workarea  = document.getElementById 'workarea'
+    workarea  = workarea.getContext '2d'
+    sheetName = @state.sheetNames[ @state.currentSheet ]
 
     DrawOriginMark    sheetName,              workarea, glyphs, edgeColor, cell
     DrawColumnNames   Sheets[ currentSheet ], workarea, glyphs, edgeColor, cell
@@ -205,9 +220,7 @@ Index = React.createClass
     DrawEveryCell     Sheets[ currentSheet ], workarea, glyphs, cellColor, cell
     DrawColumnOptions Sheets[ currentSheet ], workarea, glyphs, edgeColor, cell, Assets
     DrawRowOptions    Sheets[ currentSheet ], workarea, glyphs, edgeColor, cell, Assets
-    for selectedCell in @state.selectedCells
-      DrawSelectedCell Sheets[ currentSheet ], workarea, glyphs, selectedColor, cell, selectedCell
-
+    @drawSelectedCellsSelected()
 
     # # pastin = =>
     # middleX = 400
@@ -233,17 +246,21 @@ Index = React.createClass
       (mouseY // cell.h) - 1
       (mouseX // cell.w) - 1
     ]
+    
+    workarea = document.getElementById 'workarea'
+    workarea = workarea.getContext '2d'
 
     if not event.metaKey
       unless (whichCell[0] < 0) or (whichCell[1] < 0)
-        @setState selectedCells: [ whichCell ], =>
-          @refreshWorkArea()
-          @setState justSelected: true
+        @drawSelectedCellsNormal()   
+        selectedCells = [ whichCell ]
+        @drawSelectedCellsSelected()
+        justSelected = true
     else
-      unless CoordinateIsElement @state.selectedCells, whichCell
-        @state.selectedCells.push whichCell
-        @setState selectedCells: @state.selectedCells, =>
-          @refreshWorkArea()
+      unless CoordinateIsElement selectedCells, whichCell
+        selectedCells.push whichCell
+        DrawSelectedCell Sheets[ currentSheet ], workarea, glyphs, selectedColor, cell, whichCell
+
 
 
   handleSaveAs: ->
@@ -284,6 +301,10 @@ Index = React.createClass
     #     console.log 'command is marked Up'
 
   onKeyDown: (event) ->
+
+    workarea  = document.getElementById 'workarea'
+    workarea  = workarea.getContext '2d'   
+    
     if event.metaKey
 
       if event.which is Keys['s']
@@ -294,27 +315,64 @@ Index = React.createClass
 
     else
       
-      if @state.selectedCells.length is 1
+      if selectedCells.length is 1
 
-        if @state.justSelected
-          @setState justSelected: false, =>
-            # currentSheet  = @state.sheets[ @state.currentSheet ]
-            # SC            = @state.selectedCells[0]
-            # currentSheet[ SC[ 1 ] ][ SC[ 0 ] ] = Keys[ event.which ]
-            # @state.sheets[ @state.currentSheet ] = currentSheet
-            # datum = {}
-            # datum[ 's' + (zeroPadder 2, @state.currentSheet) + 'c' + (zeroPadder 3, @state.selectedCells[0][1]) + 'r' + (zeroPadder 3, @state.selectedCells[0][0] )] = Keys[event.which]
-            # console.log datum
-            # @setState datum, =>
-            #   @refreshWorkArea()
-        # else
-        #   @setState justSelected: false, =>
-        #     currentSheet  = @state.sheets[ @state.currentSheet ]
-        #     SC            = @state.selectedCells[0]
-        #     currentSheet[ SC[ 1 ] ][ SC[ 0 ] ] += Keys[ event.which ]
-        #     @state.sheets[ @state.currentSheet ] = currentSheet
-        #     @setState sheets: @state.sheets, =>
-        #       @refreshWorkArea()
+        switch event.which
+
+          when Keys['backspace']
+            if justSelected
+              justSelected = false
+              SC = selectedCells[0]
+              Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = ''
+              DrawSelectedCell Sheets[ currentSheet ], workarea, glyphs, selectedColor, cell, SC
+            else
+              SC = selectedCells[0]
+              Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = ''
+              DrawSelectedCell Sheets[ currentSheet ], workarea, glyphs, selectedColor, cell, SC
+
+          when Keys['down']
+            justSelected = true
+            @drawSelectedCellsNormal()
+            selectedCells[0][0]++
+            @drawSelectedCellsSelected()
+          
+          when Keys['up']
+            justSelected = true
+            @drawSelectedCellsNormal()
+            selectedCells[0][0]--
+            @drawSelectedCellsSelected()
+
+          when Keys['right']
+            justSelected = true
+            @drawSelectedCellsNormal()
+            selectedCells[0][1]++
+            @drawSelectedCellsSelected()
+          
+          when Keys['left']
+            justSelected = true
+            @drawSelectedCellsNormal()
+            selectedCells[0][1]--
+            @drawSelectedCellsSelected()
+
+          when Keys['ctrl'] then doNothing()
+
+          when Keys['shift'] then doNothing()
+
+
+
+
+          else
+            if justSelected
+              justSelected = false
+              SC = selectedCells[0]
+              Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = Keys[ event.which ]
+              DrawSelectedCell Sheets[ currentSheet ], workarea, glyphs, selectedColor, cell, SC
+            else
+              SC = selectedCells[0]
+              Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] += Keys[ event.which ]
+              DrawSelectedCell Sheets[ currentSheet ], workarea, glyphs, selectedColor, cell, SC
+       
+
 
 
   render: ->
