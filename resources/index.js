@@ -1,5 +1,5 @@
 (function() {
-  var AllCharacters, AssetLoader, Assets, CoordinateIsElement, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawNormalCell, DrawOriginMark, DrawRowNames, DrawRowOptions, DrawSelectedCell, Index, Keys, LoadGlyphs, React, Sheets, _, a, borderGray, canvas, cell, cellColor, convertToCSVs, currentSheet, darkGray, darkerGray, div, doNothing, drawText, edgeColor, glyphs, gray, gui, hexToArray, img, injectionPoint, input, justSelected, lighterGray, p, putPixel, ref, ref1, ref2, selectedCells, selectedColor, toolbarSize, zeroPadder;
+  var AllCharacters, AssetLoader, Assets, CoordinateIsElement, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawNormalCell, DrawOriginMark, DrawRowNames, DrawRowOptions, DrawSelectedCell, Glyphs, Index, Keys, LoadGlyphs, React, Sheets, _, a, borderGray, canvas, cell, cellColor, convertToCSVs, currentSheet, darkGray, darkerGray, div, doNothing, drawText, edgeColor, gray, gui, hexToArray, img, injectionPoint, input, justSelected, lighterGray, p, putPixel, ref, ref1, ref2, selectedCells, selectedColor, toolbarSize, zeroPadder;
 
   global.document = window.document;
 
@@ -19,7 +19,7 @@
 
   ref2 = require('./general-utilities.js'), convertToCSVs = ref2.convertToCSVs, zeroPadder = ref2.zeroPadder, doNothing = ref2.doNothing;
 
-  LoadGlyphs = require('./load-glyphs.js');
+  LoadGlyphs = require('./load-Glyphs.js');
 
   AssetLoader = require('./load-assets.js');
 
@@ -69,20 +69,16 @@
 
   selectedColor = hexToArray(lighterGray);
 
-  glyphs = LoadGlyphs(AllCharacters);
-
-  glyphs.characterWidth = 11;
-
-  glyphs.characterHeight = 19;
+  Glyphs = void 0;
 
   toolbarSize = 35;
 
   cell = {
-    w: 6 + (glyphs.characterWidth * 5),
-    h: 7 + glyphs.characterHeight
+    w: 6 + (11 * 5),
+    h: 7 + 19
   };
 
-  Assets = AssetLoader();
+  Assets = void 0;
 
   currentSheet = 0;
 
@@ -105,17 +101,30 @@
       };
     },
     componentDidMount: function() {
-      var fileExporter, nwDir;
-      gui.Window.get().on('resize', this.handleResize);
-      document.addEventListener('keyup', this.onKeyUp);
-      document.addEventListener('keydown', this.onKeyDown);
-      this.setCanvasDimensions();
-      this.drawToolBar0();
-      this.drawToolBar1();
-      setTimeout(this.refreshWorkArea, 5000);
-      fileExporter = document.getElementById('fileExporter');
-      nwDir = window.document.createAttribute('nwdirectory');
-      return fileExporter.setAttributeNode(nwDir);
+      var init, next;
+      init = (function(_this) {
+        return function() {
+          var fileExporter, nwDir;
+          gui.Window.get().on('resize', _this.handleResize);
+          document.addEventListener('keyup', _this.onKeyUp);
+          document.addEventListener('keydown', _this.onKeyDown);
+          _this.setCanvasDimensions();
+          _this.drawToolBar0();
+          _this.drawToolBar1();
+          _this.refreshWorkArea();
+          fileExporter = document.getElementById('fileExporter');
+          nwDir = window.document.createAttribute('nwdirectory');
+          return fileExporter.setAttributeNode(nwDir);
+        };
+      })(this);
+      next = (function(_this) {
+        return function() {
+          return Assets = AssetLoader(init);
+        };
+      })(this);
+      Glyphs = LoadGlyphs(AllCharacters, next);
+      Glyphs.characterWidth = 11;
+      return Glyphs.characterHeight = 19;
     },
     setCanvasDimensions: function() {
       var toolbar0, toolbar1, workarea;
@@ -173,7 +182,7 @@
       results = [];
       for (i = 0, len = selectedCells.length; i < len; i++) {
         selectedCell = selectedCells[i];
-        results.push(DrawNormalCell(Sheets[currentSheet], workarea, glyphs, cellColor, cell, selectedCell));
+        results.push(DrawNormalCell(Sheets[currentSheet], workarea, Glyphs, cellColor, cell, selectedCell));
       }
       return results;
     },
@@ -184,7 +193,7 @@
       results = [];
       for (i = 0, len = selectedCells.length; i < len; i++) {
         selectedCell = selectedCells[i];
-        results.push(DrawSelectedCell(Sheets[currentSheet], workarea, glyphs, selectedColor, cell, selectedCell));
+        results.push(DrawSelectedCell(Sheets[currentSheet], workarea, Glyphs, selectedColor, cell, selectedCell));
       }
       return results;
     },
@@ -193,12 +202,12 @@
       workarea = document.getElementById('workarea');
       workarea = workarea.getContext('2d');
       sheetName = this.state.sheetNames[this.state.currentSheet];
-      DrawOriginMark(sheetName, workarea, glyphs, edgeColor, cell);
-      DrawColumnNames(Sheets[currentSheet], workarea, glyphs, edgeColor, cell);
-      DrawRowNames(Sheets[currentSheet], workarea, glyphs, edgeColor, cell);
-      DrawEveryCell(Sheets[currentSheet], workarea, glyphs, cellColor, cell);
-      DrawColumnOptions(Sheets[currentSheet], workarea, glyphs, edgeColor, cell, Assets);
-      DrawRowOptions(Sheets[currentSheet], workarea, glyphs, edgeColor, cell, Assets);
+      DrawOriginMark(sheetName, workarea, Glyphs, edgeColor, cell);
+      DrawColumnNames(Sheets[currentSheet], workarea, Glyphs, edgeColor, cell);
+      DrawRowNames(Sheets[currentSheet], workarea, Glyphs, edgeColor, cell);
+      DrawEveryCell(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
+      DrawColumnOptions(Sheets[currentSheet], workarea, Glyphs, edgeColor, cell, Assets);
+      DrawRowOptions(Sheets[currentSheet], workarea, Glyphs, edgeColor, cell, Assets);
       return this.drawSelectedCellsSelected();
     },
     handleClickWorkArea: function(event) {
@@ -221,7 +230,7 @@
       } else {
         if (!CoordinateIsElement(selectedCells, whichCell)) {
           selectedCells.push(whichCell);
-          return DrawSelectedCell(Sheets[currentSheet], workarea, glyphs, selectedColor, cell, whichCell);
+          return DrawSelectedCell(Sheets[currentSheet], workarea, Glyphs, selectedColor, cell, whichCell);
         }
       }
     },
@@ -287,11 +296,11 @@
                 justSelected = false;
                 SC = selectedCells[0];
                 Sheets[currentSheet][SC[1]][SC[0]] = '';
-                return DrawSelectedCell(Sheets[currentSheet], workarea, glyphs, selectedColor, cell, SC);
+                return DrawSelectedCell(Sheets[currentSheet], workarea, Glyphs, selectedColor, cell, SC);
               } else {
                 SC = selectedCells[0];
                 Sheets[currentSheet][SC[1]][SC[0]] = '';
-                return DrawSelectedCell(Sheets[currentSheet], workarea, glyphs, selectedColor, cell, SC);
+                return DrawSelectedCell(Sheets[currentSheet], workarea, Glyphs, selectedColor, cell, SC);
               }
               break;
             case Keys['down']:
@@ -323,11 +332,11 @@
                 justSelected = false;
                 SC = selectedCells[0];
                 Sheets[currentSheet][SC[1]][SC[0]] = Keys[event.which];
-                return DrawSelectedCell(Sheets[currentSheet], workarea, glyphs, selectedColor, cell, SC);
+                return DrawSelectedCell(Sheets[currentSheet], workarea, Glyphs, selectedColor, cell, SC);
               } else {
                 SC = selectedCells[0];
                 Sheets[currentSheet][SC[1]][SC[0]] += Keys[event.which];
-                return DrawSelectedCell(Sheets[currentSheet], workarea, glyphs, selectedColor, cell, SC);
+                return DrawSelectedCell(Sheets[currentSheet], workarea, Glyphs, selectedColor, cell, SC);
               }
           }
         }

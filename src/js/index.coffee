@@ -18,7 +18,7 @@ CoordinateIsElement              = require './coordinate-in-array.js'
 {convertToCSVs, zeroPadder, doNothing }     = require './general-utilities.js'
 
 # Dependencies
-LoadGlyphs    = require './load-glyphs.js'
+LoadGlyphs    = require './load-Glyphs.js'
 AssetLoader   = require './load-assets.js'
 AllCharacters = require './all-characters.js'
 Keys          = ((Keys) -> 
@@ -57,20 +57,21 @@ selectedColor = hexToArray lighterGray
 
 
 # Images for each character
-glyphs                  = LoadGlyphs AllCharacters
-glyphs.characterWidth   = 11
-glyphs.characterHeight  = 19
+Glyphs = undefined
+# Glyphs                  = LoadGlyphs AllCharacters
+# Glyphs.characterWidth   = 11
+# Glyphs.characterHeight  = 19
 
 
 # Dimensions
 toolbarSize = 35
 cell =
-  w: 6 + (glyphs.characterWidth * 5)
-  h: 7 + glyphs.characterHeight
+  w: 6 + (11 * 5)
+  h: 7 + 19
 
 
 # Assets
-Assets = AssetLoader()
+Assets = undefined 
 
 
 # Default Data for Development
@@ -105,20 +106,30 @@ Index = React.createClass
 
 
   componentDidMount: ->
-    gui.Window.get().on 'resize', @handleResize
 
-    document.addEventListener 'keyup',   @onKeyUp
-    document.addEventListener 'keydown', @onKeyDown
 
-    @setCanvasDimensions()
-    @drawToolBar0()
-    @drawToolBar1()
-    setTimeout @refreshWorkArea, 5000
 
-    fileExporter = document.getElementById 'fileExporter'
-    nwDir        = window.document.createAttribute 'nwdirectory'
-    fileExporter.setAttributeNode nwDir
+    init = =>
+      gui.Window.get().on 'resize', @handleResize
 
+      document.addEventListener 'keyup',   @onKeyUp
+      document.addEventListener 'keydown', @onKeyDown
+
+      @setCanvasDimensions()
+      @drawToolBar0()
+      @drawToolBar1()
+      @refreshWorkArea()
+
+      fileExporter = document.getElementById 'fileExporter'
+      nwDir        = window.document.createAttribute 'nwdirectory'
+      fileExporter.setAttributeNode nwDir
+
+    next = =>
+      Assets = AssetLoader init
+
+    Glyphs                 = LoadGlyphs AllCharacters, next
+    Glyphs.characterWidth  = 11
+    Glyphs.characterHeight = 19
     # @setState a: ''
     # @setState a: ''
     # @setState a: ''
@@ -204,26 +215,26 @@ Index = React.createClass
     workarea = document.getElementById 'workarea'
     workarea = workarea.getContext '2d'
     for selectedCell in selectedCells
-      DrawNormalCell Sheets[ currentSheet ], workarea, glyphs, cellColor, cell, selectedCell      
+      DrawNormalCell Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell, selectedCell      
 
 
   drawSelectedCellsSelected: ->
     workarea = document.getElementById 'workarea'
     workarea = workarea.getContext '2d'
     for selectedCell in selectedCells
-      DrawSelectedCell Sheets[ currentSheet ], workarea, glyphs, selectedColor, cell, selectedCell
+      DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, selectedCell
 
   refreshWorkArea: ->
     workarea  = document.getElementById 'workarea'
     workarea  = workarea.getContext '2d'
     sheetName = @state.sheetNames[ @state.currentSheet ]
 
-    DrawOriginMark    sheetName,              workarea, glyphs, edgeColor, cell
-    DrawColumnNames   Sheets[ currentSheet ], workarea, glyphs, edgeColor, cell
-    DrawRowNames      Sheets[ currentSheet ], workarea, glyphs, edgeColor, cell
-    DrawEveryCell     Sheets[ currentSheet ], workarea, glyphs, cellColor, cell
-    DrawColumnOptions Sheets[ currentSheet ], workarea, glyphs, edgeColor, cell, Assets
-    DrawRowOptions    Sheets[ currentSheet ], workarea, glyphs, edgeColor, cell, Assets
+    DrawOriginMark    sheetName,              workarea, Glyphs, edgeColor, cell
+    DrawColumnNames   Sheets[ currentSheet ], workarea, Glyphs, edgeColor, cell
+    DrawRowNames      Sheets[ currentSheet ], workarea, Glyphs, edgeColor, cell
+    DrawEveryCell     Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+    DrawColumnOptions Sheets[ currentSheet ], workarea, Glyphs, edgeColor, cell, Assets
+    DrawRowOptions    Sheets[ currentSheet ], workarea, Glyphs, edgeColor, cell, Assets
     @drawSelectedCellsSelected()
 
     # # pastin = =>
@@ -235,7 +246,7 @@ Index = React.createClass
 
     # # for messageIndex in [ 0 .. messages.length - 1 ]
     # #   message = messages[ messageIndex ]
-    # drawText workarea, glyphs, 2, messages[0], [ middleX, middleY ]
+    # drawText workarea, Glyphs, 2, messages[0], [ middleX, middleY ]
 
     # setTimeout pastin, 3000
 
@@ -263,7 +274,7 @@ Index = React.createClass
     else
       unless CoordinateIsElement selectedCells, whichCell
         selectedCells.push whichCell
-        DrawSelectedCell Sheets[ currentSheet ], workarea, glyphs, selectedColor, cell, whichCell
+        DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, whichCell
 
 
 
@@ -328,11 +339,11 @@ Index = React.createClass
               justSelected = false
               SC = selectedCells[0]
               Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = ''
-              DrawSelectedCell Sheets[ currentSheet ], workarea, glyphs, selectedColor, cell, SC
+              DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, SC
             else
               SC = selectedCells[0]
               Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = ''
-              DrawSelectedCell Sheets[ currentSheet ], workarea, glyphs, selectedColor, cell, SC
+              DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, SC
 
           when Keys['down']
             justSelected = true
@@ -370,11 +381,11 @@ Index = React.createClass
               justSelected = false
               SC = selectedCells[0]
               Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = Keys[ event.which ]
-              DrawSelectedCell Sheets[ currentSheet ], workarea, glyphs, selectedColor, cell, SC
+              DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, SC
             else
               SC = selectedCells[0]
               Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] += Keys[ event.which ]
-              DrawSelectedCell Sheets[ currentSheet ], workarea, glyphs, selectedColor, cell, SC
+              DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, SC
        
 
 

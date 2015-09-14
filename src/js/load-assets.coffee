@@ -1,28 +1,30 @@
-module.exports = ->
+module.exports = (next) ->
 
   image = ->
     document.createElement 'IMG'
 
   assets = {}
 
-  assets[ 'X' ]           = [ image(), image() ]
-  assets[ 'X' ][0].src    = './x-button.png'
-  assets[ 'X' ][1].src    = './x-button-selected.png'
+  totalNumberOfAssets   = 10
+  numberOfAssetsLoaded = 0
 
-  assets[ '<+' ]          = [ image(), image() ]
-  assets[ '<+' ][0].src   = './add-column-button.png'
-  assets[ '<+' ][1].src   = './add-column-button-selected.png'
+  checkForNext = =>
+    numberOfAssetsLoaded++
+    if numberOfAssetsLoaded is totalNumberOfAssets
+      console.log 'DOING NEXT'
+      next()
 
-  assets[ '^+' ]          = [ image(), image() ]
-  assets[ '^+' ][0].src   = './add-row-button.png'
-  assets[ '^+' ][1].src   = './add-row-button-selected.png'
+  load = (key, name) =>
+    assets[ key ] = [ image(), image() ]
+    assets[ key ][0].src    = './' + name + '.png'
+    assets[ key ][0].onload = checkForNext
+    assets[ key ][1].src    = './' + name + '-selected.png'
+    assets[ key ][1].onload = checkForNext
 
-  assets[ 'save']        = [ image(), image() ]
-  assets[ 'save'][0].src = './save.png'
-  assets[ 'save'][1].src = './save-selected.png'
-
-  assets[ 'open']        = [ image(), image() ]
-  assets[ 'open'][0].src = './open.png'
-  assets[ 'open'][1].src = './open-selected.png'
+  load 'X', 'x-button'
+  load '<+', 'add-column-button'
+  load '^+', 'add-row-button'
+  load 'save', 'save'
+  load 'open', 'open'
 
   assets

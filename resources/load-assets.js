@@ -1,25 +1,35 @@
 (function() {
-  module.exports = function() {
-    var assets, image;
+  module.exports = function(next) {
+    var assets, checkForNext, image, load, numberOfAssetsLoaded, totalNumberOfAssets;
     image = function() {
       return document.createElement('IMG');
     };
     assets = {};
-    assets['X'] = [image(), image()];
-    assets['X'][0].src = './x-button.png';
-    assets['X'][1].src = './x-button-selected.png';
-    assets['<+'] = [image(), image()];
-    assets['<+'][0].src = './add-column-button.png';
-    assets['<+'][1].src = './add-column-button-selected.png';
-    assets['^+'] = [image(), image()];
-    assets['^+'][0].src = './add-row-button.png';
-    assets['^+'][1].src = './add-row-button-selected.png';
-    assets['save'] = [image(), image()];
-    assets['save'][0].src = './save.png';
-    assets['save'][1].src = './save-selected.png';
-    assets['open'] = [image(), image()];
-    assets['open'][0].src = './open.png';
-    assets['open'][1].src = './open-selected.png';
+    totalNumberOfAssets = 10;
+    numberOfAssetsLoaded = 0;
+    checkForNext = (function(_this) {
+      return function() {
+        numberOfAssetsLoaded++;
+        if (numberOfAssetsLoaded === totalNumberOfAssets) {
+          console.log('DOING NEXT');
+          return next();
+        }
+      };
+    })(this);
+    load = (function(_this) {
+      return function(key, name) {
+        assets[key] = [image(), image()];
+        assets[key][0].src = './' + name + '.png';
+        assets[key][0].onload = checkForNext;
+        assets[key][1].src = './' + name + '-selected.png';
+        return assets[key][1].onload = checkForNext;
+      };
+    })(this);
+    load('X', 'x-button');
+    load('<+', 'add-column-button');
+    load('^+', 'add-row-button');
+    load('save', 'save');
+    load('open', 'open');
     return assets;
   };
 

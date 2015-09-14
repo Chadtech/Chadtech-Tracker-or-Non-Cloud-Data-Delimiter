@@ -3,8 +3,8 @@
 
   _ = require('lodash');
 
-  module.exports = function(allCharacters) {
-    var characters, image;
+  module.exports = function(allCharacters, next) {
+    var characters, image, numberOfLoadedGlyphs, totalNumberOfGlyphs;
     image = function() {
       return document.createElement('IMG');
     };
@@ -17,6 +17,8 @@
         4: {}
       }
     };
+    totalNumberOfGlyphs = 5 * allCharacters.length;
+    numberOfLoadedGlyphs = 0;
     _.forEach([0, 1, 2, 3, 4], function(CS) {
       return _.forEach(allCharacters, function(character, characterIndex) {
         var fileName, fontName;
@@ -27,7 +29,15 @@
         }
         fontName = './hfnssC' + CS + '/hfnssC' + CS + '_';
         fileName = fontName + fileName + '.png';
-        return characters.images[CS][character].src = fileName;
+        characters.images[CS][character].src = fileName;
+        return characters.images[CS][character].onload = (function(_this) {
+          return function() {
+            numberOfLoadedGlyphs++;
+            if (numberOfLoadedGlyphs === totalNumberOfGlyphs) {
+              return next();
+            }
+          };
+        })(this);
       });
     });
     return characters;
