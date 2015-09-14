@@ -63,7 +63,7 @@ glyphs.characterHeight  = 19
 
 
 # Dimensions
-toolbarSize = 52
+toolbarSize = 35
 cell =
   w: 6 + (glyphs.characterWidth * 5)
   h: 7 + glyphs.characterHeight
@@ -185,6 +185,10 @@ Index = React.createClass
     for point in [ 0 .. @state.windowWidth - 1 ]
       borderColor = hexToArray borderGray
       putPixel toolbar0, borderColor, [ point, toolbarSize - 1 ]
+
+
+    toolbar0.drawImage Assets[ 'open' ][0], 5, 5
+    toolbar0.drawImage Assets[ 'save' ][0], 58, 5
 
 
   drawToolBar1: ->

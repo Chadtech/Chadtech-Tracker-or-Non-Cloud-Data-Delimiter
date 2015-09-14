@@ -75,7 +75,7 @@
 
   glyphs.characterHeight = 19;
 
-  toolbarSize = 52;
+  toolbarSize = 35;
 
   cell = {
     w: 6 + (glyphs.characterWidth * 5),
@@ -145,15 +145,15 @@
       })(this));
     },
     drawToolBar0: function() {
-      var borderColor, i, point, ref3, results, toolbar0;
+      var borderColor, i, point, ref3, toolbar0;
       toolbar0 = document.getElementById('toolbar0');
       toolbar0 = toolbar0.getContext('2d');
-      results = [];
       for (point = i = 0, ref3 = this.state.windowWidth - 1; 0 <= ref3 ? i <= ref3 : i >= ref3; point = 0 <= ref3 ? ++i : --i) {
         borderColor = hexToArray(borderGray);
-        results.push(putPixel(toolbar0, borderColor, [point, toolbarSize - 1]));
+        putPixel(toolbar0, borderColor, [point, toolbarSize - 1]);
       }
-      return results;
+      toolbar0.drawImage(Assets['open'][0], 5, 5);
+      return toolbar0.drawImage(Assets['save'][0], 58, 5);
     },
     drawToolBar1: function() {
       var borderColor, i, point, ref3, results, toolbar1;
