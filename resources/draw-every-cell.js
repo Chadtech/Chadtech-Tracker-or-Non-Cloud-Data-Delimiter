@@ -15,11 +15,10 @@
       return (index * (dimension - 1)) + (dimension * 2);
     };
     return _.forEach(sheet, function(column, columnIndex) {
-      return _.forEach(column, function(row, rowIndex) {
-        var datum, xCor, yCor;
+      return _.forEach(column, function(datum, rowIndex) {
+        var xCor, yCor;
         xCor = corCalc(columnIndex, cell.w);
         yCor = corCalc(rowIndex, cell.h);
-        datum = row;
         drawABox(ctx, color, cell, [xCor, yCor]);
         return drawText(ctx, glyphs, 1, datum, [xCor + 4, yCor + 5]);
       });

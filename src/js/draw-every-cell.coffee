@@ -13,12 +13,10 @@ module.exports = (sheet, ctx, glyphs, color, cell) ->
     (index * (dimension - 1)) + (dimension * 2)
 
   _.forEach sheet, (column, columnIndex) ->
-    _.forEach column, (row, rowIndex) ->
+    _.forEach column, (datum, rowIndex) ->
 
       xCor = corCalc columnIndex, cell.w
       yCor = corCalc rowIndex, cell.h
 
-      datum = row
-
-      drawABox ctx, color, cell, [ xCor, yCor ]
+      drawABox ctx, color, cell,      [ xCor,     yCor     ]
       drawText ctx, glyphs, 1, datum, [ xCor + 4, yCor + 5 ]

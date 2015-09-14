@@ -42,6 +42,7 @@ DrawColumnOptions = require './draw-column-options.js'
 DrawRowOptions    = require './draw-row-options.js'
 DrawOriginMark    = require './draw-origin-mark.js'
 DrawNormalCell    = require './draw-normal-cell.js'
+DrawSheetTabs     = require './draw-sheet-tabs.js'
 
 
 # Colors
@@ -76,6 +77,7 @@ Assets = undefined
 
 # Default Data for Development
 currentSheet = 0
+sheetNames   = [ 'dollars' ]
 Sheets = [ [ 
           [ '34', '32', '31', '32', '34', '34', '32', '31', '32', '34' ] 
           [ '32', '30', '31', '30', '32', '32', '30', '31', '30', '32' ] 
@@ -107,8 +109,6 @@ Index = React.createClass
 
   componentDidMount: ->
 
-
-
     init = =>
       gui.Window.get().on 'resize', @handleResize
 
@@ -130,54 +130,20 @@ Index = React.createClass
     Glyphs                 = LoadGlyphs AllCharacters, next
     Glyphs.characterWidth  = 11
     Glyphs.characterHeight = 19
-    # @setState a: ''
-    # @setState a: ''
-    # @setState a: ''
-
-
-    # dataToPutInState = []
-
-    # _.forEach Sheets, (sheet, sheetIndex) =>
-    #   stateSetter = @setState
-
-    #   columnSizeObject = {}
-    #   columnSizeObject[ 'columnSize' + zeroPadder 2, sheetIndex ] = sheet.length
-    #   @setState columnSizeObject
-
-    #   rowSizeObject = {}
-    #   rowSizeObject[ 'rowSize' + zeroPadder 2, sheetIndex ] = sheet[0].length
-    #   @setState rowSizeObject
-
-    #   _.forEach sheet, (column, columnIndex) =>
-    #     _.forEach column, (row, rowIndex) =>
-    #       dataKey  = 's' + zeroPadder 2, sheetIndex
-    #       dataKey += 'c' + zeroPadder 3, columnIndex
-    #       dataKey += 'r' + zeroPadder 3, rowIndex
-
-    #       dataObject = ( 
-    #         (a, b) -> 
-    #           output = {}
-    #           output[ b ] = a
-    #           output
-    #       )(row, dataKey)
-
-    #       @setState dataObject
 
 
   setCanvasDimensions: ->
     toolbar0        = document.getElementById 'toolbar0'
-    toolbar0.width  = @state.windowWidth
+    toolbar0.width  = window.innerWidth
     toolbar0.height = toolbarSize
 
     toolbar1        = document.getElementById 'toolbar1'
-    toolbar1.width  = @state.windowHeight
+    toolbar1.width  = window.innerHeight
     toolbar1.height = toolbarSize
 
     workarea        = document.getElementById 'workarea'
-    workarea.width  = @state.windowWidth
-    workarea.height = @state.windowHeight - (2 * (toolbarSize + 5))
-
-    # @refreshWorkArea()
+    workarea.width  = window.innerWidth
+    workarea.height = window.innerHeight - (2 * toolbarSize)
 
 
   handleResize: ->
@@ -197,7 +163,6 @@ Index = React.createClass
       borderColor = hexToArray borderGray
       putPixel toolbar0, borderColor, [ point, toolbarSize - 1 ]
 
-
     toolbar0.drawImage Assets[ 'open' ][0], 5, 5
     toolbar0.drawImage Assets[ 'save' ][0], 58, 5
 
@@ -209,6 +174,30 @@ Index = React.createClass
     for point in [ 0 .. @state.windowWidth - 1 ]
       borderColor = hexToArray borderGray
       putPixel toolbar1, borderColor, [ point, 0 ]
+
+    sheetXOrg = 5
+    _.forEach Sheets, (sheet, sheetIndex) ->
+      sheetName = sheetNames[ sheetIndex ]
+
+      tabWidth = sheetName.length + 2
+      tabWidth *= Glyphs.characterWidth
+
+      toolbar1.fillStyle = '#202020'
+      toolbar1.fillRect sheetXOrg, 0, tabWidth, cell.h
+
+      for point in [ 0 .. cell.h - 1 ]
+        putPixel toolbar1, [0,0,0,255], [ sheetXOrg,            point ]
+        putPixel toolbar1, [0,0,0,255], [ sheetXOrg + tabWidth, point ]
+
+      for point in [ 0 .. tabWidth - 1 ]
+        putPixel toolbar1, [0,0,0,255], [ sheetXOrg + point, cell.h - 1 ]
+
+      drawText toolbar1, Glyphs, 
+
+
+
+
+
 
 
   drawSelectedCellsNormal: ->
@@ -228,6 +217,9 @@ Index = React.createClass
     workarea  = document.getElementById 'workarea'
     workarea  = workarea.getContext '2d'
     sheetName = @state.sheetNames[ @state.currentSheet ]
+
+    workarea.fillStyle = '#202020'
+    workarea.fillRect 0, 0, window.innerWidth, window.innerHeight
 
     DrawOriginMark    sheetName,              workarea, Glyphs, edgeColor, cell
     DrawColumnNames   Sheets[ currentSheet ], workarea, Glyphs, edgeColor, cell
@@ -266,7 +258,48 @@ Index = React.createClass
     workarea = workarea.getContext '2d'
 
     if not event.metaKey
-      unless (whichCell[0] < 0) or (whichCell[1] < 0)
+      if (whichCell[0] < 0) or (whichCell[1] < 0)
+
+        if whichCell[0] is -1
+          thisColumn = Sheets[ currentSheet ][ whichCell[1] ]
+          @drawSelectedCellsNormal()
+          selectedCells = []
+          _.forEach thisColumn, (row, rowIndex) ->
+            selectedCells.push [ rowIndex, whichCell[1] ]
+          @drawSelectedCellsSelected()
+
+        if whichCell[0] is -2
+          if (mouseX % cell.w) < 35
+            newColumn = []
+            _.forEach Sheets[currentSheet][0], (column) ->
+              newColumn.push ''
+            Sheets[currentSheet].splice whichCell[1], 0, newColumn
+            @refreshWorkArea()
+          else
+            Sheets[currentSheet].splice whichCell[1], 1
+            @refreshWorkArea()
+
+        if whichCell[1] is -1
+          @drawSelectedCellsNormal()
+          selectedCells = []
+          _.forEach Sheets[ currentSheet ], (column, columnIndex) ->
+            selectedCells.push [ whichCell[0], columnIndex]
+          @drawSelectedCellsSelected()
+
+        if whichCell[1] is -2
+          # console.log (mouseX + cell.w) % cell.w
+          if ((mouseX + cell.w) % cell.w) < 35
+            _.forEach Sheets[currentSheet], (column) ->
+              column.splice whichCell[0], 0, ''
+            @refreshWorkArea()
+          else
+            _.forEach Sheets[currentSheet], (column) ->
+              column.splice whichCell[0], 1         
+            @refreshWorkArea()
+
+
+
+      else
         @drawSelectedCellsNormal()   
         selectedCells = [ whichCell ]
         @drawSelectedCellsSelected()
@@ -294,8 +327,8 @@ Index = React.createClass
         filePath += fileName
         fs.writeFileSync filePath, csv
         
-
     fileExporter.click()
+
 
   handleSave: ->
     csvs = convertToCSVs @state.sheets
@@ -345,6 +378,12 @@ Index = React.createClass
               Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = ''
               DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, SC
 
+          when Keys['enter']
+            justSelected = true
+            @drawSelectedCellsNormal()
+            selectedCells[0][0]++
+            @drawSelectedCellsSelected()
+
           when Keys['down']
             justSelected = true
             @drawSelectedCellsNormal()
@@ -372,8 +411,6 @@ Index = React.createClass
           when Keys['ctrl'] then doNothing()
 
           when Keys['shift'] then doNothing()
-
-
 
 
           else

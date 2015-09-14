@@ -11,7 +11,6 @@
       return function() {
         numberOfAssetsLoaded++;
         if (numberOfAssetsLoaded === totalNumberOfAssets) {
-          console.log('DOING NEXT');
           return next();
         }
       };

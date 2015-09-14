@@ -11,7 +11,6 @@ module.exports = (next) ->
   checkForNext = =>
     numberOfAssetsLoaded++
     if numberOfAssetsLoaded is totalNumberOfAssets
-      console.log 'DOING NEXT'
       next()
 
   load = (key, name) =>
