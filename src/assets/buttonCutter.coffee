@@ -71,3 +71,4 @@ fileName = destination + 'save-selected.png'
 img.write fileName, (err) ->
   if err
     console.log err
+

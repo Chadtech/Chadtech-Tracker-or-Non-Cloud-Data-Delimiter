@@ -14,6 +14,12 @@
     assets['^+'] = [image(), image()];
     assets['^+'][0].src = './add-row-button.png';
     assets['^+'][1].src = './add-row-button-selected.png';
+    assets['save '] = [image(), image()];
+    assets['save '][0].src = './save.ong';
+    assets['save '][1].src = './save-selected.ong';
+    assets['open '] = [image(), image()];
+    assets['open '][0].src = './open.ong';
+    assets['open '][1].src = './open-selected.ong';
     return assets;
   };
 
