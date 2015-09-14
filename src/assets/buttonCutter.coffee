@@ -43,3 +43,31 @@ fileName = destination + 'add-row-button-selected.png'
 img.write fileName, (err) ->
   if err
     console.log err
+
+img = gm './buttonSprites.png'
+img.crop 53, 25, 0, 96
+fileName = destination + 'open.png'
+img.write fileName, (err) ->
+  if err
+    console.log err
+
+img = gm './buttonSprites.png'
+img.crop 53, 25, 0, 147
+fileName = destination + 'open-selected.png'
+img.write fileName, (err) ->
+  if err
+    console.log err
+
+img = gm './buttonSprites.png'
+img.crop 52, 25, 0, 122
+fileName = destination + 'save.png'
+img.write fileName, (err) ->
+  if err
+    console.log err
+
+img = gm './buttonSprites.png'
+img.crop 52, 25, 0, 172
+fileName = destination + 'save-selected.png'
+img.write fileName, (err) ->
+  if err
+    console.log err
