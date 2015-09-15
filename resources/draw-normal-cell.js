@@ -10,7 +10,7 @@
   module.exports = function(sheet, ctx, glyphs, color, cell, pos) {
     var corCalc, datum, xCor, yCor;
     corCalc = function(index, dimension) {
-      return (index * (dimension - 1)) + (dimension * 2);
+      return (index * (dimension - 1)) + (dimension * 2) - 1;
     };
     xCor = corCalc(pos[1], cell.w);
     yCor = corCalc(pos[0], cell.h);

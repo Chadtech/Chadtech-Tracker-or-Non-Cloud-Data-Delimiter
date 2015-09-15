@@ -26,7 +26,13 @@
       }
       return paddee;
     },
-    doNothing: function() {}
+    doNothing: function() {},
+    Eightx15ify: function(sheet, xOrg, yOrg) {
+      sheet.slice(xOrg, xOrg + 8);
+      return _.map(sheet.slice(xOrg, xOrg + 8), function(row) {
+        return row.slice(yOrg, yOrg + 15);
+      });
+    }
   };
 
 }).call(this);

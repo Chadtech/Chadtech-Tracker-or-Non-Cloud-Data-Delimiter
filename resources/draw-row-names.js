@@ -7,15 +7,16 @@
 
   drawABox = require('./draw-a-box.js');
 
-  module.exports = function(sheet, ctx, glyphs, color, cell) {
-    return _.forEach(sheet[0], function(row, rowIndex) {
-      var textXOffset, xCor, yCor;
+  module.exports = function(sheet, ctx, glyphs, color, cell, cellYOrg) {
+    return _.forEach([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], function(rowIndex) {
+      var rowName, textXOffset, xCor, yCor;
       xCor = cell.w;
-      yCor = (rowIndex * (cell.h - 1)) + (cell.h * 2);
+      yCor = (rowIndex * (cell.h - 1)) + (cell.h * 2) - 1;
       textXOffset = Math.floor((cell.w - (11 * ('' + rowIndex).length)) / 2);
       textXOffset -= 2;
+      rowName = '' + (rowIndex + cellYOrg);
       drawABox(ctx, color, cell, [xCor, yCor]);
-      return drawText(ctx, glyphs, 1, '' + rowIndex, [xCor + textXOffset, yCor + 4]);
+      return drawText(ctx, glyphs, 1, rowName, [xCor + textXOffset, yCor + 4]);
     });
   };
 

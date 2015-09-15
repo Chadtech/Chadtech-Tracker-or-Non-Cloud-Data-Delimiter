@@ -12,8 +12,8 @@
     "icon": "link.png",
     "toolbar": true,
     "frame": true,
-    "width": 800,
-    "height": 500,
+    "width": 604,
+    "height": 498,
     "position": "mouse"
   }
 }

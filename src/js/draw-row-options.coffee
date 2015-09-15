@@ -8,15 +8,13 @@ _ = require 'lodash'
 module.exports = (sheet, ctx, glyphs, color, cell, Assets) ->
 
   yCalc = (index) =>
-    index * (cell.h - 1) + (cell.h * 2)
+    (index * (cell.h - 1) + (cell.h * 2)) + 1
   xCor = 0
 
-  _.forEach sheet[0], (row, rowIndex) ->
+  _.forEach [ 0 .. 14 ], (rowIndex) ->
 
     yCor = yCalc rowIndex
 
     ctx.drawImage Assets['X'][0],  xCor + 35, yCor
     ctx.drawImage Assets['^+'][0], xCor,      yCor
 
-  yCor = yCalc sheet[0].length
-  ctx.drawImage Assets['^+'][0], xCor, yCor

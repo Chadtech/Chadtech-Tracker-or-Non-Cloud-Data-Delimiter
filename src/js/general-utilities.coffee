@@ -18,3 +18,8 @@ module.exports =
     paddee
 
   doNothing: ->
+
+  Eightx15ify: (sheet, xOrg, yOrg) ->
+    sheet.slice xOrg, xOrg + 8
+    _.map (sheet.slice xOrg, xOrg + 8), (row) ->
+      row.slice yOrg, yOrg + 15

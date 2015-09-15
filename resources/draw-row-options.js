@@ -6,21 +6,19 @@
   ref = require('./drawingUtilities.js'), putPixel = ref.putPixel, hexToArray = ref.hexToArray, arrayToHex = ref.arrayToHex, drawText = ref.drawText;
 
   module.exports = function(sheet, ctx, glyphs, color, cell, Assets) {
-    var xCor, yCalc, yCor;
+    var xCor, yCalc;
     yCalc = (function(_this) {
       return function(index) {
-        return index * (cell.h - 1) + (cell.h * 2);
+        return (index * (cell.h - 1) + (cell.h * 2)) + 1;
       };
     })(this);
     xCor = 0;
-    _.forEach(sheet[0], function(row, rowIndex) {
+    return _.forEach([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], function(rowIndex) {
       var yCor;
       yCor = yCalc(rowIndex);
       ctx.drawImage(Assets['X'][0], xCor + 35, yCor);
       return ctx.drawImage(Assets['^+'][0], xCor, yCor);
     });
-    yCor = yCalc(sheet[0].length);
-    return ctx.drawImage(Assets['^+'][0], xCor, yCor);
   };
 
 }).call(this);

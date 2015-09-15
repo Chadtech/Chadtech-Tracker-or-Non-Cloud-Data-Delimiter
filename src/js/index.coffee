@@ -13,9 +13,9 @@ gui      = require 'nw.gui'
 
 
 # Utilities
-{putPixel, hexToArray, drawText} = require './drawingUtilities.js'
-CoordinateIsElement              = require './coordinate-in-array.js'
-{convertToCSVs, zeroPadder, doNothing }     = require './general-utilities.js'
+{putPixel, hexToArray, drawText}                     = require './drawingUtilities.js'
+CoordinateIsElement                                  = require './coordinate-in-array.js'
+{convertToCSVs, zeroPadder, doNothing, Eightx15ify } = require './general-utilities.js'
 
 # Dependencies
 LoadGlyphs    = require './load-Glyphs.js'
@@ -34,15 +34,18 @@ Keys          = ((Keys) ->
 
 
 # Drawing
-DrawColumnNames   = require './draw-column-names.js'
-DrawRowNames      = require './draw-row-names.js'
-DrawEveryCell     = require './draw-every-cell.js'
-DrawSelectedCell  = require './draw-selected-cell.js'
-DrawColumnOptions = require './draw-column-options.js'
-DrawRowOptions    = require './draw-row-options.js'
-DrawOriginMark    = require './draw-origin-mark.js'
-DrawNormalCell    = require './draw-normal-cell.js'
-DrawSheetTabs     = require './draw-sheet-tabs.js'
+DrawColumnNames     = require './draw-column-names.js'
+DrawRowNames        = require './draw-row-names.js'
+DrawEveryCell       = require './draw-every-cell.js'
+DrawSelectedCell    = require './draw-selected-cell.js'
+DrawColumnOptions   = require './draw-column-options.js'
+DrawRowOptions      = require './draw-row-options.js'
+DrawOriginMark      = require './draw-origin-mark.js'
+DrawNormalCell      = require './draw-normal-cell.js'
+DrawSheetTabs       = require './draw-sheet-tabs.js'
+DrawEveryCellBorder = require './draw-every-cell-border.js'
+DrawEveryCellData   = require './draw-every-cell-data.js'
+ClearAllCellGlyphs  = require './clear-all-cell-glyphs.js'
 
 
 # Colors
@@ -77,19 +80,48 @@ Assets = undefined
 
 # Default Data for Development
 currentSheet = 0
-sheetNames   = [ 'dollars' ]
+sheetNames   = [ 'dollars', 'numbers' ]
 Sheets = [ [ 
-          [ '34', '32', '31', '32', '34', '34', '32', '31', '32', '34' ] 
-          [ '32', '30', '31', '30', '32', '32', '30', '31', '30', '32' ] 
-          [ 'B',  '',   'S',  'S',  '', 'B',  '',   'S',  'S',  ''   ] 
-          [ 'Loud',  '', 'Quiet',  '',  '', 'Loud',  '', 'Quiet',  '',  ''   ] 
-          [ '34', '32', '31', '32', '34', '34', '32', '31', '32', '34' ] 
-          [ '32', '30', '31', '30', '32', '32', '30', '31', '30', '32' ] 
-          [ 'B',  '',   'S',  'S',  '', 'B',  '',   'S',  'S',  ''   ] 
-          [ 'Loud',  '', 'Quiet',  '',  '' , 'Loud',  '', 'Quiet',  '',  ''   ] 
-        ] ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+        ]
+        [ 
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+          [ '', '' , '' , '', '', '' , '' , '' ]
+        ]
+      ]
 selectedCells = [ [ 2, 3] ]
 justSelected = true
+cellXOrg = 0
+cellYOrg = 0
 
 
 
@@ -104,7 +136,6 @@ Index = React.createClass
     currentSheet:   0
     rowNameRadix:   8
     filePath:       ''
-
 
 
   componentDidMount: ->
@@ -138,7 +169,7 @@ Index = React.createClass
     toolbar0.height = toolbarSize
 
     toolbar1        = document.getElementById 'toolbar1'
-    toolbar1.width  = window.innerHeight
+    toolbar1.width  = window.innerWidth
     toolbar1.height = toolbarSize
 
     workarea        = document.getElementById 'workarea'
@@ -171,33 +202,67 @@ Index = React.createClass
     toolbar1 = document.getElementById 'toolbar1'
     toolbar1 = toolbar1.getContext '2d'
 
-    for point in [ 0 .. @state.windowWidth - 1 ]
+    for point in [ 0 .. window.innerWidth - 1 ]
       borderColor = hexToArray borderGray
       putPixel toolbar1, borderColor, [ point, 0 ]
 
     sheetXOrg = 5
+
     _.forEach Sheets, (sheet, sheetIndex) ->
       sheetName = sheetNames[ sheetIndex ]
 
-      tabWidth = sheetName.length + 2
-      tabWidth *= Glyphs.characterWidth
+      if sheetIndex is currentSheet
 
-      toolbar1.fillStyle = '#202020'
-      toolbar1.fillRect sheetXOrg, 0, tabWidth, cell.h
+        tabWidth = sheetName.length + 2
+        tabWidth *= Glyphs.characterWidth
 
-      for point in [ 0 .. cell.h - 1 ]
-        putPixel toolbar1, [0,0,0,255], [ sheetXOrg,            point ]
-        putPixel toolbar1, [0,0,0,255], [ sheetXOrg + tabWidth, point ]
+        toolbar1.fillStyle = '#000000'
+        toolbar1.fillRect sheetXOrg, 0, tabWidth, cell.h
 
-      for point in [ 0 .. tabWidth - 1 ]
-        putPixel toolbar1, [0,0,0,255], [ sheetXOrg + point, cell.h - 1 ]
+        # for point in [ 0 .. cell.h - 1 ]
+        #   putPixel toolbar1, [0,0,0,255], [ sheetXOrg,            point ]
+        #   putPixel toolbar1, [0,0,0,255], [ sheetXOrg + tabWidth, point ]
 
-      drawText toolbar1, Glyphs, 
+        # for point in [ 0 .. tabWidth - 1 ]
+        #   putPixel toolbar1, [0,0,0,255], [ sheetXOrg + point, cell.h - 1 ]
 
+        console.log sheetXOrg
+        glyphXOrg    = sheetXOrg
+        glyphXOffset = tabWidth // 2
+        glyphXOffset -= (11 * sheetName.length) // 2
+        glyphXOrg    += glyphXOffset
 
+        drawText toolbar1, Glyphs, 1, sheetName, [ glyphXOrg, 5 ]
 
+        sheetXOrg += tabWidth + 5
 
+      else
 
+        tabWidth = sheetName.length + 2
+        tabWidth *= Glyphs.characterWidth
+
+        toolbar1.fillStyle = '#202020'
+        toolbar1.fillRect sheetXOrg, 0, tabWidth, cell.h
+
+        for point in [ 0 .. cell.h - 1 ]
+          putPixel toolbar1, [0,0,0,255], [ sheetXOrg,            point ]
+          putPixel toolbar1, [0,0,0,255], [ sheetXOrg + tabWidth, point ]
+          putPixel toolbar1, [0,0,0,255], [ sheetXOrg,            point + 1 ]
+          putPixel toolbar1, [0,0,0,255], [ sheetXOrg + tabWidth, point + 1 ]
+
+        for point in [ 0 .. tabWidth - 1 ]
+          putPixel toolbar1, [0,0,0,255], [ sheetXOrg + point,     cell.h - 1 ]
+          putPixel toolbar1, [0,0,0,255], [ sheetXOrg + point + 1, cell.h - 1 ]
+
+        console.log sheetXOrg
+        glyphXOrg    = sheetXOrg
+        glyphXOffset = tabWidth // 2
+        glyphXOffset -= (11 * sheetName.length) // 2
+        glyphXOrg    += glyphXOffset
+
+        drawText toolbar1, Glyphs, 4, sheetName, [ glyphXOrg, 5 ]
+
+        sheetXOrg += tabWidth + 5
 
 
   drawSelectedCellsNormal: ->
@@ -213,34 +278,29 @@ Index = React.createClass
     for selectedCell in selectedCells
       DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, selectedCell
 
+
   refreshWorkArea: ->
     workarea  = document.getElementById 'workarea'
     workarea  = workarea.getContext '2d'
     sheetName = @state.sheetNames[ @state.currentSheet ]
 
-    workarea.fillStyle = '#202020'
+    workarea.fillStyle = '#000000'
     workarea.fillRect 0, 0, window.innerWidth, window.innerHeight
 
-    DrawOriginMark    sheetName,              workarea, Glyphs, edgeColor, cell
-    DrawColumnNames   Sheets[ currentSheet ], workarea, Glyphs, edgeColor, cell
-    DrawRowNames      Sheets[ currentSheet ], workarea, Glyphs, edgeColor, cell
-    DrawEveryCell     Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+    just8x15 = Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
+    DrawOriginMark    sheetName, workarea, Glyphs, edgeColor, cell
+    DrawColumnNames   just8x15, workarea, Glyphs, edgeColor, cell, cellXOrg
+    DrawRowNames      just8x15, workarea, Glyphs, edgeColor, cell, cellYOrg
+
+    ClearAllCellGlyphs  Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+    DrawEveryCellBorder Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+    DrawEveryCellData   Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+
     DrawColumnOptions Sheets[ currentSheet ], workarea, Glyphs, edgeColor, cell, Assets
     DrawRowOptions    Sheets[ currentSheet ], workarea, Glyphs, edgeColor, cell, Assets
+    
     @drawSelectedCellsSelected()
 
-    # # pastin = =>
-    # middleX = 400
-    # middleY = 100
-    # messages = [
-    #   'Chadtech Tracker or Non-Cloud Data Delimiter'
-    # ]
-
-    # # for messageIndex in [ 0 .. messages.length - 1 ]
-    # #   message = messages[ messageIndex ]
-    # drawText workarea, Glyphs, 2, messages[0], [ middleX, middleY ]
-
-    # setTimeout pastin, 3000
 
   handleClickWorkArea: (event) ->
     mouseX = event.clientX
@@ -287,7 +347,6 @@ Index = React.createClass
           @drawSelectedCellsSelected()
 
         if whichCell[1] is -2
-          # console.log (mouseX + cell.w) % cell.w
           if ((mouseX + cell.w) % cell.w) < 35
             _.forEach Sheets[currentSheet], (column) ->
               column.splice whichCell[0], 0, ''
@@ -296,8 +355,6 @@ Index = React.createClass
             _.forEach Sheets[currentSheet], (column) ->
               column.splice whichCell[0], 1         
             @refreshWorkArea()
-
-
 
       else
         @drawSelectedCellsNormal()   
@@ -424,8 +481,6 @@ Index = React.createClass
               Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] += Keys[ event.which ]
               DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, SC
        
-
-
 
   render: ->
 

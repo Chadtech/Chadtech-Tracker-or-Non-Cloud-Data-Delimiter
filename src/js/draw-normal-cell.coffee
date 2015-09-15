@@ -8,7 +8,7 @@ drawABox                                   = require './draw-a-box.js'
 module.exports = (sheet, ctx, glyphs, color, cell, pos) ->
 
   corCalc = (index, dimension) ->
-    (index * (dimension - 1)) + (dimension * 2)
+    (index * (dimension - 1)) + (dimension * 2) - 1
 
   xCor = corCalc pos[1], cell.w
   yCor = corCalc pos[0], cell.h
