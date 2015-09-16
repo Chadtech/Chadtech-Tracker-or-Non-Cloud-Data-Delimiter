@@ -1,5 +1,5 @@
 (function() {
-  var AllCharacters, AssetLoader, Assets, ClearAllCellGlyphs, CoordinateIsElement, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawEveryCellBorder, DrawEveryCellData, DrawNormalCell, DrawOriginMark, DrawRowNames, DrawRowOptions, DrawSelectedCell, DrawSheetTabs, Eightx15ify, Glyphs, Index, Keys, LoadGlyphs, React, Sheets, _, a, borderGray, canvas, cell, cellColor, cellXOrg, cellYOrg, convertToCSVs, currentSheet, darkGray, darkerGray, div, doNothing, drawText, edgeColor, gray, gui, hexToArray, img, injectionPoint, input, justSelected, lighterGray, p, putPixel, ref, ref1, ref2, selectedCells, selectedColor, sheetNames, toolbarSize, zeroPadder;
+  var AllCharacters, AssetLoader, Assets, ClearAllCellGlyphs, CoordinateIsElement, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawEveryCellBorder, DrawEveryCellData, DrawNormalCell, DrawOriginMark, DrawRowNames, DrawRowOptions, DrawSelectedCell, DrawSheetTabs, Eightx15ify, Glyphs, Index, Keys, LoadGlyphs, React, Sheets, _, a, borderGray, canvas, cell, cellColor, cellXOrg, cellYOrg, convertToCSVs, currentSheet, darkGray, darkerGray, div, doNothing, drawText, edgeColor, gray, gui, hexToArray, img, injectionPoint, input, justSelected, lighterGray, p, putPixel, ref, ref1, ref2, rowNameRadix, selectedCells, selectedColor, sheetNames, toolbarSize, zeroPadder;
 
   global.document = window.document;
 
@@ -92,7 +92,7 @@
 
   sheetNames = ['dollars', 'numbers'];
 
-  Sheets = [[['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', '']], [['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', ''], ['', '', '', '', '', '', '', '']]];
+  Sheets = require('./initial-sheets.js');
 
   selectedCells = [[2, 3]];
 
@@ -102,6 +102,8 @@
 
   cellYOrg = 0;
 
+  rowNameRadix = 8;
+
   Index = React.createClass({
     getInitialState: function() {
       return {
@@ -110,7 +112,6 @@
         workareaHeight: window.innerHeight - (2 * toolbarSize),
         sheetNames: ['dollars'],
         currentSheet: 0,
-        rowNameRadix: 8,
         filePath: ''
       };
     },
@@ -451,15 +452,28 @@
             case Keys['shift']:
               return doNothing();
             default:
-              if (justSelected) {
-                justSelected = false;
-                SC = selectedCells[0];
-                Sheets[currentSheet][SC[1]][SC[0]] = Keys[event.which];
-                return DrawSelectedCell(Sheets[currentSheet], workarea, Glyphs, selectedColor, cell, SC);
+              if (event.shiftKey) {
+                if (justSelected) {
+                  justSelected = false;
+                  SC = selectedCells[0];
+                  Sheets[currentSheet][SC[1]][SC[0]] = Keys[event.which].toUpperCase();
+                  return DrawSelectedCell(Sheets[currentSheet], workarea, Glyphs, selectedColor, cell, SC);
+                } else {
+                  SC = selectedCells[0];
+                  Sheets[currentSheet][SC[1]][SC[0]] += Keys[event.which].toUpperCase();
+                  return DrawSelectedCell(Sheets[currentSheet], workarea, Glyphs, selectedColor, cell, SC);
+                }
               } else {
-                SC = selectedCells[0];
-                Sheets[currentSheet][SC[1]][SC[0]] += Keys[event.which];
-                return DrawSelectedCell(Sheets[currentSheet], workarea, Glyphs, selectedColor, cell, SC);
+                if (justSelected) {
+                  justSelected = false;
+                  SC = selectedCells[0];
+                  Sheets[currentSheet][SC[1]][SC[0]] = Keys[event.which];
+                  return DrawSelectedCell(Sheets[currentSheet], workarea, Glyphs, selectedColor, cell, SC);
+                } else {
+                  SC = selectedCells[0];
+                  Sheets[currentSheet][SC[1]][SC[0]] += Keys[event.which];
+                  return DrawSelectedCell(Sheets[currentSheet], workarea, Glyphs, selectedColor, cell, SC);
+                }
               }
           }
         }

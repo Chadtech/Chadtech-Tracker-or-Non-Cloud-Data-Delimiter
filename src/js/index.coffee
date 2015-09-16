@@ -3,9 +3,9 @@ global.navigator  = window.navigator
 
 
 # Libraries
-React    = require 'react'
-_        = require 'lodash'
-gui      = require 'nw.gui'
+React = require 'react'
+_     = require 'lodash'
+gui   = require 'nw.gui'
 
 
 # DOM Elements
@@ -62,9 +62,6 @@ selectedColor = hexToArray lighterGray
 
 # Images for each character
 Glyphs = undefined
-# Glyphs                  = LoadGlyphs AllCharacters
-# Glyphs.characterWidth   = 11
-# Glyphs.characterHeight  = 19
 
 
 # Dimensions
@@ -79,49 +76,14 @@ Assets = undefined
 
 
 # Default Data for Development
-currentSheet = 0
-sheetNames   = [ 'dollars', 'numbers' ]
-Sheets = [ [ 
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-        ]
-        [ 
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-          [ '', '' , '' , '', '', '' , '' , '' ]
-        ]
-      ]
+currentSheet  = 0
+sheetNames    = [ 'dollars', 'numbers' ]
+Sheets        = require './initial-sheets.js'
 selectedCells = [ [ 2, 3] ]
-justSelected = true
-cellXOrg = 0
-cellYOrg = 0
+justSelected  = true
+cellXOrg      = 0
+cellYOrg      = 0
+rowNameRadix  = 8
 
 
 
@@ -134,7 +96,6 @@ Index = React.createClass
     workareaHeight: window.innerHeight - (2 * toolbarSize)
     sheetNames:     [ 'dollars' ]
     currentSheet:   0
-    rowNameRadix:   8
     filePath:       ''
 
 
@@ -385,7 +346,7 @@ Index = React.createClass
               column.splice whichCell[0], 1         
             ClearAllCellGlyphs  Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
             DrawEveryCellData   Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
-            
+
 
       else
         @drawSelectedCellsNormal()   
@@ -396,7 +357,6 @@ Index = React.createClass
       unless CoordinateIsElement selectedCells, whichCell
         selectedCells.push whichCell
         DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, whichCell
-
 
 
   handleSaveAs: ->
@@ -502,16 +462,28 @@ Index = React.createClass
 
 
           else
-            if justSelected
-              justSelected = false
-              SC = selectedCells[0]
-              Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = Keys[ event.which ]
-              DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, SC
+            if event.shiftKey
+              if justSelected
+                justSelected = false
+                SC = selectedCells[0]
+                Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = Keys[ event.which ].toUpperCase()
+                DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, SC
+              else
+                SC = selectedCells[0]
+                Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] += Keys[ event.which ].toUpperCase()
+                DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, SC
+
             else
-              SC = selectedCells[0]
-              Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] += Keys[ event.which ]
-              DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, SC
-       
+              if justSelected
+                justSelected = false
+                SC = selectedCells[0]
+                Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = Keys[ event.which ]
+                DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, SC
+              else
+                SC = selectedCells[0]
+                Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] += Keys[ event.which ]
+                DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, SC
+         
 
   render: ->
 
