@@ -141,6 +141,22 @@ Index = React.createClass
   componentDidMount: ->
 
     init = =>
+
+      _.forEach [ 0 .. 4 ], ( CS ) ->
+        thisScheme = Glyphs.images[ CS ]
+        _.forEach (_.keys thisScheme), (key) ->
+          character = thisScheme[ key ]
+
+          glyphCanvas = document.createElement 'canvas'
+          glyphCanvas.width   = 11
+          glyphCanvas.height  = 19
+          glyphCtx = glyphCanvas.getContext '2d'
+          glyphCtx.drawImage character, 0, 0
+
+          thisScheme[ key ] = glyphCanvas
+
+        Glyphs.images[ CS ] = thisScheme
+
       gui.Window.get().on 'resize', @handleResize
 
       document.addEventListener 'keyup',   @onKeyUp
@@ -202,22 +218,22 @@ Index = React.createClass
     toolbar1 = document.getElementById 'toolbar1'
     toolbar1 = toolbar1.getContext '2d'
 
-    for point in [ 0 .. window.innerWidth - 1 ]
-      borderColor = hexToArray borderGray
-      putPixel toolbar1, borderColor, [ point, 0 ]
+    # for point in [ 0 .. window.innerWidth - 1 ]
+    #   borderColor = hexToArray borderGray
+    #   putPixel toolbar1, borderColor, [ point, 0 ]
 
     sheetXOrg = 5
 
     _.forEach Sheets, (sheet, sheetIndex) ->
       sheetName = sheetNames[ sheetIndex ]
 
-      if sheetIndex is currentSheet
+      if sheetIndex isnt currentSheet
 
         tabWidth = sheetName.length + 2
         tabWidth *= Glyphs.characterWidth
 
         toolbar1.fillStyle = '#000000'
-        toolbar1.fillRect sheetXOrg, 0, tabWidth, cell.h
+        toolbar1.fillRect sheetXOrg, 2, tabWidth, cell.h
 
         # for point in [ 0 .. cell.h - 1 ]
         #   putPixel toolbar1, [0,0,0,255], [ sheetXOrg,            point ]
@@ -226,13 +242,12 @@ Index = React.createClass
         # for point in [ 0 .. tabWidth - 1 ]
         #   putPixel toolbar1, [0,0,0,255], [ sheetXOrg + point, cell.h - 1 ]
 
-        console.log sheetXOrg
         glyphXOrg    = sheetXOrg
         glyphXOffset = tabWidth // 2
         glyphXOffset -= (11 * sheetName.length) // 2
         glyphXOrg    += glyphXOffset
 
-        drawText toolbar1, Glyphs, 1, sheetName, [ glyphXOrg, 5 ]
+        drawText toolbar1, Glyphs, 3, sheetName, [ glyphXOrg, 7 ]
 
         sheetXOrg += tabWidth + 5
 
@@ -242,25 +257,24 @@ Index = React.createClass
         tabWidth *= Glyphs.characterWidth
 
         toolbar1.fillStyle = '#202020'
-        toolbar1.fillRect sheetXOrg, 0, tabWidth, cell.h
+        toolbar1.fillRect sheetXOrg + 1, 2, tabWidth - 2, cell.h - 1
 
         for point in [ 0 .. cell.h - 1 ]
-          putPixel toolbar1, [0,0,0,255], [ sheetXOrg,            point ]
-          putPixel toolbar1, [0,0,0,255], [ sheetXOrg + tabWidth, point ]
-          putPixel toolbar1, [0,0,0,255], [ sheetXOrg,            point + 1 ]
-          putPixel toolbar1, [0,0,0,255], [ sheetXOrg + tabWidth, point + 1 ]
+          putPixel toolbar1, [0,0,0,255], [ sheetXOrg,            point + 2 ]
+          putPixel toolbar1, [0,0,0,255], [ sheetXOrg + tabWidth, point + 2 ]
+          putPixel toolbar1, [0,0,0,255], [ sheetXOrg,            point + 3 ]
+          putPixel toolbar1, [0,0,0,255], [ sheetXOrg + tabWidth, point + 3 ]
 
         for point in [ 0 .. tabWidth - 1 ]
-          putPixel toolbar1, [0,0,0,255], [ sheetXOrg + point,     cell.h - 1 ]
-          putPixel toolbar1, [0,0,0,255], [ sheetXOrg + point + 1, cell.h - 1 ]
+          putPixel toolbar1, [0,0,0,255], [ sheetXOrg + point,     cell.h + 1 ]
+          putPixel toolbar1, [0,0,0,255], [ sheetXOrg + point + 1, cell.h + 1 ]
 
-        console.log sheetXOrg
         glyphXOrg    = sheetXOrg
         glyphXOffset = tabWidth // 2
         glyphXOffset -= (11 * sheetName.length) // 2
         glyphXOrg    += glyphXOffset
 
-        drawText toolbar1, Glyphs, 4, sheetName, [ glyphXOrg, 5 ]
+        drawText toolbar1, Glyphs, 2, sheetName, [ glyphXOrg, 7 ]
 
         sheetXOrg += tabWidth + 5
 
@@ -281,7 +295,7 @@ Index = React.createClass
 
   refreshWorkArea: ->
     workarea  = document.getElementById 'workarea'
-    workarea  = workarea.getContext '2d'
+    workarea  = workarea.getContext '2d', alpha: false
     sheetName = @state.sheetNames[ @state.currentSheet ]
 
     workarea.fillStyle = '#000000'
@@ -315,11 +329,12 @@ Index = React.createClass
     ]
     
     workarea = document.getElementById 'workarea'
-    workarea = workarea.getContext '2d'
+    workarea = workarea.getContext '2d', alpha: false
 
     if not event.metaKey
       if (whichCell[0] < 0) or (whichCell[1] < 0)
 
+        # If they clicked the column name
         if whichCell[0] is -1
           thisColumn = Sheets[ currentSheet ][ whichCell[1] ]
           @drawSelectedCellsNormal()
@@ -328,17 +343,26 @@ Index = React.createClass
             selectedCells.push [ rowIndex, whichCell[1] ]
           @drawSelectedCellsSelected()
 
+        # If they clicked either delete column or new column
         if whichCell[0] is -2
+          # new column
           if (mouseX % cell.w) < 35
             newColumn = []
             _.forEach Sheets[currentSheet][0], (column) ->
               newColumn.push ''
             Sheets[currentSheet].splice whichCell[1], 0, newColumn
-            @refreshWorkArea()
+            ClearAllCellGlyphs  Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+            DrawEveryCellData   Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+
+
+          # delete column
           else
             Sheets[currentSheet].splice whichCell[1], 1
-            @refreshWorkArea()
+            ClearAllCellGlyphs  Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+            DrawEveryCellData   Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
 
+
+        # If they clicked on the row name
         if whichCell[1] is -1
           @drawSelectedCellsNormal()
           selectedCells = []
@@ -346,15 +370,22 @@ Index = React.createClass
             selectedCells.push [ whichCell[0], columnIndex]
           @drawSelectedCellsSelected()
 
+        # If they clicked on delete row or new row
         if whichCell[1] is -2
+          # new row
           if ((mouseX + cell.w) % cell.w) < 35
             _.forEach Sheets[currentSheet], (column) ->
               column.splice whichCell[0], 0, ''
-            @refreshWorkArea()
+            ClearAllCellGlyphs  Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+            DrawEveryCellData   Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+
+          # delete row
           else
             _.forEach Sheets[currentSheet], (column) ->
               column.splice whichCell[0], 1         
-            @refreshWorkArea()
+            ClearAllCellGlyphs  Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+            DrawEveryCellData   Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+            
 
       else
         @drawSelectedCellsNormal()   

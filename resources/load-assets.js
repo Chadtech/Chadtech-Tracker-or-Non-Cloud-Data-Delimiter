@@ -8,7 +8,7 @@
     totalNumberOfAssets = 10;
     numberOfAssetsLoaded = 0;
     checkForNext = (function(_this) {
-      return function() {
+      return function(a, b, c, d) {
         numberOfAssetsLoaded++;
         if (numberOfAssetsLoaded === totalNumberOfAssets) {
           return next();

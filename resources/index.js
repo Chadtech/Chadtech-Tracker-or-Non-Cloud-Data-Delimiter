@@ -119,6 +119,21 @@
       init = (function(_this) {
         return function() {
           var fileExporter, nwDir;
+          _.forEach([0, 1, 2, 3, 4], function(CS) {
+            var thisScheme;
+            thisScheme = Glyphs.images[CS];
+            _.forEach(_.keys(thisScheme), function(key) {
+              var character, glyphCanvas, glyphCtx;
+              character = thisScheme[key];
+              glyphCanvas = document.createElement('canvas');
+              glyphCanvas.width = 11;
+              glyphCanvas.height = 19;
+              glyphCtx = glyphCanvas.getContext('2d');
+              glyphCtx.drawImage(character, 0, 0);
+              return thisScheme[key] = glyphCanvas;
+            });
+            return Glyphs.images[CS] = thisScheme;
+          });
           gui.Window.get().on('resize', _this.handleResize);
           document.addEventListener('keyup', _this.onKeyUp);
           document.addEventListener('keydown', _this.onKeyDown);
@@ -179,50 +194,44 @@
       return toolbar0.drawImage(Assets['save'][0], 58, 5);
     },
     drawToolBar1: function() {
-      var borderColor, i, point, ref3, sheetXOrg, toolbar1;
+      var sheetXOrg, toolbar1;
       toolbar1 = document.getElementById('toolbar1');
       toolbar1 = toolbar1.getContext('2d');
-      for (point = i = 0, ref3 = window.innerWidth - 1; 0 <= ref3 ? i <= ref3 : i >= ref3; point = 0 <= ref3 ? ++i : --i) {
-        borderColor = hexToArray(borderGray);
-        putPixel(toolbar1, borderColor, [point, 0]);
-      }
       sheetXOrg = 5;
       return _.forEach(Sheets, function(sheet, sheetIndex) {
-        var glyphXOffset, glyphXOrg, j, k, ref4, ref5, sheetName, tabWidth;
+        var glyphXOffset, glyphXOrg, i, j, point, ref3, ref4, sheetName, tabWidth;
         sheetName = sheetNames[sheetIndex];
-        if (sheetIndex === currentSheet) {
+        if (sheetIndex !== currentSheet) {
           tabWidth = sheetName.length + 2;
           tabWidth *= Glyphs.characterWidth;
           toolbar1.fillStyle = '#000000';
-          toolbar1.fillRect(sheetXOrg, 0, tabWidth, cell.h);
-          console.log(sheetXOrg);
+          toolbar1.fillRect(sheetXOrg, 2, tabWidth, cell.h);
           glyphXOrg = sheetXOrg;
           glyphXOffset = Math.floor(tabWidth / 2);
           glyphXOffset -= Math.floor((11 * sheetName.length) / 2);
           glyphXOrg += glyphXOffset;
-          drawText(toolbar1, Glyphs, 1, sheetName, [glyphXOrg, 5]);
+          drawText(toolbar1, Glyphs, 3, sheetName, [glyphXOrg, 7]);
           return sheetXOrg += tabWidth + 5;
         } else {
           tabWidth = sheetName.length + 2;
           tabWidth *= Glyphs.characterWidth;
           toolbar1.fillStyle = '#202020';
-          toolbar1.fillRect(sheetXOrg, 0, tabWidth, cell.h);
-          for (point = j = 0, ref4 = cell.h - 1; 0 <= ref4 ? j <= ref4 : j >= ref4; point = 0 <= ref4 ? ++j : --j) {
-            putPixel(toolbar1, [0, 0, 0, 255], [sheetXOrg, point]);
-            putPixel(toolbar1, [0, 0, 0, 255], [sheetXOrg + tabWidth, point]);
-            putPixel(toolbar1, [0, 0, 0, 255], [sheetXOrg, point + 1]);
-            putPixel(toolbar1, [0, 0, 0, 255], [sheetXOrg + tabWidth, point + 1]);
+          toolbar1.fillRect(sheetXOrg + 1, 2, tabWidth - 2, cell.h - 1);
+          for (point = i = 0, ref3 = cell.h - 1; 0 <= ref3 ? i <= ref3 : i >= ref3; point = 0 <= ref3 ? ++i : --i) {
+            putPixel(toolbar1, [0, 0, 0, 255], [sheetXOrg, point + 2]);
+            putPixel(toolbar1, [0, 0, 0, 255], [sheetXOrg + tabWidth, point + 2]);
+            putPixel(toolbar1, [0, 0, 0, 255], [sheetXOrg, point + 3]);
+            putPixel(toolbar1, [0, 0, 0, 255], [sheetXOrg + tabWidth, point + 3]);
           }
-          for (point = k = 0, ref5 = tabWidth - 1; 0 <= ref5 ? k <= ref5 : k >= ref5; point = 0 <= ref5 ? ++k : --k) {
-            putPixel(toolbar1, [0, 0, 0, 255], [sheetXOrg + point, cell.h - 1]);
-            putPixel(toolbar1, [0, 0, 0, 255], [sheetXOrg + point + 1, cell.h - 1]);
+          for (point = j = 0, ref4 = tabWidth - 1; 0 <= ref4 ? j <= ref4 : j >= ref4; point = 0 <= ref4 ? ++j : --j) {
+            putPixel(toolbar1, [0, 0, 0, 255], [sheetXOrg + point, cell.h + 1]);
+            putPixel(toolbar1, [0, 0, 0, 255], [sheetXOrg + point + 1, cell.h + 1]);
           }
-          console.log(sheetXOrg);
           glyphXOrg = sheetXOrg;
           glyphXOffset = Math.floor(tabWidth / 2);
           glyphXOffset -= Math.floor((11 * sheetName.length) / 2);
           glyphXOrg += glyphXOffset;
-          drawText(toolbar1, Glyphs, 4, sheetName, [glyphXOrg, 5]);
+          drawText(toolbar1, Glyphs, 2, sheetName, [glyphXOrg, 7]);
           return sheetXOrg += tabWidth + 5;
         }
       });
@@ -252,7 +261,9 @@
     refreshWorkArea: function() {
       var just8x15, sheetName, workarea;
       workarea = document.getElementById('workarea');
-      workarea = workarea.getContext('2d');
+      workarea = workarea.getContext('2d', {
+        alpha: false
+      });
       sheetName = this.state.sheetNames[this.state.currentSheet];
       workarea.fillStyle = '#000000';
       workarea.fillRect(0, 0, window.innerWidth, window.innerHeight);
@@ -276,7 +287,9 @@
       mouseY -= toolbarSize + 5;
       whichCell = [(Math.floor(mouseY / cell.h)) - 1, (Math.floor(mouseX / cell.w)) - 1];
       workarea = document.getElementById('workarea');
-      workarea = workarea.getContext('2d');
+      workarea = workarea.getContext('2d', {
+        alpha: false
+      });
       if (!event.metaKey) {
         if ((whichCell[0] < 0) || (whichCell[1] < 0)) {
           if (whichCell[0] === -1) {
@@ -295,10 +308,12 @@
                 return newColumn.push('');
               });
               Sheets[currentSheet].splice(whichCell[1], 0, newColumn);
-              this.refreshWorkArea();
+              ClearAllCellGlyphs(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
+              DrawEveryCellData(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
             } else {
               Sheets[currentSheet].splice(whichCell[1], 1);
-              this.refreshWorkArea();
+              ClearAllCellGlyphs(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
+              DrawEveryCellData(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
             }
           }
           if (whichCell[1] === -1) {
@@ -314,12 +329,14 @@
               _.forEach(Sheets[currentSheet], function(column) {
                 return column.splice(whichCell[0], 0, '');
               });
-              return this.refreshWorkArea();
+              ClearAllCellGlyphs(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
+              return DrawEveryCellData(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
             } else {
               _.forEach(Sheets[currentSheet], function(column) {
                 return column.splice(whichCell[0], 1);
               });
-              return this.refreshWorkArea();
+              ClearAllCellGlyphs(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
+              return DrawEveryCellData(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
             }
           }
         } else {

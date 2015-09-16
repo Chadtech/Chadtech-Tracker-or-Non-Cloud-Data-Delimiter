@@ -18,4 +18,5 @@ module.exports = (sheet, ctx, glyphs, color, cell) ->
       xCor = corCalc columnIndex, cell.w
       yCor = corCalc rowIndex, cell.h
 
-      drawText ctx, glyphs, 1, datum, [ xCor + 4, yCor + 5 ]
+      if datum.length
+        drawText ctx, glyphs, 1, datum, [ xCor + 4, yCor + 5 ]

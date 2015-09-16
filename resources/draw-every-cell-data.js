@@ -19,7 +19,9 @@
         var xCor, yCor;
         xCor = corCalc(columnIndex, cell.w);
         yCor = corCalc(rowIndex, cell.h);
-        return drawText(ctx, glyphs, 1, datum, [xCor + 4, yCor + 5]);
+        if (datum.length) {
+          return drawText(ctx, glyphs, 1, datum, [xCor + 4, yCor + 5]);
+        }
       });
     });
   };

@@ -8,7 +8,7 @@ module.exports = (next) ->
   totalNumberOfAssets   = 10
   numberOfAssetsLoaded = 0
 
-  checkForNext = =>
+  checkForNext = (a, b, c, d) =>
     numberOfAssetsLoaded++
     if numberOfAssetsLoaded is totalNumberOfAssets
       next()
@@ -19,6 +19,7 @@ module.exports = (next) ->
     assets[ key ][0].onload = checkForNext
     assets[ key ][1].src    = './' + name + '-selected.png'
     assets[ key ][1].onload = checkForNext
+
 
   load 'X', 'x-button'
   load '<+', 'add-column-button'

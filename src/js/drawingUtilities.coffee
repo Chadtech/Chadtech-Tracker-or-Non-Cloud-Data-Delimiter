@@ -36,4 +36,5 @@ module.exports =
       xCor = pos[0]
       yCor = pos[1]
       xCor += characterIndex * glyphs.characterWidth
+
       ctx.drawImage glyphs.images[ CS ][ character ], xCor, yCor
