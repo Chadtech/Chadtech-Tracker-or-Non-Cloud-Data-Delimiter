@@ -9,7 +9,7 @@
     var xCor, yCalc;
     yCalc = (function(_this) {
       return function(index) {
-        return (index * (cell.h - 1) + (cell.h * 2)) + 1;
+        return index * (cell.h - 1) + ((cell.h - 1) * 2);
       };
     })(this);
     xCor = 0;

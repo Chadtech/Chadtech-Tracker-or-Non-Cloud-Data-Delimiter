@@ -19,5 +19,5 @@ module.exports = (sheet, ctx, glyphs, color, cell) ->
       yCor = corCalc rowIndex, cell.h
 
       fillASquare ctx, color, 
-        {w: cell.w - 4, h: cell.h - 4}
-        [ xCor + 2,   yCor + 2  ]
+        {w: cell.w - 4, h: cell.h - 2}
+        [ xCor + 2,   yCor ]

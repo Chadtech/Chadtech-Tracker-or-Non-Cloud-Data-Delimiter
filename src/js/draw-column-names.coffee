@@ -10,7 +10,7 @@ module.exports = (sheet, ctx, glyphs, color, cell, cellXOrg) ->
   _.forEach [ 0 .. 8 ], (columnIndex) ->
 
     xCor = (columnIndex * (cell.w - 1)) + (cell.w * 2) - 1
-    yCor = cell.h
+    yCor = cell.h - 2
     
     textXOffset = (cell.w - (11 * ('' + columnIndex).length)) // 2
     textXOffset -= 2

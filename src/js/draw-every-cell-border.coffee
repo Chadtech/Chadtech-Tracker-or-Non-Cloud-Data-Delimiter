@@ -17,6 +17,6 @@ module.exports = (sheet, ctx, glyphs, color, cell) ->
     _.forEach [ 0 .. 15 ], (rowIndex) ->
 
       xCor = corCalc columnIndex, cell.w
-      yCor = corCalc rowIndex, cell.h
+      yCor = (corCalc rowIndex, cell.h) - 2
 
       drawABorder ctx, color, cell, [ xCor, yCor ]

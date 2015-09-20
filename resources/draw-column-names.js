@@ -11,7 +11,7 @@
     return _.forEach([0, 1, 2, 3, 4, 5, 6, 7, 8], function(columnIndex) {
       var columnName, textXOffset, xCor, yCor;
       xCor = (columnIndex * (cell.w - 1)) + (cell.w * 2) - 1;
-      yCor = cell.h;
+      yCor = cell.h - 2;
       textXOffset = Math.floor((cell.w - (11 * ('' + columnIndex).length)) / 2);
       textXOffset -= 2;
       columnName = '' + (columnIndex + cellXOrg);

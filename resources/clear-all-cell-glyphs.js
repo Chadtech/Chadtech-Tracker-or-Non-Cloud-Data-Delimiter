@@ -21,8 +21,8 @@
         yCor = corCalc(rowIndex, cell.h);
         return fillASquare(ctx, color, {
           w: cell.w - 4,
-          h: cell.h - 4
-        }, [xCor + 2, yCor + 2]);
+          h: cell.h - 2
+        }, [xCor + 2, yCor]);
       });
     });
   };

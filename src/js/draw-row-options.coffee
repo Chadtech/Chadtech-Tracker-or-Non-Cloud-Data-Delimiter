@@ -8,7 +8,7 @@ _ = require 'lodash'
 module.exports = (sheet, ctx, glyphs, color, cell, Assets) ->
 
   yCalc = (index) =>
-    (index * (cell.h - 1) + (cell.h * 2)) + 1
+    (index * (cell.h - 1) + ((cell.h - 1) * 2))
   xCor = 0
 
   _.forEach [ 0 .. 14 ], (rowIndex) ->
