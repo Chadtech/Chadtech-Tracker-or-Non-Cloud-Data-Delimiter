@@ -12,7 +12,7 @@
     "icon": "link.png",
     "toolbar":  true,
     "frame":    true,
-    "width":    604,
+    "width":    602,
     "height":   494,
     "position": "mouse"
   }

@@ -326,16 +326,18 @@
             this.drawSelectedCellsSelected();
           }
           if (whichCell[0] === -2) {
-            if ((mouseX % cell.w) < 35) {
+            if ((mouseX % cell.w) < 25) {
+              console.log('COLUMN DELETE');
+              Sheets[currentSheet].splice(whichCell[1], 1);
+              ClearAllCellGlyphs(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
+              DrawEveryCellData(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
+            } else {
+              console.log('COLUMN ADD');
               newColumn = [];
               _.forEach(Sheets[currentSheet][0], function(column) {
                 return newColumn.push('');
               });
               Sheets[currentSheet].splice(whichCell[1], 0, newColumn);
-              ClearAllCellGlyphs(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
-              DrawEveryCellData(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
-            } else {
-              Sheets[currentSheet].splice(whichCell[1], 1);
               ClearAllCellGlyphs(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
               DrawEveryCellData(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
             }
@@ -346,22 +348,7 @@
             _.forEach(Sheets[currentSheet], function(column, columnIndex) {
               return selectedCells.push([whichCell[0], columnIndex]);
             });
-            this.drawSelectedCellsSelected();
-          }
-          if (whichCell[1] === -2) {
-            if (((mouseX + cell.w) % cell.w) < 35) {
-              _.forEach(Sheets[currentSheet], function(column) {
-                return column.splice(whichCell[0], 0, '');
-              });
-              ClearAllCellGlyphs(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
-              return DrawEveryCellData(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
-            } else {
-              _.forEach(Sheets[currentSheet], function(column) {
-                return column.splice(whichCell[0], 1);
-              });
-              ClearAllCellGlyphs(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
-              return DrawEveryCellData(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
-            }
+            return this.drawSelectedCellsSelected();
           }
         } else {
           this.drawSelectedCellsNormal();
@@ -517,7 +504,7 @@
               selectedCells[0][0]++;
               return this.drawSelectedCellsSelected();
             case Keys['down']:
-              if (selectedCells[0][0] < (Sheets[currentSheet].length - 1)) {
+              if (selectedCells[0][0] < (Sheets[currentSheet][0].length - 1)) {
                 justSelected = true;
                 this.drawSelectedCellsNormal();
                 if (((selectedCells[0][0] - cellYOrg) % 14) === 13) {

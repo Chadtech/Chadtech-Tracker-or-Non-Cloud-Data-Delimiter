@@ -317,22 +317,23 @@ Index = React.createClass
 
         # If they clicked either delete column or new column
         if whichCell[0] is -2
-          # new column
-          if (mouseX % cell.w) < 35
+          # Delete column
+
+          if (mouseX % cell.w) < 25
+            console.log 'COLUMN DELETE'
+            Sheets[currentSheet].splice whichCell[1], 1
+            ClearAllCellGlyphs  Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+            DrawEveryCellData   Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+
+          # add column
+          else
+            console.log 'COLUMN ADD'
             newColumn = []
             _.forEach Sheets[currentSheet][0], (column) ->
               newColumn.push ''
             Sheets[currentSheet].splice whichCell[1], 0, newColumn
             ClearAllCellGlyphs  Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
             DrawEveryCellData   Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
-
-
-          # delete column
-          else
-            Sheets[currentSheet].splice whichCell[1], 1
-            ClearAllCellGlyphs  Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
-            DrawEveryCellData   Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
-
 
         # If they clicked on the row name
         if whichCell[1] is -1
@@ -342,21 +343,21 @@ Index = React.createClass
             selectedCells.push [ whichCell[0], columnIndex]
           @drawSelectedCellsSelected()
 
-        # If they clicked on delete row or new row
-        if whichCell[1] is -2
-          # new row
-          if ((mouseX + cell.w) % cell.w) < 35
-            _.forEach Sheets[currentSheet], (column) ->
-              column.splice whichCell[0], 0, ''
-            ClearAllCellGlyphs  Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
-            DrawEveryCellData   Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+        # # If they clicked on delete row or new row
+        # if whichCell[1] is -2
+        #   # new row
+        #   if ((mouseX + cell.w) % cell.w) < 25
+        #     _.forEach Sheets[currentSheet], (column) ->
+        #       column.splice whichCell[0], 0, ''
+        #     ClearAllCellGlyphs  Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+        #     DrawEveryCellData   Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
 
-          # delete row
-          else
-            _.forEach Sheets[currentSheet], (column) ->
-              column.splice whichCell[0], 1         
-            ClearAllCellGlyphs  Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
-            DrawEveryCellData   Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+        #   # delete row
+        #   else
+        #     _.forEach Sheets[currentSheet], (column) ->
+        #       column.splice whichCell[0], 1         
+        #     ClearAllCellGlyphs  Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+        #     DrawEveryCellData   Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
 
 
       else
@@ -496,7 +497,7 @@ Index = React.createClass
             @drawSelectedCellsSelected()
 
           when Keys['down']
-            if selectedCells[0][0] < (Sheets[currentSheet].length - 1)
+            if selectedCells[0][0] < (Sheets[currentSheet][0].length - 1)
               justSelected = true
               @drawSelectedCellsNormal()
               if ((selectedCells[0][0] - cellYOrg ) % 14) is 13
