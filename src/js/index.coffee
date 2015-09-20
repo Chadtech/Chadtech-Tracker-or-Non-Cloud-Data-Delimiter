@@ -53,11 +53,12 @@ lighterGray = '#c0c0c0'
 gray        = '#808080'
 darkGray    = '#404040'
 darkerGray  = '#202020'
-borderGray  = '#101408'
+borderGray  = '#101010'
 
 cellColor     = hexToArray darkGray
 edgeColor     = hexToArray darkerGray
 selectedColor = hexToArray lighterGray
+borderColor   = hexToArray borderGray
 
 
 # Images for each character
@@ -73,6 +74,11 @@ cell =
 
 # Assets
 Assets = undefined 
+
+
+buttonXBoundaries =
+  'open': [ 5, 56 ]
+  'save': [ 57, 109 ]
 
 
 # Default Data for Development
@@ -94,7 +100,6 @@ Index = React.createClass
     windowWidth:    window.innerWidth
     windowHeight:   window.innerHeight
     workareaHeight: window.innerHeight - (2 * toolbarSize)
-    sheetNames:     [ 'dollars' ]
     currentSheet:   0
     filePath:       ''
 
@@ -179,9 +184,10 @@ Index = React.createClass
     toolbar1 = document.getElementById 'toolbar1'
     toolbar1 = toolbar1.getContext '2d'
 
-    # for point in [ 0 .. window.innerWidth - 1 ]
-    #   borderColor = hexToArray borderGray
-    #   putPixel toolbar1, borderColor, [ point, 0 ]
+    for point in [ 0 .. window.innerWidth - 1 ]
+      borderColor = hexToArray borderGray
+      putPixel toolbar1, borderColor, [ point, 2 ]
+      putPixel toolbar1, borderColor, [ point, 3 ]
 
     sheetXOrg = 5
 
@@ -193,22 +199,27 @@ Index = React.createClass
         tabWidth = sheetName.length + 2
         tabWidth *= Glyphs.characterWidth
 
-        toolbar1.fillStyle = '#000000'
-        toolbar1.fillRect sheetXOrg, 2, tabWidth, cell.h
+        toolbar1.fillStyle = '#202020'
+        toolbar1.fillRect sheetXOrg + 1, 2, tabWidth - 2, cell.h - 1
 
-        # for point in [ 0 .. cell.h - 1 ]
-        #   putPixel toolbar1, [0,0,0,255], [ sheetXOrg,            point ]
-        #   putPixel toolbar1, [0,0,0,255], [ sheetXOrg + tabWidth, point ]
+        for point in [ 0 .. cell.h - 1 ]
+          putPixel toolbar1, borderColor, [ sheetXOrg,                point + 3 ]
+          putPixel toolbar1, borderColor, [ sheetXOrg - 1,            point + 3 ]
+          putPixel toolbar1, borderColor, [ sheetXOrg + tabWidth,     point + 3 ]
+          putPixel toolbar1, borderColor, [ sheetXOrg + tabWidth - 1, point + 3 ]
 
-        # for point in [ 0 .. tabWidth - 1 ]
-        #   putPixel toolbar1, [0,0,0,255], [ sheetXOrg + point, cell.h - 1 ]
+        for point in [ 0 .. tabWidth + 1 ]
+          putPixel toolbar1, borderColor, [ sheetXOrg + point - 1,     2 ]
+          putPixel toolbar1, borderColor, [ sheetXOrg + point - 1,     3 ]
+          putPixel toolbar1, borderColor, [ sheetXOrg + point - 1,     cell.h + 2 ]
+          putPixel toolbar1, borderColor, [ sheetXOrg + point - 1,     cell.h + 3 ]
 
         glyphXOrg    = sheetXOrg
         glyphXOffset = tabWidth // 2
         glyphXOffset -= (11 * sheetName.length) // 2
         glyphXOrg    += glyphXOffset
 
-        drawText toolbar1, Glyphs, 3, sheetName, [ glyphXOrg, 7 ]
+        drawText toolbar1, Glyphs, 6, sheetName, [ glyphXOrg, 7 ]
 
         sheetXOrg += tabWidth + 5
 
@@ -221,21 +232,21 @@ Index = React.createClass
         toolbar1.fillRect sheetXOrg + 1, 2, tabWidth - 2, cell.h - 1
 
         for point in [ 0 .. cell.h - 1 ]
-          putPixel toolbar1, [0,0,0,255], [ sheetXOrg,            point + 2 ]
-          putPixel toolbar1, [0,0,0,255], [ sheetXOrg + tabWidth, point + 2 ]
-          putPixel toolbar1, [0,0,0,255], [ sheetXOrg,            point + 3 ]
-          putPixel toolbar1, [0,0,0,255], [ sheetXOrg + tabWidth, point + 3 ]
+          putPixel toolbar1, borderColor, [ sheetXOrg,                point + 3 ]
+          putPixel toolbar1, borderColor, [ sheetXOrg - 1,            point + 3 ]
+          putPixel toolbar1, borderColor, [ sheetXOrg + tabWidth,     point + 3 ]
+          putPixel toolbar1, borderColor, [ sheetXOrg + tabWidth - 1, point + 3 ]
 
-        for point in [ 0 .. tabWidth - 1 ]
-          putPixel toolbar1, [0,0,0,255], [ sheetXOrg + point,     cell.h + 1 ]
-          putPixel toolbar1, [0,0,0,255], [ sheetXOrg + point + 1, cell.h + 1 ]
+        for point in [ 0 .. tabWidth + 1 ]
+          putPixel toolbar1, borderColor, [ sheetXOrg + point - 1,     cell.h + 2 ]
+          putPixel toolbar1, borderColor, [ sheetXOrg + point - 1,     cell.h + 3 ]
 
         glyphXOrg    = sheetXOrg
         glyphXOffset = tabWidth // 2
         glyphXOffset -= (11 * sheetName.length) // 2
         glyphXOrg    += glyphXOffset
 
-        drawText toolbar1, Glyphs, 2, sheetName, [ glyphXOrg, 7 ]
+        drawText toolbar1, Glyphs, 6, sheetName, [ glyphXOrg, 7 ]
 
         sheetXOrg += tabWidth + 5
 
@@ -257,15 +268,15 @@ Index = React.createClass
   refreshWorkArea: ->
     workarea  = document.getElementById 'workarea'
     workarea  = workarea.getContext '2d', alpha: false
-    sheetName = @state.sheetNames[ @state.currentSheet ]
+    sheetName = sheetNames[ @state.currentSheet ]
 
     workarea.fillStyle = '#000000'
     workarea.fillRect 0, 0, window.innerWidth, window.innerHeight
 
     just8x15 = Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
-    DrawOriginMark    sheetName, workarea, Glyphs, edgeColor, cell
-    DrawColumnNames   just8x15, workarea, Glyphs, edgeColor, cell, cellXOrg
-    DrawRowNames      just8x15, workarea, Glyphs, edgeColor, cell, cellYOrg
+    DrawOriginMark    sheetName, workarea, Glyphs, edgeColor, cell, Assets
+    DrawColumnNames   just8x15,  workarea, Glyphs, edgeColor, cell, cellXOrg
+    DrawRowNames      just8x15,  workarea, Glyphs, edgeColor, cell, cellYOrg
 
     ClearAllCellGlyphs  Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
     DrawEveryCellBorder Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
@@ -353,14 +364,66 @@ Index = React.createClass
         selectedCells = [ whichCell ]
         @drawSelectedCellsSelected()
         justSelected = true
+
     else
       unless CoordinateIsElement selectedCells, whichCell
         selectedCells.push whichCell
         DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, whichCell
 
 
+  buttonFunctions:
+    open: doNothing
+    save: 
+      mouseDown: (toolbar0) =>
+        toolbar0.drawImage Assets['save'][1], 57, 5
+
+      mouseUp: (toolbar0, handleSave, handleSaveAs, stateFilePath) =>
+        if stateFilePath isnt ''
+          handleSave()
+        else
+          @handleSaveAs()
+        toolbar0.drawImage Assets['save'][0], 57, 5
+
+
+  handleClickToolbar0: ->
+    mouseX = event.clientX
+    mouseY = event.clientY
+    
+    toolbar0 = document.getElementById 'toolbar0'
+    toolbar0 = toolbar0.getContext '2d', alpha: false
+
+    buttonXBoundaries =
+      'open': [ 5, 56 ]
+      'save': [ 57, 109 ]
+
+    _.forEach (_.keys buttonXBoundaries), (key) =>
+      button = buttonXBoundaries[ key ]
+      if (mouseX > button[0]) and (button[1] > mouseX)
+        @buttonFunctions[key].mouseDown toolbar0
+
+
+  handleMouseUpToolbar0: ->
+    mouseX = event.clientX
+    mouseY = event.clientY
+    
+    toolbar0 = document.getElementById 'toolbar0'
+    toolbar0 = toolbar0.getContext '2d', alpha: false
+
+    buttonXBoundaries =
+      'open': [ 5, 56 ]
+      'save': [ 57, 109 ]
+
+    _.forEach (_.keys buttonXBoundaries), (key) =>
+      button = buttonXBoundaries[ key ]
+      if (mouseX > button[0]) and (button[1] > mouseX)
+        @buttonFunctions[key].mouseUp toolbar0, 
+          @handleSave
+          @handleSaveAs
+          @state.filePath
+
+
   handleSaveAs: ->
-    csvs = convertToCSVs @state.sheets
+    csvs = convertToCSVs Sheets
     csvs = _.map csvs, (csv) ->
       new Buffer csv, 'utf-8'
 
@@ -370,7 +433,7 @@ Index = React.createClass
       @setState filePath: event.target.value
       _.forEach csvs, (csv, csvIndex) =>
         filePath = event.target.value
-        fileName = '/' + @state.sheetNames[ csvIndex ]
+        fileName = '/' + sheetNames[ csvIndex ]
         fileName += '.csv'
         filePath += fileName
         fs.writeFileSync filePath, csv
@@ -385,7 +448,7 @@ Index = React.createClass
 
     _.forEach csvs, (csv, csvIndex) =>
       filePath = @state.filePath
-      fileName = '/' + @state.sheetNames[ csvIndex ]
+      fileName = '/' + sheetNames[ csvIndex ]
       fileName += '.csv'
       filePath += fileName
       fs.writeFileSync filePath, csv
@@ -399,7 +462,7 @@ Index = React.createClass
   onKeyDown: (event) ->
 
     workarea  = document.getElementById 'workarea'
-    workarea  = workarea.getContext '2d'   
+    workarea  = workarea.getContext '2d', alpha: false   
     
     if event.metaKey
 
@@ -433,10 +496,13 @@ Index = React.createClass
             @drawSelectedCellsSelected()
 
           when Keys['down']
-            justSelected = true
-            @drawSelectedCellsNormal()
-            selectedCells[0][0]++
-            @drawSelectedCellsSelected()
+            if selectedCells[0][0] < (Sheets[currentSheet].length - 1)
+              justSelected = true
+              @drawSelectedCellsNormal()
+              if ((selectedCells[0][0] - cellYOrg ) % 14) is 13
+                cellYOrg++
+              selectedCells[0][0]++
+              @drawSelectedCellsSelected()
           
           when Keys['up']
             justSelected = true
@@ -456,13 +522,13 @@ Index = React.createClass
             selectedCells[0][1]--
             @drawSelectedCellsSelected()
 
-          when Keys['ctrl'] then doNothing()
-
+          when Keys['ctrl']  then doNothing()
           when Keys['shift'] then doNothing()
-
+          when Keys['alt']   then doNothing()
 
           else
             if event.shiftKey
+
               if justSelected
                 justSelected = false
                 SC = selectedCells[0]
@@ -474,6 +540,7 @@ Index = React.createClass
                 DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, SC
 
             else
+
               if justSelected
                 justSelected = false
                 SC = selectedCells[0]
@@ -500,6 +567,8 @@ Index = React.createClass
 
       canvas
         id:                 'toolbar0'
+        onMouseDown:        @handleClickToolbar0
+        onMouseUp:          @handleMouseUpToolbar0
         style:
           backgroundColor:  darkerGray
           width:            '100%'

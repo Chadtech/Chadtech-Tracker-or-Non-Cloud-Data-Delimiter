@@ -3,10 +3,11 @@ _ = require 'lodash'
 
 # Utilities
 {putPixel, hexToArray, arrayToHex, drawText}  = require './drawingUtilities.js'
-drawABox                                      = require './draw-a-box.js'
+# drawABox                                      = require './draw-a-box.js'
+fillASquare                      = require './fill-a-square.js'
 
 
-module.exports = (sheetName, ctx, glyphs, color, cell) ->
+module.exports = (sheetName, ctx, glyphs, color, cell, Assets) ->
 
   xCor = 0
   yCor = 0
@@ -15,7 +16,11 @@ module.exports = (sheetName, ctx, glyphs, color, cell) ->
     h: cell.h * 2
     w: cell.w * 2
 
-  xOffSet = (cell.w * 2 - (11 * sheetName.length)) // 2
-  drawABox ctx, color, bigBox, [ xCor, yCor ]
-  drawText ctx, glyphs, 1, sheetName, [ xCor + 4 + xOffSet, yCor + 16 ]
+  ctx.fillStyle = '#202020'
+  ctx.fillRect xCor, yCor, cell.w * 2, cell.h * 2
 
+  ctx.drawImage Assets['^+'][0], cell.h, yCor + cell.h + 1
+  ctx.drawImage Assets['<+'][0], xCor + 25 + cell.w, 0
+
+  ctx.fillStyle = '#000000'
+  ctx.fillRect cell.w + 2, cell.h + 2, (cell.w * 2) - 2, (cell.h * 2) - 2 

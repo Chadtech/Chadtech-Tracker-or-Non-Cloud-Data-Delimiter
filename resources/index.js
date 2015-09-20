@@ -1,5 +1,5 @@
 (function() {
-  var AllCharacters, AssetLoader, Assets, ClearAllCellGlyphs, CoordinateIsElement, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawEveryCellBorder, DrawEveryCellData, DrawNormalCell, DrawOriginMark, DrawRowNames, DrawRowOptions, DrawSelectedCell, DrawSheetTabs, Eightx15ify, Glyphs, Index, Keys, LoadGlyphs, React, Sheets, _, a, borderGray, canvas, cell, cellColor, cellXOrg, cellYOrg, convertToCSVs, currentSheet, darkGray, darkerGray, div, doNothing, drawText, edgeColor, gray, gui, hexToArray, img, injectionPoint, input, justSelected, lighterGray, p, putPixel, ref, ref1, ref2, rowNameRadix, selectedCells, selectedColor, sheetNames, toolbarSize, zeroPadder;
+  var AllCharacters, AssetLoader, Assets, ClearAllCellGlyphs, CoordinateIsElement, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawEveryCellBorder, DrawEveryCellData, DrawNormalCell, DrawOriginMark, DrawRowNames, DrawRowOptions, DrawSelectedCell, DrawSheetTabs, Eightx15ify, Glyphs, Index, Keys, LoadGlyphs, React, Sheets, _, a, borderColor, borderGray, buttonXBoundaries, canvas, cell, cellColor, cellXOrg, cellYOrg, convertToCSVs, currentSheet, darkGray, darkerGray, div, doNothing, drawText, edgeColor, gray, gui, hexToArray, img, injectionPoint, input, justSelected, lighterGray, p, putPixel, ref, ref1, ref2, rowNameRadix, selectedCells, selectedColor, sheetNames, toolbarSize, zeroPadder;
 
   global.document = window.document;
 
@@ -69,13 +69,15 @@
 
   darkerGray = '#202020';
 
-  borderGray = '#101408';
+  borderGray = '#101010';
 
   cellColor = hexToArray(darkGray);
 
   edgeColor = hexToArray(darkerGray);
 
   selectedColor = hexToArray(lighterGray);
+
+  borderColor = hexToArray(borderGray);
 
   Glyphs = void 0;
 
@@ -87,6 +89,11 @@
   };
 
   Assets = void 0;
+
+  buttonXBoundaries = {
+    'open': [5, 56],
+    'save': [57, 109]
+  };
 
   currentSheet = 0;
 
@@ -110,7 +117,6 @@
         windowWidth: window.innerWidth,
         windowHeight: window.innerHeight,
         workareaHeight: window.innerHeight - (2 * toolbarSize),
-        sheetNames: ['dollars'],
         currentSheet: 0,
         filePath: ''
       };
@@ -184,7 +190,7 @@
       })(this));
     },
     drawToolBar0: function() {
-      var borderColor, i, point, ref3, toolbar0;
+      var i, point, ref3, toolbar0;
       toolbar0 = document.getElementById('toolbar0');
       toolbar0 = toolbar0.getContext('2d');
       for (point = i = 0, ref3 = this.state.windowWidth - 1; 0 <= ref3 ? i <= ref3 : i >= ref3; point = 0 <= ref3 ? ++i : --i) {
@@ -195,44 +201,61 @@
       return toolbar0.drawImage(Assets['save'][0], 58, 5);
     },
     drawToolBar1: function() {
-      var sheetXOrg, toolbar1;
+      var i, point, ref3, sheetXOrg, toolbar1;
       toolbar1 = document.getElementById('toolbar1');
       toolbar1 = toolbar1.getContext('2d');
+      for (point = i = 0, ref3 = window.innerWidth - 1; 0 <= ref3 ? i <= ref3 : i >= ref3; point = 0 <= ref3 ? ++i : --i) {
+        borderColor = hexToArray(borderGray);
+        putPixel(toolbar1, borderColor, [point, 2]);
+        putPixel(toolbar1, borderColor, [point, 3]);
+      }
       sheetXOrg = 5;
       return _.forEach(Sheets, function(sheet, sheetIndex) {
-        var glyphXOffset, glyphXOrg, i, j, point, ref3, ref4, sheetName, tabWidth;
+        var glyphXOffset, glyphXOrg, j, k, l, m, ref4, ref5, ref6, ref7, sheetName, tabWidth;
         sheetName = sheetNames[sheetIndex];
         if (sheetIndex !== currentSheet) {
           tabWidth = sheetName.length + 2;
           tabWidth *= Glyphs.characterWidth;
-          toolbar1.fillStyle = '#000000';
-          toolbar1.fillRect(sheetXOrg, 2, tabWidth, cell.h);
+          toolbar1.fillStyle = '#202020';
+          toolbar1.fillRect(sheetXOrg + 1, 2, tabWidth - 2, cell.h - 1);
+          for (point = j = 0, ref4 = cell.h - 1; 0 <= ref4 ? j <= ref4 : j >= ref4; point = 0 <= ref4 ? ++j : --j) {
+            putPixel(toolbar1, borderColor, [sheetXOrg, point + 3]);
+            putPixel(toolbar1, borderColor, [sheetXOrg - 1, point + 3]);
+            putPixel(toolbar1, borderColor, [sheetXOrg + tabWidth, point + 3]);
+            putPixel(toolbar1, borderColor, [sheetXOrg + tabWidth - 1, point + 3]);
+          }
+          for (point = k = 0, ref5 = tabWidth + 1; 0 <= ref5 ? k <= ref5 : k >= ref5; point = 0 <= ref5 ? ++k : --k) {
+            putPixel(toolbar1, borderColor, [sheetXOrg + point - 1, 2]);
+            putPixel(toolbar1, borderColor, [sheetXOrg + point - 1, 3]);
+            putPixel(toolbar1, borderColor, [sheetXOrg + point - 1, cell.h + 2]);
+            putPixel(toolbar1, borderColor, [sheetXOrg + point - 1, cell.h + 3]);
+          }
           glyphXOrg = sheetXOrg;
           glyphXOffset = Math.floor(tabWidth / 2);
           glyphXOffset -= Math.floor((11 * sheetName.length) / 2);
           glyphXOrg += glyphXOffset;
-          drawText(toolbar1, Glyphs, 3, sheetName, [glyphXOrg, 7]);
+          drawText(toolbar1, Glyphs, 6, sheetName, [glyphXOrg, 7]);
           return sheetXOrg += tabWidth + 5;
         } else {
           tabWidth = sheetName.length + 2;
           tabWidth *= Glyphs.characterWidth;
           toolbar1.fillStyle = '#202020';
           toolbar1.fillRect(sheetXOrg + 1, 2, tabWidth - 2, cell.h - 1);
-          for (point = i = 0, ref3 = cell.h - 1; 0 <= ref3 ? i <= ref3 : i >= ref3; point = 0 <= ref3 ? ++i : --i) {
-            putPixel(toolbar1, [0, 0, 0, 255], [sheetXOrg, point + 2]);
-            putPixel(toolbar1, [0, 0, 0, 255], [sheetXOrg + tabWidth, point + 2]);
-            putPixel(toolbar1, [0, 0, 0, 255], [sheetXOrg, point + 3]);
-            putPixel(toolbar1, [0, 0, 0, 255], [sheetXOrg + tabWidth, point + 3]);
+          for (point = l = 0, ref6 = cell.h - 1; 0 <= ref6 ? l <= ref6 : l >= ref6; point = 0 <= ref6 ? ++l : --l) {
+            putPixel(toolbar1, borderColor, [sheetXOrg, point + 3]);
+            putPixel(toolbar1, borderColor, [sheetXOrg - 1, point + 3]);
+            putPixel(toolbar1, borderColor, [sheetXOrg + tabWidth, point + 3]);
+            putPixel(toolbar1, borderColor, [sheetXOrg + tabWidth - 1, point + 3]);
           }
-          for (point = j = 0, ref4 = tabWidth - 1; 0 <= ref4 ? j <= ref4 : j >= ref4; point = 0 <= ref4 ? ++j : --j) {
-            putPixel(toolbar1, [0, 0, 0, 255], [sheetXOrg + point, cell.h + 1]);
-            putPixel(toolbar1, [0, 0, 0, 255], [sheetXOrg + point + 1, cell.h + 1]);
+          for (point = m = 0, ref7 = tabWidth + 1; 0 <= ref7 ? m <= ref7 : m >= ref7; point = 0 <= ref7 ? ++m : --m) {
+            putPixel(toolbar1, borderColor, [sheetXOrg + point - 1, cell.h + 2]);
+            putPixel(toolbar1, borderColor, [sheetXOrg + point - 1, cell.h + 3]);
           }
           glyphXOrg = sheetXOrg;
           glyphXOffset = Math.floor(tabWidth / 2);
           glyphXOffset -= Math.floor((11 * sheetName.length) / 2);
           glyphXOrg += glyphXOffset;
-          drawText(toolbar1, Glyphs, 2, sheetName, [glyphXOrg, 7]);
+          drawText(toolbar1, Glyphs, 6, sheetName, [glyphXOrg, 7]);
           return sheetXOrg += tabWidth + 5;
         }
       });
@@ -265,11 +288,11 @@
       workarea = workarea.getContext('2d', {
         alpha: false
       });
-      sheetName = this.state.sheetNames[this.state.currentSheet];
+      sheetName = sheetNames[this.state.currentSheet];
       workarea.fillStyle = '#000000';
       workarea.fillRect(0, 0, window.innerWidth, window.innerHeight);
       just8x15 = Eightx15ify(Sheets[currentSheet], cellXOrg, cellYOrg);
-      DrawOriginMark(sheetName, workarea, Glyphs, edgeColor, cell);
+      DrawOriginMark(sheetName, workarea, Glyphs, edgeColor, cell, Assets);
       DrawColumnNames(just8x15, workarea, Glyphs, edgeColor, cell, cellXOrg);
       DrawRowNames(just8x15, workarea, Glyphs, edgeColor, cell, cellYOrg);
       ClearAllCellGlyphs(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
@@ -353,9 +376,73 @@
         }
       }
     },
+    buttonFunctions: {
+      open: doNothing,
+      save: {
+        mouseDown: (function(_this) {
+          return function(toolbar0) {
+            return toolbar0.drawImage(Assets['save'][1], 57, 5);
+          };
+        })(this),
+        mouseUp: (function(_this) {
+          return function(toolbar0, handleSave, handleSaveAs, stateFilePath) {
+            if (stateFilePath !== '') {
+              handleSave();
+            } else {
+              _this.handleSaveAs();
+            }
+            return toolbar0.drawImage(Assets['save'][0], 57, 5);
+          };
+        })(this)
+      }
+    },
+    handleClickToolbar0: function() {
+      var mouseX, mouseY, toolbar0;
+      mouseX = event.clientX;
+      mouseY = event.clientY;
+      toolbar0 = document.getElementById('toolbar0');
+      toolbar0 = toolbar0.getContext('2d', {
+        alpha: false
+      });
+      buttonXBoundaries = {
+        'open': [5, 56],
+        'save': [57, 109]
+      };
+      return _.forEach(_.keys(buttonXBoundaries), (function(_this) {
+        return function(key) {
+          var button;
+          button = buttonXBoundaries[key];
+          if ((mouseX > button[0]) && (button[1] > mouseX)) {
+            return _this.buttonFunctions[key].mouseDown(toolbar0);
+          }
+        };
+      })(this));
+    },
+    handleMouseUpToolbar0: function() {
+      var mouseX, mouseY, toolbar0;
+      mouseX = event.clientX;
+      mouseY = event.clientY;
+      toolbar0 = document.getElementById('toolbar0');
+      toolbar0 = toolbar0.getContext('2d', {
+        alpha: false
+      });
+      buttonXBoundaries = {
+        'open': [5, 56],
+        'save': [57, 109]
+      };
+      return _.forEach(_.keys(buttonXBoundaries), (function(_this) {
+        return function(key) {
+          var button;
+          button = buttonXBoundaries[key];
+          if ((mouseX > button[0]) && (button[1] > mouseX)) {
+            return _this.buttonFunctions[key].mouseUp(toolbar0, _this.handleSave, _this.handleSaveAs, _this.state.filePath);
+          }
+        };
+      })(this));
+    },
     handleSaveAs: function() {
       var csvs, fileExporter;
-      csvs = convertToCSVs(this.state.sheets);
+      csvs = convertToCSVs(Sheets);
       csvs = _.map(csvs, function(csv) {
         return new Buffer(csv, 'utf-8');
       });
@@ -368,7 +455,7 @@
           return _.forEach(csvs, function(csv, csvIndex) {
             var fileName, filePath;
             filePath = event.target.value;
-            fileName = '/' + _this.state.sheetNames[csvIndex];
+            fileName = '/' + sheetNames[csvIndex];
             fileName += '.csv';
             filePath += fileName;
             return fs.writeFileSync(filePath, csv);
@@ -387,7 +474,7 @@
         return function(csv, csvIndex) {
           var fileName, filePath;
           filePath = _this.state.filePath;
-          fileName = '/' + _this.state.sheetNames[csvIndex];
+          fileName = '/' + sheetNames[csvIndex];
           fileName += '.csv';
           filePath += fileName;
           return fs.writeFileSync(filePath, csv);
@@ -398,7 +485,9 @@
     onKeyDown: function(event) {
       var SC, workarea;
       workarea = document.getElementById('workarea');
-      workarea = workarea.getContext('2d');
+      workarea = workarea.getContext('2d', {
+        alpha: false
+      });
       if (event.metaKey) {
         if (event.which === Keys['s']) {
           if (this.state.filePath) {
@@ -428,10 +517,16 @@
               selectedCells[0][0]++;
               return this.drawSelectedCellsSelected();
             case Keys['down']:
-              justSelected = true;
-              this.drawSelectedCellsNormal();
-              selectedCells[0][0]++;
-              return this.drawSelectedCellsSelected();
+              if (selectedCells[0][0] < (Sheets[currentSheet].length - 1)) {
+                justSelected = true;
+                this.drawSelectedCellsNormal();
+                if (((selectedCells[0][0] - cellYOrg) % 14) === 13) {
+                  cellYOrg++;
+                }
+                selectedCells[0][0]++;
+                return this.drawSelectedCellsSelected();
+              }
+              break;
             case Keys['up']:
               justSelected = true;
               this.drawSelectedCellsNormal();
@@ -450,6 +545,8 @@
             case Keys['ctrl']:
               return doNothing();
             case Keys['shift']:
+              return doNothing();
+            case Keys['alt']:
               return doNothing();
             default:
               if (event.shiftKey) {
@@ -493,6 +590,8 @@
         }
       }, canvas({
         id: 'toolbar0',
+        onMouseDown: this.handleClickToolbar0,
+        onMouseUp: this.handleMouseUpToolbar0,
         style: {
           backgroundColor: darkerGray,
           width: '100%',

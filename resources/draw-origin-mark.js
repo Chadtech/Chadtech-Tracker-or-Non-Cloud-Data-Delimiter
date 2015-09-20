@@ -1,23 +1,26 @@
 (function() {
-  var _, arrayToHex, drawABox, drawText, hexToArray, putPixel, ref;
+  var _, arrayToHex, drawText, fillASquare, hexToArray, putPixel, ref;
 
   _ = require('lodash');
 
   ref = require('./drawingUtilities.js'), putPixel = ref.putPixel, hexToArray = ref.hexToArray, arrayToHex = ref.arrayToHex, drawText = ref.drawText;
 
-  drawABox = require('./draw-a-box.js');
+  fillASquare = require('./fill-a-square.js');
 
-  module.exports = function(sheetName, ctx, glyphs, color, cell) {
-    var bigBox, xCor, xOffSet, yCor;
+  module.exports = function(sheetName, ctx, glyphs, color, cell, Assets) {
+    var bigBox, xCor, yCor;
     xCor = 0;
     yCor = 0;
     bigBox = {
       h: cell.h * 2,
       w: cell.w * 2
     };
-    xOffSet = Math.floor((cell.w * 2 - (11 * sheetName.length)) / 2);
-    drawABox(ctx, color, bigBox, [xCor, yCor]);
-    return drawText(ctx, glyphs, 1, sheetName, [xCor + 4 + xOffSet, yCor + 16]);
+    ctx.fillStyle = '#202020';
+    ctx.fillRect(xCor, yCor, cell.w * 2, cell.h * 2);
+    ctx.drawImage(Assets['^+'][0], cell.h, yCor + cell.h + 1);
+    ctx.drawImage(Assets['<+'][0], xCor + 25 + cell.w, 0);
+    ctx.fillStyle = '#000000';
+    return ctx.fillRect(cell.w + 2, cell.h + 2, (cell.w * 2) - 2, (cell.h * 2) - 2);
   };
 
 }).call(this);

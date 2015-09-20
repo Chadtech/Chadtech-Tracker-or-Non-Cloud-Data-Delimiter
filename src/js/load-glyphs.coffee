@@ -11,15 +11,13 @@ module.exports = (allCharacters, next) ->
       0: {}
       1: {}
       2: {}
-      3: {}
       4: {}
-      # 5: {}
-      # 6: {}
+      6: {}
 
   totalNumberOfGlyphs  = (5 * allCharacters.length)
   numberOfLoadedGlyphs = 0
 
-  _.forEach [ 0 .. 4 ], (CS) ->
+  _.forEach [ 0, 1, 2, 4, 6 ], (CS) ->
     _.forEach allCharacters, (character, characterIndex) ->
       characters.images[ CS ][ character ] = image()
 

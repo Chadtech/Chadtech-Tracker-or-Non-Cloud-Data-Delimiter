@@ -13,13 +13,13 @@
         0: {},
         1: {},
         2: {},
-        3: {},
-        4: {}
+        4: {},
+        6: {}
       }
     };
     totalNumberOfGlyphs = 5 * allCharacters.length;
     numberOfLoadedGlyphs = 0;
-    _.forEach([0, 1, 2, 3, 4], function(CS) {
+    _.forEach([0, 1, 2, 4, 6], function(CS) {
       return _.forEach(allCharacters, function(character, characterIndex) {
         var fileName, fontName;
         characters.images[CS][character] = image();

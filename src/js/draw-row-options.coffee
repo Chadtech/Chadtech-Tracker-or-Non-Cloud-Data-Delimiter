@@ -15,6 +15,6 @@ module.exports = (sheet, ctx, glyphs, color, cell, Assets) ->
 
     yCor = yCalc rowIndex
 
-    ctx.drawImage Assets['X'][0],  xCor + 35, yCor
-    ctx.drawImage Assets['^+'][0], xCor,      yCor
+    ctx.drawImage Assets['X'][0],  xCor,        yCor
+    ctx.drawImage Assets['^+'][0], xCor + 25,   yCor
 

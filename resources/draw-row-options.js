@@ -16,8 +16,8 @@
     return _.forEach([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], function(rowIndex) {
       var yCor;
       yCor = yCalc(rowIndex);
-      ctx.drawImage(Assets['X'][0], xCor + 35, yCor);
-      return ctx.drawImage(Assets['^+'][0], xCor, yCor);
+      ctx.drawImage(Assets['X'][0], xCor, yCor);
+      return ctx.drawImage(Assets['^+'][0], xCor + 25, yCor);
     });
   };
 
