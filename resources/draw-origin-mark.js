@@ -17,7 +17,7 @@
     };
     ctx.fillStyle = '#202020';
     ctx.fillRect(xCor, yCor, bigBox.w, bigBox.h);
-    ctx.drawImage(Assets['^+'][0], 25, yCor + cell.h - 1);
+    ctx.drawImage(Assets['^+'][0], 26, yCor + cell.h - 1);
     ctx.drawImage(Assets['<+'][0], xCor + 26 + cell.w, 0);
     ctx.fillStyle = '#000000';
     return ctx.fillRect(cell.w + 2, cell.h, (cell.w * 2) - 2, cell.h * 2);

@@ -19,7 +19,7 @@ module.exports = (sheetName, ctx, glyphs, color, cell, Assets) ->
   ctx.fillStyle = '#202020'
   ctx.fillRect xCor, yCor, bigBox.w, bigBox.h
 
-  ctx.drawImage Assets['^+'][0], 25, yCor + cell.h - 1
+  ctx.drawImage Assets['^+'][0], 26,                     yCor + cell.h - 1
   ctx.drawImage Assets['<+'][0], xCor + 26 + cell.w, 0
 
   ctx.fillStyle = '#000000'

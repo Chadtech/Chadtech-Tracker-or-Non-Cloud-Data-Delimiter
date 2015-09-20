@@ -9,7 +9,7 @@ module.exports = (sheet, ctx, glyphs, color, cell, Assets) ->
 
   yCalc = (index) =>
     (index * (cell.h - 1) + ((cell.h - 1) * 2))
-  xCor = 0
+  xCor = 1
 
   _.forEach [ 0 .. 14 ], (rowIndex) ->
 

@@ -12,7 +12,7 @@
         return index * (cell.h - 1) + ((cell.h - 1) * 2);
       };
     })(this);
-    xCor = 0;
+    xCor = 1;
     return _.forEach([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], function(rowIndex) {
       var yCor;
       yCor = yCalc(rowIndex);

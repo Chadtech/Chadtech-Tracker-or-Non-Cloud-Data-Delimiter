@@ -273,7 +273,7 @@ Index = React.createClass
     workarea.fillStyle = '#000000'
     workarea.fillRect 0, 0, window.innerWidth, window.innerHeight
 
-    just8x15 = Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
+    just8x15        = Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
     DrawOriginMark    sheetName, workarea, Glyphs, edgeColor, cell, Assets
     DrawColumnNames   just8x15,  workarea, Glyphs, edgeColor, cell, cellXOrg
     DrawRowNames      just8x15,  workarea, Glyphs, edgeColor, cell, cellYOrg
