@@ -309,7 +309,7 @@
       mouseX -= cell.w;
       mouseY -= cell.h;
       mouseY -= toolbarSize + 5;
-      whichCell = [(Math.floor(mouseY / cell.h)) - 1, (Math.floor(mouseX / cell.w)) - 1];
+      whichCell = [(Math.floor((mouseY + 6) / cell.h)) - 1, (Math.floor(mouseX / cell.w)) - 1];
       workarea = document.getElementById('workarea');
       workarea = workarea.getContext('2d', {
         alpha: false
@@ -327,20 +327,20 @@
           }
           if (whichCell[0] === -2) {
             if ((mouseX % cell.w) < 25) {
-              console.log('COLUMN DELETE');
               Sheets[currentSheet].splice(whichCell[1], 1);
               ClearAllCellGlyphs(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
               DrawEveryCellData(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
             } else {
-              console.log('COLUMN ADD');
               newColumn = [];
               _.forEach(Sheets[currentSheet][0], function(column) {
                 return newColumn.push('');
               });
-              Sheets[currentSheet].splice(whichCell[1], 0, newColumn);
+              Sheets[currentSheet].splice(whichCell[1] + 1, 0, newColumn);
               ClearAllCellGlyphs(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
               DrawEveryCellData(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
             }
+            this.drawSelectedCellsNormal();
+            selectedCells = [];
           }
           if (whichCell[1] === -1) {
             this.drawSelectedCellsNormal();
@@ -348,7 +348,24 @@
             _.forEach(Sheets[currentSheet], function(column, columnIndex) {
               return selectedCells.push([whichCell[0], columnIndex]);
             });
-            return this.drawSelectedCellsSelected();
+            this.drawSelectedCellsSelected();
+          }
+          if (whichCell[1] === -2) {
+            if (((mouseX + cell.w) % cell.w) < 25) {
+              _.forEach(Sheets[currentSheet], function(column) {
+                return column.splice(whichCell[0], 1);
+              });
+              ClearAllCellGlyphs(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
+              DrawEveryCellData(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
+            } else {
+              _.forEach(Sheets[currentSheet], function(column) {
+                return column.splice(whichCell[0] + 1, 0, '');
+              });
+              ClearAllCellGlyphs(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
+              DrawEveryCellData(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
+            }
+            this.drawSelectedCellsNormal();
+            return selectedCells = [];
           }
         } else {
           this.drawSelectedCellsNormal();

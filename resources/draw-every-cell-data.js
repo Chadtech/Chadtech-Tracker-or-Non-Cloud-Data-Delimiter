@@ -20,7 +20,7 @@
         xCor = corCalc(columnIndex, cell.w);
         yCor = corCalc(rowIndex, cell.h);
         if (datum.length) {
-          return drawText(ctx, glyphs, 1, datum, [xCor + 4, yCor + 5]);
+          return drawText(ctx, glyphs, 1, datum, [xCor + 4, yCor + 3]);
         }
       });
     });
