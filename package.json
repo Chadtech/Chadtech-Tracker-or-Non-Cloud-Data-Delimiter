@@ -10,10 +10,10 @@
   "window": {
     "title": "node-webkit demo",
     "icon": "link.png",
-    "toolbar": true,
-    "frame": true,
-    "width": 604,
-    "height": 494,
+    "toolbar":  true,
+    "frame":    true,
+    "width":    604,
+    "height":   494,
     "position": "mouse"
   }
 }
