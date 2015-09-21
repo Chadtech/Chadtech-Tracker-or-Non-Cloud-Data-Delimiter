@@ -316,6 +316,15 @@
       just8x15 = Eightx15ify(Sheets[currentSheet], cellXOrg, cellYOrg);
       return DrawRowNames(just8x15, workarea, Glyphs, edgeColor, cell, cellYOrg);
     },
+    DrawRowBoxes: function() {
+      var just8x15, workarea;
+      workarea = document.getElementById('workarea');
+      workarea = workarea.getContext('2d', {
+        alpha: false
+      });
+      just8x15 = Eightx15ify(Sheets[currentSheet], cellXOrg, cellYOrg);
+      return DrawRowBoxes(workarea, edgeColor, cell);
+    },
     refreshWorkArea: function() {
       var just8x15, sheetName, workarea;
       workarea = document.getElementById('workarea');
@@ -328,6 +337,7 @@
       just8x15 = Eightx15ify(Sheets[currentSheet], cellXOrg, cellYOrg);
       DrawOriginMark(sheetName, workarea, Glyphs, edgeColor, cell, Assets);
       DrawColumnNames(just8x15, workarea, Glyphs, edgeColor, cell, cellXOrg);
+      DrawRowBoxes(workarea, edgeColor, cell);
       DrawRowNames(just8x15, workarea, Glyphs, edgeColor, cell, cellYOrg);
       this.ClearAllCellGlyphs();
       DrawEveryCellBorder(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);

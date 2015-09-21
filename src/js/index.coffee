@@ -289,8 +289,14 @@ Index = React.createClass
     workarea  = document.getElementById 'workarea'
     workarea  = workarea.getContext '2d', alpha: false
     just8x15  = Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
-    # DrawRowBoxes            workarea,         edgeColor, cell
     DrawRowNames just8x15,  workarea, Glyphs, edgeColor, cell, cellYOrg
+
+
+  DrawRowBoxes: ->
+    workarea  = document.getElementById 'workarea'
+    workarea  = workarea.getContext '2d', alpha: false
+    just8x15  = Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
+    DrawRowBoxes workarea, edgeColor, cell
 
 
   refreshWorkArea: ->
@@ -304,7 +310,7 @@ Index = React.createClass
     just8x15        = Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
     DrawOriginMark    sheetName, workarea, Glyphs, edgeColor, cell, Assets
     DrawColumnNames   just8x15,  workarea, Glyphs, edgeColor, cell, cellXOrg
-    # DrawRowBoxes                 workarea,         edgeColor, cell
+    DrawRowBoxes                 workarea,         edgeColor, cell
     DrawRowNames      just8x15,  workarea, Glyphs, edgeColor, cell, cellYOrg
 
     @ClearAllCellGlyphs()
