@@ -9,7 +9,7 @@
 
   fillASquare = require('./fill-a-square.js');
 
-  module.exports = function(sheet, ctx, glyphs, color, cell) {
+  module.exports = function(ctx, glyphs, color, cell) {
     var corCalc;
     corCalc = function(index, dimension) {
       return (index * (dimension - 1)) + (dimension * 2);

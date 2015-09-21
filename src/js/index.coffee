@@ -35,11 +35,12 @@ Keys          = ((Keys) ->
 
 # Drawing
 DrawColumnNames     = require './draw-column-names.js'
-DrawRowNames        = require './draw-row-names.js'
 DrawEveryCell       = require './draw-every-cell.js'
 DrawSelectedCell    = require './draw-selected-cell.js'
 DrawColumnOptions   = require './draw-column-options.js'
 DrawRowOptions      = require './draw-row-options.js'
+DrawRowNames        = require './draw-row-names.js'
+DrawRowBoxes        = require './draw-row-boxes.js'
 DrawOriginMark      = require './draw-origin-mark.js'
 DrawNormalCell      = require './draw-normal-cell.js'
 DrawSheetTabs       = require './draw-sheet-tabs.js'
@@ -59,6 +60,7 @@ cellColor     = hexToArray darkGray
 edgeColor     = hexToArray darkerGray
 selectedColor = hexToArray lighterGray
 borderColor   = hexToArray borderGray
+topEdgeColor  = hexToArray gray
 
 
 # Images for each character
@@ -174,7 +176,9 @@ Index = React.createClass
 
     for point in [ 0 .. @state.windowWidth - 1 ]
       borderColor = hexToArray borderGray
-      putPixel toolbar0, borderColor, [ point, toolbarSize - 1 ]
+      putPixel toolbar0, cellColor, [ point, toolbarSize - 2 ]
+      putPixel toolbar0, cellColor, [ point, toolbarSize - 3 ]
+      putPixel toolbar0, borderColor, [ point, toolbarSize - 4 ]
 
     toolbar0.drawImage Assets[ 'open' ][0], 5, 5
     toolbar0.drawImage Assets[ 'save' ][0], 58, 5
@@ -254,15 +258,39 @@ Index = React.createClass
   drawSelectedCellsNormal: ->
     workarea = document.getElementById 'workarea'
     workarea = workarea.getContext '2d'
+    just8x15 = Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
     for selectedCell in selectedCells
-      DrawNormalCell Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell, selectedCell      
+      DrawNormalCell just8x15, workarea, Glyphs, cellColor, cell, selectedCell      
 
 
   drawSelectedCellsSelected: ->
     workarea = document.getElementById 'workarea'
     workarea = workarea.getContext '2d'
+    just8x15 = Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
     for selectedCell in selectedCells
-      DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, selectedCell
+      DrawSelectedCell just8x15, workarea, Glyphs, selectedColor, cell, selectedCell
+
+
+  ClearAllCellGlyphs: ->
+    workarea  = document.getElementById 'workarea'
+    workarea  = workarea.getContext '2d', alpha: false
+    ClearAllCellGlyphs workarea, Glyphs, cellColor, cell
+
+
+  DrawEveryCellData: ->    
+    workarea = document.getElementById 'workarea'
+    workarea = workarea.getContext '2d', alpha: false
+    just8x15 = Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
+
+    DrawEveryCellData just8x15, workarea, Glyphs, cellColor, cell
+
+
+  DrawRowNames: ->
+    workarea  = document.getElementById 'workarea'
+    workarea  = workarea.getContext '2d', alpha: false
+    just8x15  = Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
+    # DrawRowBoxes            workarea,         edgeColor, cell
+    DrawRowNames just8x15,  workarea, Glyphs, edgeColor, cell, cellYOrg
 
 
   refreshWorkArea: ->
@@ -276,11 +304,12 @@ Index = React.createClass
     just8x15        = Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
     DrawOriginMark    sheetName, workarea, Glyphs, edgeColor, cell, Assets
     DrawColumnNames   just8x15,  workarea, Glyphs, edgeColor, cell, cellXOrg
+    # DrawRowBoxes                 workarea,         edgeColor, cell
     DrawRowNames      just8x15,  workarea, Glyphs, edgeColor, cell, cellYOrg
 
-    ClearAllCellGlyphs  Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+    @ClearAllCellGlyphs()
     DrawEveryCellBorder Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
-    DrawEveryCellData   Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+    @DrawEveryCellData()
 
     DrawColumnOptions Sheets[ currentSheet ], workarea, Glyphs, edgeColor, cell, Assets
     DrawRowOptions    Sheets[ currentSheet ], workarea, Glyphs, edgeColor, cell, Assets
@@ -320,18 +349,16 @@ Index = React.createClass
           # Delete column
           if (mouseX % cell.w) < 25
             Sheets[currentSheet].splice whichCell[1], 1
-            ClearAllCellGlyphs  Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
-            DrawEveryCellData   Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+            @ClearAllCellGlyphs()
+            @DrawEveryCellData()
           # add column
           else
             newColumn = []
             _.forEach Sheets[currentSheet][0], (column) ->
               newColumn.push ''
             Sheets[currentSheet].splice whichCell[1] + 1, 0, newColumn
-            ClearAllCellGlyphs  Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
-            DrawEveryCellData   Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
-          @drawSelectedCellsNormal()
-          selectedCells = []
+            @ClearAllCellGlyphs()
+            @DrawEveryCellData()
 
         # If they clicked on the row name
         if whichCell[1] is -1
@@ -347,16 +374,14 @@ Index = React.createClass
           if ((mouseX + cell.w) % cell.w) < 25
             _.forEach Sheets[currentSheet], (column) ->
               column.splice whichCell[0], 1         
-            ClearAllCellGlyphs  Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
-            DrawEveryCellData   Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+            @ClearAllCellGlyphs()
+            @DrawEveryCellData()
           # add row
           else
             _.forEach Sheets[currentSheet], (column) ->
               column.splice whichCell[0] + 1, 0, ''
-            ClearAllCellGlyphs  Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
-            DrawEveryCellData   Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
-          @drawSelectedCellsNormal()
-          selectedCells = []
+            @ClearAllCellGlyphs()
+            @DrawEveryCellData()
 
 
       else
@@ -499,28 +524,34 @@ Index = React.createClass
             if selectedCells[0][0] < (Sheets[currentSheet][0].length - 1)
               justSelected = true
               @drawSelectedCellsNormal()
-              if ((selectedCells[0][0] - cellYOrg ) % 14) is 13
+              if ((selectedCells[0][0] - cellYOrg ) % 15) is 14
                 cellYOrg++
+                @DrawRowNames()
+                @ClearAllCellGlyphs()
+                @DrawEveryCellData()
               selectedCells[0][0]++
               @drawSelectedCellsSelected()
           
           when Keys['up']
-            justSelected = true
-            @drawSelectedCellsNormal()
-            selectedCells[0][0]--
-            @drawSelectedCellsSelected()
+            if 0 < selectedCells[0][0]
+              justSelected = true
+              @drawSelectedCellsNormal()
+              selectedCells[0][0]--
+              @drawSelectedCellsSelected()
 
           when Keys['right']
-            justSelected = true
-            @drawSelectedCellsNormal()
-            selectedCells[0][1]++
-            @drawSelectedCellsSelected()
+            if selectedCells[0][1] < (Sheets[currentSheet].length  - 1)
+              justSelected = true
+              @drawSelectedCellsNormal()
+              selectedCells[0][1]++
+              @drawSelectedCellsSelected()
           
           when Keys['left']
-            justSelected = true
-            @drawSelectedCellsNormal()
-            selectedCells[0][1]--
-            @drawSelectedCellsSelected()
+            if 0 < selectedCells[0][1]
+              justSelected = true
+              @drawSelectedCellsNormal()
+              selectedCells[0][1]--
+              @drawSelectedCellsSelected()
 
           when Keys['ctrl']  then doNothing()
           when Keys['shift'] then doNothing()

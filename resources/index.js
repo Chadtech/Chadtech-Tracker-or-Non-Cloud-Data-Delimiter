@@ -1,5 +1,5 @@
 (function() {
-  var AllCharacters, AssetLoader, Assets, ClearAllCellGlyphs, CoordinateIsElement, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawEveryCellBorder, DrawEveryCellData, DrawNormalCell, DrawOriginMark, DrawRowNames, DrawRowOptions, DrawSelectedCell, DrawSheetTabs, Eightx15ify, Glyphs, Index, Keys, LoadGlyphs, React, Sheets, _, a, borderColor, borderGray, buttonXBoundaries, canvas, cell, cellColor, cellXOrg, cellYOrg, convertToCSVs, currentSheet, darkGray, darkerGray, div, doNothing, drawText, edgeColor, gray, gui, hexToArray, img, injectionPoint, input, justSelected, lighterGray, p, putPixel, ref, ref1, ref2, rowNameRadix, selectedCells, selectedColor, sheetNames, toolbarSize, zeroPadder;
+  var AllCharacters, AssetLoader, Assets, ClearAllCellGlyphs, CoordinateIsElement, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawEveryCellBorder, DrawEveryCellData, DrawNormalCell, DrawOriginMark, DrawRowBoxes, DrawRowNames, DrawRowOptions, DrawSelectedCell, DrawSheetTabs, Eightx15ify, Glyphs, Index, Keys, LoadGlyphs, React, Sheets, _, a, borderColor, borderGray, buttonXBoundaries, canvas, cell, cellColor, cellXOrg, cellYOrg, convertToCSVs, currentSheet, darkGray, darkerGray, div, doNothing, drawText, edgeColor, gray, gui, hexToArray, img, injectionPoint, input, justSelected, lighterGray, p, putPixel, ref, ref1, ref2, rowNameRadix, selectedCells, selectedColor, sheetNames, toolbarSize, topEdgeColor, zeroPadder;
 
   global.document = window.document;
 
@@ -39,8 +39,6 @@
 
   DrawColumnNames = require('./draw-column-names.js');
 
-  DrawRowNames = require('./draw-row-names.js');
-
   DrawEveryCell = require('./draw-every-cell.js');
 
   DrawSelectedCell = require('./draw-selected-cell.js');
@@ -48,6 +46,10 @@
   DrawColumnOptions = require('./draw-column-options.js');
 
   DrawRowOptions = require('./draw-row-options.js');
+
+  DrawRowNames = require('./draw-row-names.js');
+
+  DrawRowBoxes = require('./draw-row-boxes.js');
 
   DrawOriginMark = require('./draw-origin-mark.js');
 
@@ -78,6 +80,8 @@
   selectedColor = hexToArray(lighterGray);
 
   borderColor = hexToArray(borderGray);
+
+  topEdgeColor = hexToArray(gray);
 
   Glyphs = void 0;
 
@@ -195,7 +199,9 @@
       toolbar0 = toolbar0.getContext('2d');
       for (point = i = 0, ref3 = this.state.windowWidth - 1; 0 <= ref3 ? i <= ref3 : i >= ref3; point = 0 <= ref3 ? ++i : --i) {
         borderColor = hexToArray(borderGray);
-        putPixel(toolbar0, borderColor, [point, toolbarSize - 1]);
+        putPixel(toolbar0, cellColor, [point, toolbarSize - 2]);
+        putPixel(toolbar0, cellColor, [point, toolbarSize - 3]);
+        putPixel(toolbar0, borderColor, [point, toolbarSize - 4]);
       }
       toolbar0.drawImage(Assets['open'][0], 5, 5);
       return toolbar0.drawImage(Assets['save'][0], 58, 5);
@@ -261,26 +267,54 @@
       });
     },
     drawSelectedCellsNormal: function() {
-      var i, len, results, selectedCell, workarea;
+      var i, just8x15, len, results, selectedCell, workarea;
       workarea = document.getElementById('workarea');
       workarea = workarea.getContext('2d');
+      just8x15 = Eightx15ify(Sheets[currentSheet], cellXOrg, cellYOrg);
       results = [];
       for (i = 0, len = selectedCells.length; i < len; i++) {
         selectedCell = selectedCells[i];
-        results.push(DrawNormalCell(Sheets[currentSheet], workarea, Glyphs, cellColor, cell, selectedCell));
+        results.push(DrawNormalCell(just8x15, workarea, Glyphs, cellColor, cell, selectedCell));
       }
       return results;
     },
     drawSelectedCellsSelected: function() {
-      var i, len, results, selectedCell, workarea;
+      var i, just8x15, len, results, selectedCell, workarea;
       workarea = document.getElementById('workarea');
       workarea = workarea.getContext('2d');
+      just8x15 = Eightx15ify(Sheets[currentSheet], cellXOrg, cellYOrg);
       results = [];
       for (i = 0, len = selectedCells.length; i < len; i++) {
         selectedCell = selectedCells[i];
-        results.push(DrawSelectedCell(Sheets[currentSheet], workarea, Glyphs, selectedColor, cell, selectedCell));
+        results.push(DrawSelectedCell(just8x15, workarea, Glyphs, selectedColor, cell, selectedCell));
       }
       return results;
+    },
+    ClearAllCellGlyphs: function() {
+      var workarea;
+      workarea = document.getElementById('workarea');
+      workarea = workarea.getContext('2d', {
+        alpha: false
+      });
+      return ClearAllCellGlyphs(workarea, Glyphs, cellColor, cell);
+    },
+    DrawEveryCellData: function() {
+      var just8x15, workarea;
+      workarea = document.getElementById('workarea');
+      workarea = workarea.getContext('2d', {
+        alpha: false
+      });
+      just8x15 = Eightx15ify(Sheets[currentSheet], cellXOrg, cellYOrg);
+      return DrawEveryCellData(just8x15, workarea, Glyphs, cellColor, cell);
+    },
+    DrawRowNames: function() {
+      var just8x15, workarea;
+      workarea = document.getElementById('workarea');
+      workarea = workarea.getContext('2d', {
+        alpha: false
+      });
+      just8x15 = Eightx15ify(Sheets[currentSheet], cellXOrg, cellYOrg);
+      return DrawRowNames(just8x15, workarea, Glyphs, edgeColor, cell, cellYOrg);
     },
     refreshWorkArea: function() {
       var just8x15, sheetName, workarea;
@@ -295,9 +329,9 @@
       DrawOriginMark(sheetName, workarea, Glyphs, edgeColor, cell, Assets);
       DrawColumnNames(just8x15, workarea, Glyphs, edgeColor, cell, cellXOrg);
       DrawRowNames(just8x15, workarea, Glyphs, edgeColor, cell, cellYOrg);
-      ClearAllCellGlyphs(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
+      this.ClearAllCellGlyphs();
       DrawEveryCellBorder(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
-      DrawEveryCellData(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
+      this.DrawEveryCellData();
       DrawColumnOptions(Sheets[currentSheet], workarea, Glyphs, edgeColor, cell, Assets);
       DrawRowOptions(Sheets[currentSheet], workarea, Glyphs, edgeColor, cell, Assets);
       return this.drawSelectedCellsSelected();
@@ -328,19 +362,17 @@
           if (whichCell[0] === -2) {
             if ((mouseX % cell.w) < 25) {
               Sheets[currentSheet].splice(whichCell[1], 1);
-              ClearAllCellGlyphs(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
-              DrawEveryCellData(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
+              this.ClearAllCellGlyphs();
+              this.DrawEveryCellData();
             } else {
               newColumn = [];
               _.forEach(Sheets[currentSheet][0], function(column) {
                 return newColumn.push('');
               });
               Sheets[currentSheet].splice(whichCell[1] + 1, 0, newColumn);
-              ClearAllCellGlyphs(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
-              DrawEveryCellData(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
+              this.ClearAllCellGlyphs();
+              this.DrawEveryCellData();
             }
-            this.drawSelectedCellsNormal();
-            selectedCells = [];
           }
           if (whichCell[1] === -1) {
             this.drawSelectedCellsNormal();
@@ -355,17 +387,15 @@
               _.forEach(Sheets[currentSheet], function(column) {
                 return column.splice(whichCell[0], 1);
               });
-              ClearAllCellGlyphs(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
-              DrawEveryCellData(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
+              this.ClearAllCellGlyphs();
+              return this.DrawEveryCellData();
             } else {
               _.forEach(Sheets[currentSheet], function(column) {
                 return column.splice(whichCell[0] + 1, 0, '');
               });
-              ClearAllCellGlyphs(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
-              DrawEveryCellData(Sheets[currentSheet], workarea, Glyphs, cellColor, cell);
+              this.ClearAllCellGlyphs();
+              return this.DrawEveryCellData();
             }
-            this.drawSelectedCellsNormal();
-            return selectedCells = [];
           }
         } else {
           this.drawSelectedCellsNormal();
@@ -524,28 +554,40 @@
               if (selectedCells[0][0] < (Sheets[currentSheet][0].length - 1)) {
                 justSelected = true;
                 this.drawSelectedCellsNormal();
-                if (((selectedCells[0][0] - cellYOrg) % 14) === 13) {
+                if (((selectedCells[0][0] - cellYOrg) % 15) === 14) {
                   cellYOrg++;
+                  this.DrawRowNames();
+                  this.ClearAllCellGlyphs();
+                  this.DrawEveryCellData();
                 }
                 selectedCells[0][0]++;
                 return this.drawSelectedCellsSelected();
               }
               break;
             case Keys['up']:
-              justSelected = true;
-              this.drawSelectedCellsNormal();
-              selectedCells[0][0]--;
-              return this.drawSelectedCellsSelected();
+              if (0 < selectedCells[0][0]) {
+                justSelected = true;
+                this.drawSelectedCellsNormal();
+                selectedCells[0][0]--;
+                return this.drawSelectedCellsSelected();
+              }
+              break;
             case Keys['right']:
-              justSelected = true;
-              this.drawSelectedCellsNormal();
-              selectedCells[0][1]++;
-              return this.drawSelectedCellsSelected();
+              if (selectedCells[0][1] < (Sheets[currentSheet].length - 1)) {
+                justSelected = true;
+                this.drawSelectedCellsNormal();
+                selectedCells[0][1]++;
+                return this.drawSelectedCellsSelected();
+              }
+              break;
             case Keys['left']:
-              justSelected = true;
-              this.drawSelectedCellsNormal();
-              selectedCells[0][1]--;
-              return this.drawSelectedCellsSelected();
+              if (0 < selectedCells[0][1]) {
+                justSelected = true;
+                this.drawSelectedCellsNormal();
+                selectedCells[0][1]--;
+                return this.drawSelectedCellsSelected();
+              }
+              break;
             case Keys['ctrl']:
               return doNothing();
             case Keys['shift']:

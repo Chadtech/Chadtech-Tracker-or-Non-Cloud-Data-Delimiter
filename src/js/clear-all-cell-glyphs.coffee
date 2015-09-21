@@ -7,7 +7,7 @@ _ = require 'lodash'
 fillASquare                      = require './fill-a-square.js'
 
 
-module.exports = (sheet, ctx, glyphs, color, cell) ->
+module.exports = (ctx, glyphs, color, cell) ->
 
   corCalc = (index, dimension) ->
     (index * (dimension - 1)) + (dimension * 2)

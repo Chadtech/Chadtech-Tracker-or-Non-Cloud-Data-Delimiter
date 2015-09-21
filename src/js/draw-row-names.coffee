@@ -7,15 +7,14 @@ drawABox                         = require './draw-a-box.js'
 
 module.exports = (sheet, ctx, glyphs, color, cell, cellYOrg) ->
 
-  _.forEach [ 0 .. 15 ], (rowIndex) ->
+  _.forEach [ 0 .. 14 ], (rowIndex) ->
 
     xCor = cell.w
     yCor = (rowIndex * (cell.h - 1)) + (cell.h * 2) - 3
     
-    textXOffset = (cell.w - (11 * ('' + rowIndex).length)) // 2
-    textXOffset -= 2
-
     rowName = '' + (rowIndex + cellYOrg)
 
-    drawABox ctx, color, cell, [ xCor, yCor ]
+    textXOffset = (cell.w - (11 * rowName.length)) // 2
+    textXOffset -= 2
+
     drawText ctx, glyphs, 1, rowName, [ xCor + textXOffset, yCor + 4 ]
