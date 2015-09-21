@@ -72,3 +72,10 @@ img.write fileName, (err) ->
   if err
     console.log err
 
+img = gm './buttonSprites.png'
+img.crop 24, 24, 0, 197
+fileName = destination + 'add-sheet.png'
+img.write fileName, (err) ->
+  if err
+    console.log err
+
