@@ -200,8 +200,7 @@ Index = React.createClass
 
       if sheetIndex isnt currentSheet
 
-        tabWidth = sheetName.length + 2
-        tabWidth *= Glyphs.characterWidth
+        tabWidth = 9 * Glyphs.characterWidth
 
         toolbar1.fillStyle = '#202020'
         toolbar1.fillRect sheetXOrg + 1, 2, tabWidth - 2, cell.h - 1
@@ -225,7 +224,7 @@ Index = React.createClass
 
         drawText toolbar1, Glyphs, 6, sheetName, [ glyphXOrg, 7 ]
 
-        sheetXOrg += tabWidth + 5
+        sheetXOrg += tabWidth + 4
 
       else
 
@@ -252,7 +251,7 @@ Index = React.createClass
 
         drawText toolbar1, Glyphs, 6, sheetName, [ glyphXOrg, 7 ]
 
-        sheetXOrg += tabWidth + 5
+        sheetXOrg += tabWidth + 4
 
 
   drawSelectedCellsNormal: ->
@@ -321,6 +320,9 @@ Index = React.createClass
     DrawRowOptions    Sheets[ currentSheet ], workarea, Glyphs, edgeColor, cell, Assets
     
     @drawSelectedCellsSelected()
+
+
+
 
 
   handleClickWorkArea: (event) ->
@@ -451,6 +453,24 @@ Index = React.createClass
           @handleSave
           @handleSaveAs
           @state.filePath
+
+
+  handleClickToolbar1: (event) ->
+
+    mouseX = event.clientX
+    mouseY = event.clientY
+
+    whichTab = mouseX - 5
+    whichTab = whichTab // 99
+
+    # If the user clicked on a tab
+    # and not a gap between tabs
+    if 95 > ((mouseX - 5) % 99 )
+      currentSheet = whichTab
+      @DrawRowNames()
+      @ClearAllCellGlyphs()
+      @DrawEveryCellData()
+      @drawToolBar1()
 
 
   handleSaveAs: ->
@@ -615,6 +635,7 @@ Index = React.createClass
 
       canvas
         id:                 'toolbar1'
+        onMouseDown:        @handleClickToolbar1
         style:
           backgroundColor:  darkerGray
           position:         'absolute'

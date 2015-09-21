@@ -220,8 +220,7 @@
         var glyphXOffset, glyphXOrg, j, k, l, m, ref4, ref5, ref6, ref7, sheetName, tabWidth;
         sheetName = sheetNames[sheetIndex];
         if (sheetIndex !== currentSheet) {
-          tabWidth = sheetName.length + 2;
-          tabWidth *= Glyphs.characterWidth;
+          tabWidth = 9 * Glyphs.characterWidth;
           toolbar1.fillStyle = '#202020';
           toolbar1.fillRect(sheetXOrg + 1, 2, tabWidth - 2, cell.h - 1);
           for (point = j = 0, ref4 = cell.h - 1; 0 <= ref4 ? j <= ref4 : j >= ref4; point = 0 <= ref4 ? ++j : --j) {
@@ -241,7 +240,7 @@
           glyphXOffset -= Math.floor((11 * sheetName.length) / 2);
           glyphXOrg += glyphXOffset;
           drawText(toolbar1, Glyphs, 6, sheetName, [glyphXOrg, 7]);
-          return sheetXOrg += tabWidth + 5;
+          return sheetXOrg += tabWidth + 4;
         } else {
           tabWidth = sheetName.length + 2;
           tabWidth *= Glyphs.characterWidth;
@@ -262,7 +261,7 @@
           glyphXOffset -= Math.floor((11 * sheetName.length) / 2);
           glyphXOrg += glyphXOffset;
           drawText(toolbar1, Glyphs, 6, sheetName, [glyphXOrg, 7]);
-          return sheetXOrg += tabWidth + 5;
+          return sheetXOrg += tabWidth + 4;
         }
       });
     },
@@ -484,6 +483,20 @@
         };
       })(this));
     },
+    handleClickToolbar1: function(event) {
+      var mouseX, mouseY, whichTab;
+      mouseX = event.clientX;
+      mouseY = event.clientY;
+      whichTab = mouseX - 5;
+      whichTab = Math.floor(whichTab / 99);
+      if (95 > ((mouseX - 5) % 99)) {
+        currentSheet = whichTab;
+        this.DrawRowNames();
+        this.ClearAllCellGlyphs();
+        this.DrawEveryCellData();
+        return this.drawToolBar1();
+      }
+    },
     handleSaveAs: function() {
       var csvs, fileExporter;
       csvs = convertToCSVs(Sheets);
@@ -656,6 +669,7 @@
         }
       }), canvas({
         id: 'toolbar1',
+        onMouseDown: this.handleClickToolbar1,
         style: {
           backgroundColor: darkerGray,
           position: 'absolute',
