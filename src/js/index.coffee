@@ -9,13 +9,16 @@ gui   = require 'nw.gui'
 
 
 # DOM Elements
-{p, a, div, input, img, canvas} = React.DOM
+{div, input, canvas} = React.DOM
 
 
 # Utilities
 {putPixel, hexToArray, drawText}                     = require './drawingUtilities.js'
 CoordinateIsElement                                  = require './coordinate-in-array.js'
 {convertToCSVs, zeroPadder, doNothing, Eightx15ify } = require './general-utilities.js'
+WorkArea = (doc) ->
+  WorkArea = doc.getElementById 'workarea'
+  WorkArea = WorkArea.getContext '2d', alpha: false
 
 # Dependencies
 LoadGlyphs    = require './load-Glyphs.js'
@@ -50,11 +53,11 @@ ClearAllCellGlyphs  = require './clear-all-cell-glyphs.js'
 
 
 # Colors
-lighterGray = '#c0c0c0'
-gray        = '#808080'
-darkGray    = '#404040'
-darkerGray  = '#202020'
-borderGray  = '#101010'
+lighterGray   = '#c0c0c0'
+gray          = '#808080'
+darkGray      = '#404040'
+darkerGray    = '#202020'
+borderGray    = '#101010'
 
 cellColor     = hexToArray darkGray
 edgeColor     = hexToArray darkerGray
@@ -102,11 +105,12 @@ Index = React.createClass
     windowWidth:    window.innerWidth
     windowHeight:   window.innerHeight
     workareaHeight: window.innerHeight - (2 * toolbarSize)
-    currentSheet:   0
     filePath:       ''
 
 
   componentDidMount: ->
+
+    WorkArea document
 
     init = =>
 
@@ -124,8 +128,6 @@ Index = React.createClass
           thisScheme[ key ] = glyphCanvas
 
         Glyphs.images[ CS ] = thisScheme
-
-      gui.Window.get().on 'resize', @handleResize
 
       document.addEventListener 'keyup',   @onKeyUp
       document.addEventListener 'keydown', @onKeyDown
@@ -161,20 +163,11 @@ Index = React.createClass
     workarea.height = window.innerHeight - (2 * toolbarSize)
 
 
-  handleResize: ->
-    @setState windowWidth:  window.innerWidth, =>
-      @setState windowHeight: window.innerHeight, =>
-
-        @setCanvasDimensions()
-        @drawToolBar0()
-        @drawToolBar1()
-
-
   drawToolBar0: ->
     toolbar0 = document.getElementById 'toolbar0'
     toolbar0 = toolbar0.getContext '2d'
 
-    for point in [ 0 .. @state.windowWidth - 1 ]
+    for point in [ 0 .. window.innerWidth - 1 ]
       borderColor = hexToArray borderGray
       putPixel toolbar0, cellColor, [ point, toolbarSize - 2 ]
       putPixel toolbar0, cellColor, [ point, toolbarSize - 3 ]
@@ -253,76 +246,58 @@ Index = React.createClass
 
         sheetXOrg += tabWidth + 4
 
+  Just8x15: ->
+    Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
 
-  drawSelectedCellsNormal: ->
-    workarea = document.getElementById 'workarea'
-    workarea = workarea.getContext '2d'
-    just8x15 = Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
+  DrawSelectedCellsNormal: ->
     for selectedCell in selectedCells
-      DrawNormalCell just8x15, workarea, Glyphs, cellColor, cell, selectedCell      
+      DrawNormalCell @Just8x15(), WorkArea, Glyphs, cellColor, cell, selectedCell      
 
 
-  drawSelectedCellsSelected: ->
-    workarea = document.getElementById 'workarea'
-    workarea = workarea.getContext '2d'
-    just8x15 = Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
+  DrawSelectedCellsSelected: ->
     for selectedCell in selectedCells
-      DrawSelectedCell just8x15, workarea, Glyphs, selectedColor, cell, selectedCell
+      DrawSelectedCell @Just8x15(), WorkArea, Glyphs, selectedColor, cell, selectedCell
+
+
+  DrawSelectedCell: (selectedCell) ->
+    DrawSelectedCell @Just8x15(), WorkArea, Glyphs, selectedColor, cell, selectedCell
 
 
   ClearAllCellGlyphs: ->
-    workarea  = document.getElementById 'workarea'
-    workarea  = workarea.getContext '2d', alpha: false
-    ClearAllCellGlyphs workarea, Glyphs, cellColor, cell
+    ClearAllCellGlyphs WorkArea, Glyphs, cellColor, cell
 
 
   DrawEveryCellData: ->    
-    workarea = document.getElementById 'workarea'
-    workarea = workarea.getContext '2d', alpha: false
-    just8x15 = Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
-
-    DrawEveryCellData just8x15, workarea, Glyphs, cellColor, cell
+    DrawEveryCellData @Just8x15(), WorkArea, Glyphs, cellColor, cell
 
 
   DrawRowNames: ->
-    workarea  = document.getElementById 'workarea'
-    workarea  = workarea.getContext '2d', alpha: false
-    just8x15  = Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
-    DrawRowNames just8x15,  workarea, Glyphs, edgeColor, cell, cellYOrg
+    DrawRowNames @Just8x15(),  WorkArea, Glyphs, edgeColor, cell, cellYOrg
 
 
   DrawRowBoxes: ->
-    workarea  = document.getElementById 'workarea'
-    workarea  = workarea.getContext '2d', alpha: false
-    just8x15  = Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
-    DrawRowBoxes workarea, edgeColor, cell
+    DrawRowBoxes WorkArea, edgeColor, cell
 
 
   refreshWorkArea: ->
-    workarea  = document.getElementById 'workarea'
-    workarea  = workarea.getContext '2d', alpha: false
-    sheetName = sheetNames[ @state.currentSheet ]
+    sheetName = sheetNames[ currentSheet ]
 
-    workarea.fillStyle = '#000000'
-    workarea.fillRect 0, 0, window.innerWidth, window.innerHeight
+    WorkArea.fillStyle = '#000000'
+    WorkArea.fillRect 0, 0, window.innerWidth, window.innerHeight
 
-    just8x15        = Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
-    DrawOriginMark    sheetName, workarea, Glyphs, edgeColor, cell, Assets
-    DrawColumnNames   just8x15,  workarea, Glyphs, edgeColor, cell, cellXOrg
-    DrawRowBoxes                 workarea,         edgeColor, cell
-    DrawRowNames      just8x15,  workarea, Glyphs, edgeColor, cell, cellYOrg
+    DrawOriginMark    sheetName,    WorkArea, Glyphs, edgeColor, cell, Assets
+    DrawColumnNames   @Just8x15(),  WorkArea, Glyphs, edgeColor, cell, cellXOrg
+    DrawRowBoxes                    WorkArea,         edgeColor, cell
+    DrawRowNames      @Just8x15(),  WorkArea, Glyphs, edgeColor, cell, cellYOrg
 
     @ClearAllCellGlyphs()
-    DrawEveryCellBorder Sheets[ currentSheet ], workarea, Glyphs, cellColor, cell
+    DrawEveryCellBorder Sheets[ currentSheet ], WorkArea, Glyphs, cellColor, cell
     @DrawEveryCellData()
 
-    DrawColumnOptions Sheets[ currentSheet ], workarea, Glyphs, edgeColor, cell, Assets
-    DrawRowOptions    Sheets[ currentSheet ], workarea, Glyphs, edgeColor, cell, Assets
+    DrawColumnOptions Sheets[ currentSheet ], WorkArea, Glyphs, edgeColor, cell, Assets
+    DrawRowOptions    Sheets[ currentSheet ], WorkArea, Glyphs, edgeColor, cell, Assets
     
-    @drawSelectedCellsSelected()
-
-
-
+    @DrawSelectedCellsSelected()
 
 
   handleClickWorkArea: (event) ->
@@ -336,9 +311,6 @@ Index = React.createClass
       ((mouseY + 6) // cell.h) - 1
       (mouseX // cell.w) - 1
     ]
-    
-    workarea = document.getElementById 'workarea'
-    workarea = workarea.getContext '2d', alpha: false
 
     if not event.metaKey
       if (whichCell[0] < 0) or (whichCell[1] < 0)
@@ -346,11 +318,11 @@ Index = React.createClass
         # If they clicked the column name
         if whichCell[0] is -1
           thisColumn = Sheets[ currentSheet ][ whichCell[1] ]
-          @drawSelectedCellsNormal()
+          @DrawSelectedCellsNormal()
           selectedCells = []
           _.forEach thisColumn, (row, rowIndex) ->
             selectedCells.push [ rowIndex, whichCell[1] ]
-          @drawSelectedCellsSelected()
+          @DrawSelectedCellsSelected()
 
         # If they clicked either delete column or new column
         if whichCell[0] is -2
@@ -370,11 +342,11 @@ Index = React.createClass
 
         # If they clicked on the row name
         if whichCell[1] is -1
-          @drawSelectedCellsNormal()
+          @DrawSelectedCellsNormal()
           selectedCells = []
           _.forEach Sheets[ currentSheet ], (column, columnIndex) ->
             selectedCells.push [ whichCell[0], columnIndex]
-          @drawSelectedCellsSelected()
+          @DrawSelectedCellsSelected()
 
         # If they clicked on delete row or new row
         if whichCell[1] is -2
@@ -393,54 +365,52 @@ Index = React.createClass
 
 
       else
-        @drawSelectedCellsNormal()   
+        @DrawSelectedCellsNormal()   
         selectedCells = [ whichCell ]
-        @drawSelectedCellsSelected()
+        @DrawSelectedCellsSelected()
         justSelected = true
 
     else
       unless CoordinateIsElement selectedCells, whichCell
         selectedCells.push whichCell
-        DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, whichCell
+        @DrawSelectedCell whichCell
+        # DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, whichCell
 
 
-  buttonFunctions:
-    open: doNothing
-    save: 
-      mouseDown: (toolbar0) =>
-        toolbar0.drawImage Assets['save'][1], 57, 5
+  # buttonFunctions:
+  #   open: doNothing
+  #   save: 
+  #     mouseDown: (toolbar0) =>
+  #       toolbar0.drawImage Assets['save'][1], 57, 5
 
-      mouseUp: (toolbar0, handleSave, handleSaveAs, stateFilePath) =>
-        if stateFilePath isnt ''
-          handleSave()
-        else
-          @handleSaveAs()
-        toolbar0.drawImage Assets['save'][0], 57, 5
+  #     mouseUp: (toolbar0, handleSave, handleSaveAs, stateFilePath) =>
+  #       if stateFilePath isnt ''
+  #         handleSave()
+  #       else
+  #         @handleSaveAs()
+  #       toolbar0.drawImage Assets['save'][0], 57, 5
 
 
-  handleClickToolbar0: ->
-    mouseX = event.clientX
-    mouseY = event.clientY
+  # handleClickToolbar0: ->
+  #   mouseX = event.clientX
+  #   mouseY = event.clientY
     
-    toolbar0 = document.getElementById 'toolbar0'
-    toolbar0 = toolbar0.getContext '2d', alpha: false
+  #   toolbar0 = document.getElementById 'toolbar0'
+  #   toolbar0 = toolbar0.getContext '2d', alpha: false
 
-    buttonXBoundaries =
-      'open': [ 5, 56 ]
-      'save': [ 57, 109 ]
+  #   buttonXBoundaries =
+  #     'open': [ 5, 56 ]
+  #     'save': [ 57, 109 ]
 
-    _.forEach (_.keys buttonXBoundaries), (key) =>
-      button = buttonXBoundaries[ key ]
-      if (mouseX > button[0]) and (button[1] > mouseX)
-        @buttonFunctions[key].mouseDown toolbar0
+  #   _.forEach (_.keys buttonXBoundaries), (key) =>
+  #     button = buttonXBoundaries[ key ]
+  #     if (mouseX > button[0]) and (button[1] > mouseX)
+  #       @buttonFunctions[key].mouseDown toolbar0
 
 
   handleMouseUpToolbar0: ->
     mouseX = event.clientX
     mouseY = event.clientY
-    
-    toolbar0 = document.getElementById 'toolbar0'
-    toolbar0 = toolbar0.getContext '2d', alpha: false
 
     buttonXBoundaries =
       'open': [ 5, 56 ]
@@ -493,7 +463,7 @@ Index = React.createClass
 
 
   handleSave: ->
-    csvs = convertToCSVs @state.sheets
+    csvs = convertToCSVs Sheets
     csvs = _.map csvs, (csv) ->
       new Buffer csv, 'utf-8'
 
@@ -511,9 +481,6 @@ Index = React.createClass
     #     console.log 'command is marked Up'
 
   onKeyDown: (event) ->
-
-    workarea  = document.getElementById 'workarea'
-    workarea  = workarea.getContext '2d', alpha: false   
     
     if event.metaKey
 
@@ -527,86 +494,81 @@ Index = React.createClass
       
       if selectedCells.length is 1
 
+        Next = => return
+
         switch event.which
 
           when Keys['backspace']
             if justSelected
               justSelected = false
-              SC = selectedCells[0]
-              Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = ''
-              DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, SC
-            else
-              SC = selectedCells[0]
-              Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = ''
-              DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, SC
+            SC = selectedCells[0]
+            Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = ''
 
           when Keys['enter']
             justSelected = true
-            @drawSelectedCellsNormal()
-            selectedCells[0][0]++
-            @drawSelectedCellsSelected()
+            Next = =>
+              selectedCells[0][0]++
 
           when Keys['down']
             if selectedCells[0][0] < (Sheets[currentSheet][0].length - 1)
               justSelected = true
-              @drawSelectedCellsNormal()
-              if ((selectedCells[0][0] - cellYOrg ) % 15) is 14
-                cellYOrg++
-                @DrawRowNames()
-                @ClearAllCellGlyphs()
-                @DrawEveryCellData()
-              selectedCells[0][0]++
-              @drawSelectedCellsSelected()
+              Next = =>
+                if ((selectedCells[0][0] - cellYOrg ) % 15) is 14
+                  cellYOrg++
+                  @DrawRowNames()
+                  @ClearAllCellGlyphs()
+                  @DrawEveryCellData()
+                selectedCells[0][0]++
           
           when Keys['up']
             if 0 < selectedCells[0][0]
               justSelected = true
-              @drawSelectedCellsNormal()
-              selectedCells[0][0]--
-              @drawSelectedCellsSelected()
+              Next = =>
+                selectedCells[0][0]--
 
           when Keys['right']
             if selectedCells[0][1] < (Sheets[currentSheet].length  - 1)
               justSelected = true
-              @drawSelectedCellsNormal()
-              selectedCells[0][1]++
-              @drawSelectedCellsSelected()
+              Next = =>
+                selectedCells[0][1]++
           
           when Keys['left']
             if 0 < selectedCells[0][1]
               justSelected = true
-              @drawSelectedCellsNormal()
-              selectedCells[0][1]--
-              @drawSelectedCellsSelected()
+              Next = =>
+                selectedCells[0][1]--
 
           when Keys['ctrl']  then doNothing()
           when Keys['shift'] then doNothing()
           when Keys['alt']   then doNothing()
 
           else
+
+            SC = [
+                selectedCells[0][0] + cellYOrg
+                selectedCells[0][1] + cellXOrg
+              ] 
+            # SC = selectedCells[0]
+            thisCell = Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ]
+            thisKey  = Keys[ event.which ]
             if event.shiftKey
-
               if justSelected
                 justSelected = false
-                SC = selectedCells[0]
-                Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = Keys[ event.which ].toUpperCase()
-                DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, SC
+                thisCell     = thisKey.toUpperCase()
               else
-                SC = selectedCells[0]
-                Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] += Keys[ event.which ].toUpperCase()
-                DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, SC
-
+                thisCell    += thisKey.toUpperCase()
             else
-
               if justSelected
                 justSelected = false
-                SC = selectedCells[0]
-                Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = Keys[ event.which ]
-                DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, SC
+                thisCell     = thisKey
               else
-                SC = selectedCells[0]
-                Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] += Keys[ event.which ]
-                DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, SC
+                thisCell    += thisKey
+
+            Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = thisCell
+        
+        @DrawSelectedCellsNormal()
+        Next()
+        @DrawSelectedCellsSelected()
               
 
 
