@@ -37,10 +37,11 @@ Keys          = ((Keys) ->
 
 
 # Drawing
-DrawColumnNames     = require './draw-column-names.js'
 DrawEveryCell       = require './draw-every-cell.js'
 DrawSelectedCell    = require './draw-selected-cell.js'
 DrawColumnOptions   = require './draw-column-options.js'
+DrawColumnNames     = require './draw-column-names.js'
+DrawColumnBoxes     = require './draw-column-boxes.js'
 DrawRowOptions      = require './draw-row-options.js'
 DrawRowNames        = require './draw-row-names.js'
 DrawRowBoxes        = require './draw-row-boxes.js'
@@ -267,11 +268,19 @@ Index = React.createClass
 
 
   DrawRowNames: ->
-    DrawRowNames @Just8x15(),  WorkArea, Glyphs, edgeColor, cell, cellYOrg
+    DrawRowNames @Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellYOrg
 
 
   DrawRowBoxes: ->
     DrawRowBoxes WorkArea, edgeColor, cell
+
+
+  DrawColumnNames: ->
+    DrawColumnNames @Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellXOrg
+
+
+  DrawColumnBoxes: ->
+    DrawColumnBoxes @Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellXOrg
 
 
   refreshWorkArea: ->
@@ -281,6 +290,7 @@ Index = React.createClass
     WorkArea.fillRect 0, 0, window.innerWidth, window.innerHeight
 
     DrawOriginMark    sheetName,    WorkArea, Glyphs, edgeColor, cell, Assets
+    DrawColumnBoxes                 WorkArea,         edgeColor, cell
     DrawColumnNames   @Just8x15(),  WorkArea, Glyphs, edgeColor, cell, cellXOrg
     DrawRowBoxes                    WorkArea,         edgeColor, cell
     DrawRowNames      @Just8x15(),  WorkArea, Glyphs, edgeColor, cell, cellYOrg
@@ -491,6 +501,11 @@ Index = React.createClass
 
         Next = => return
 
+        refreshCellData = (first) =>
+          first()
+          @ClearAllCellGlyphs()
+          @DrawEveryCellData()
+
         switch event.which
 
           when Keys['backspace']
@@ -510,9 +525,7 @@ Index = React.createClass
               Next = =>
                 if (selectedCells[0][0] % 15) is 14
                   cellYOrg++
-                  @DrawRowNames()
-                  @ClearAllCellGlyphs()
-                  @DrawEveryCellData()
+                  refreshCellData @DrawRowNames
                 else
                   selectedCells[0][0]++
           
@@ -522,24 +535,29 @@ Index = React.createClass
               Next = =>
                 if (selectedCells[0][0] % 15) is 0
                   cellYOrg--
-                  @DrawRowNames()
-                  @ClearAllCellGlyphs()
-                  @DrawEveryCellData()
+                  refreshCellData @DrawRowNames
                 else
                   selectedCells[0][0]--
 
-
           when Keys['right']
-            if selectedCells[0][1] < (Sheets[currentSheet].length - 1)
+            if (selectedCells[0][1] + cellXOrg) < (Sheets[currentSheet].length - 1)
               justSelected = true
               Next = =>
-                selectedCells[0][1]++
+                if (selectedCells[0][1] % 8) is 7
+                  cellXOrg++
+                  refreshCellData @DrawColumnNames
+                else
+                  selectedCells[0][1]++
           
           when Keys['left']
-            if 0 < selectedCells[0][1]
+            if 0 < (selectedCells[0][1] + cellXOrg)
               justSelected = true
               Next = =>
-                selectedCells[0][1]--
+                if (selectedCells[0][1] % 8) is 0
+                  cellXOrg--
+                  refreshCellData @DrawColumnNames
+                else
+                  selectedCells[0][1]--
 
           when Keys['ctrl']  then doNothing()
           when Keys['shift'] then doNothing()

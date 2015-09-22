@@ -1,5 +1,5 @@
 (function() {
-  var AllCharacters, AssetLoader, Assets, ClearAllCellGlyphs, CoordinateIsElement, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawEveryCellBorder, DrawEveryCellData, DrawNormalCell, DrawOriginMark, DrawRowBoxes, DrawRowNames, DrawRowOptions, DrawSelectedCell, DrawSheetTabs, Eightx15ify, Glyphs, Index, Keys, LoadGlyphs, React, Sheets, WorkArea, _, borderColor, borderGray, buttonXBoundaries, canvas, cell, cellColor, cellXOrg, cellYOrg, convertToCSVs, currentSheet, darkGray, darkerGray, div, doNothing, drawText, edgeColor, gray, gui, hexToArray, injectionPoint, input, justSelected, lighterGray, putPixel, ref, ref1, ref2, rowNameRadix, selectedCells, selectedColor, sheetNames, toolbarSize, topEdgeColor, zeroPadder;
+  var AllCharacters, AssetLoader, Assets, ClearAllCellGlyphs, CoordinateIsElement, DrawColumnBoxes, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawEveryCellBorder, DrawEveryCellData, DrawNormalCell, DrawOriginMark, DrawRowBoxes, DrawRowNames, DrawRowOptions, DrawSelectedCell, DrawSheetTabs, Eightx15ify, Glyphs, Index, Keys, LoadGlyphs, React, Sheets, WorkArea, _, borderColor, borderGray, buttonXBoundaries, canvas, cell, cellColor, cellXOrg, cellYOrg, convertToCSVs, currentSheet, darkGray, darkerGray, div, doNothing, drawText, edgeColor, gray, gui, hexToArray, injectionPoint, input, justSelected, lighterGray, putPixel, ref, ref1, ref2, rowNameRadix, selectedCells, selectedColor, sheetNames, toolbarSize, topEdgeColor, zeroPadder;
 
   global.document = window.document;
 
@@ -44,13 +44,15 @@
     return output;
   })(require('./keys.js'));
 
-  DrawColumnNames = require('./draw-column-names.js');
-
   DrawEveryCell = require('./draw-every-cell.js');
 
   DrawSelectedCell = require('./draw-selected-cell.js');
 
   DrawColumnOptions = require('./draw-column-options.js');
+
+  DrawColumnNames = require('./draw-column-names.js');
+
+  DrawColumnBoxes = require('./draw-column-boxes.js');
 
   DrawRowOptions = require('./draw-row-options.js');
 
@@ -292,12 +294,19 @@
     DrawRowBoxes: function() {
       return DrawRowBoxes(WorkArea, edgeColor, cell);
     },
+    DrawColumnNames: function() {
+      return DrawColumnNames(this.Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellXOrg);
+    },
+    DrawColumnBoxes: function() {
+      return DrawColumnBoxes(this.Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellXOrg);
+    },
     refreshWorkArea: function() {
       var sheetName;
       sheetName = sheetNames[currentSheet];
       WorkArea.fillStyle = '#000000';
       WorkArea.fillRect(0, 0, window.innerWidth, window.innerHeight);
       DrawOriginMark(sheetName, WorkArea, Glyphs, edgeColor, cell, Assets);
+      DrawColumnBoxes(WorkArea, edgeColor, cell);
       DrawColumnNames(this.Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellXOrg);
       DrawRowBoxes(WorkArea, edgeColor, cell);
       DrawRowNames(this.Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellYOrg);
@@ -453,7 +462,7 @@
     },
     onKeyUp: function(event) {},
     onKeyDown: function(event) {
-      var Next, SC, thisCell, thisKey;
+      var Next, SC, refreshCellData, thisCell, thisKey;
       if (event.metaKey) {
         if (event.which === Keys['s']) {
           if (this.state.filePath) {
@@ -466,6 +475,13 @@
         if (selectedCells.length === 1) {
           Next = (function(_this) {
             return function() {};
+          })(this);
+          refreshCellData = (function(_this) {
+            return function(first) {
+              first();
+              _this.ClearAllCellGlyphs();
+              return _this.DrawEveryCellData();
+            };
           })(this);
           switch (event.which) {
             case Keys['backspace']:
@@ -490,9 +506,7 @@
                   return function() {
                     if ((selectedCells[0][0] % 15) === 14) {
                       cellYOrg++;
-                      _this.DrawRowNames();
-                      _this.ClearAllCellGlyphs();
-                      return _this.DrawEveryCellData();
+                      return refreshCellData(_this.DrawRowNames);
                     } else {
                       return selectedCells[0][0]++;
                     }
@@ -507,9 +521,7 @@
                   return function() {
                     if ((selectedCells[0][0] % 15) === 0) {
                       cellYOrg--;
-                      _this.DrawRowNames();
-                      _this.ClearAllCellGlyphs();
-                      return _this.DrawEveryCellData();
+                      return refreshCellData(_this.DrawRowNames);
                     } else {
                       return selectedCells[0][0]--;
                     }
@@ -518,21 +530,31 @@
               }
               break;
             case Keys['right']:
-              if (selectedCells[0][1] < (Sheets[currentSheet].length - 1)) {
+              if ((selectedCells[0][1] + cellXOrg) < (Sheets[currentSheet].length - 1)) {
                 justSelected = true;
                 Next = (function(_this) {
                   return function() {
-                    return selectedCells[0][1]++;
+                    if ((selectedCells[0][1] % 8) === 7) {
+                      cellXOrg++;
+                      return refreshCellData(_this.DrawColumnNames);
+                    } else {
+                      return selectedCells[0][1]++;
+                    }
                   };
                 })(this);
               }
               break;
             case Keys['left']:
-              if (0 < selectedCells[0][1]) {
+              if (0 < (selectedCells[0][1] + cellXOrg)) {
                 justSelected = true;
                 Next = (function(_this) {
                   return function() {
-                    return selectedCells[0][1]--;
+                    if ((selectedCells[0][1] % 8) === 0) {
+                      cellXOrg--;
+                      return refreshCellData(_this.DrawColumnNames);
+                    } else {
+                      return selectedCells[0][1]--;
+                    }
                   };
                 })(this);
               }

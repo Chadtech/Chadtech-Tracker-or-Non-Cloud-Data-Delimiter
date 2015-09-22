@@ -37,10 +37,11 @@ Keys          = ((Keys) ->
 
 
 # Drawing
-DrawColumnNames     = require './draw-column-names.js'
 DrawEveryCell       = require './draw-every-cell.js'
 DrawSelectedCell    = require './draw-selected-cell.js'
 DrawColumnOptions   = require './draw-column-options.js'
+DrawColumnNames     = require './draw-column-names.js'
+DrawColumnBoxes     = require './draw-column-boxes.js'
 DrawRowOptions      = require './draw-row-options.js'
 DrawRowNames        = require './draw-row-names.js'
 DrawRowBoxes        = require './draw-row-boxes.js'

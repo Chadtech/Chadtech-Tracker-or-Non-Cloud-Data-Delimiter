@@ -24,11 +24,19 @@
 
 
   DrawRowNames: ->
-    DrawRowNames @Just8x15(),  WorkArea, Glyphs, edgeColor, cell, cellYOrg
+    DrawRowNames @Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellYOrg
 
 
   DrawRowBoxes: ->
     DrawRowBoxes WorkArea, edgeColor, cell
+
+
+  DrawColumnNames: ->
+    DrawColumnNames @Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellXOrg
+
+
+  DrawColumnBoxes: ->
+    DrawColumnBoxes @Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellXOrg
 
 
   refreshWorkArea: ->
@@ -38,6 +46,7 @@
     WorkArea.fillRect 0, 0, window.innerWidth, window.innerHeight
 
     DrawOriginMark    sheetName,    WorkArea, Glyphs, edgeColor, cell, Assets
+    DrawColumnBoxes                 WorkArea,         edgeColor, cell
     DrawColumnNames   @Just8x15(),  WorkArea, Glyphs, edgeColor, cell, cellXOrg
     DrawRowBoxes                    WorkArea,         edgeColor, cell
     DrawRowNames      @Just8x15(),  WorkArea, Glyphs, edgeColor, cell, cellYOrg

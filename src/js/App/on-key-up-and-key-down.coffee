@@ -20,6 +20,11 @@
 
         Next = => return
 
+        refreshCellData = (first) =>
+          first()
+          @ClearAllCellGlyphs()
+          @DrawEveryCellData()
+
         switch event.which
 
           when Keys['backspace']
@@ -39,9 +44,7 @@
               Next = =>
                 if (selectedCells[0][0] % 15) is 14
                   cellYOrg++
-                  @DrawRowNames()
-                  @ClearAllCellGlyphs()
-                  @DrawEveryCellData()
+                  refreshCellData @DrawRowNames
                 else
                   selectedCells[0][0]++
           
@@ -51,24 +54,29 @@
               Next = =>
                 if (selectedCells[0][0] % 15) is 0
                   cellYOrg--
-                  @DrawRowNames()
-                  @ClearAllCellGlyphs()
-                  @DrawEveryCellData()
+                  refreshCellData @DrawRowNames
                 else
                   selectedCells[0][0]--
 
-
           when Keys['right']
-            if selectedCells[0][1] < (Sheets[currentSheet].length - 1)
+            if (selectedCells[0][1] + cellXOrg) < (Sheets[currentSheet].length - 1)
               justSelected = true
               Next = =>
-                selectedCells[0][1]++
+                if (selectedCells[0][1] % 8) is 7
+                  cellXOrg++
+                  refreshCellData @DrawColumnNames
+                else
+                  selectedCells[0][1]++
           
           when Keys['left']
-            if 0 < selectedCells[0][1]
+            if 0 < (selectedCells[0][1] + cellXOrg)
               justSelected = true
               Next = =>
-                selectedCells[0][1]--
+                if (selectedCells[0][1] % 8) is 0
+                  cellXOrg--
+                  refreshCellData @DrawColumnNames
+                else
+                  selectedCells[0][1]--
 
           when Keys['ctrl']  then doNothing()
           when Keys['shift'] then doNothing()
