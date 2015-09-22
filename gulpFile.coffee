@@ -3,7 +3,9 @@ jade          = require 'gulp-jade'
 stylus        = require 'gulp-stylus'
 coffee        = require 'gulp-coffee'
 autowatch     = require 'gulp-autowatch'
+concatenate   = require 'gulp-concat'
 childProcess  = require 'child_process'
+
 
 launchWebkit = ->
 
@@ -23,9 +25,18 @@ paths =
   jade:      './src/html/*.jade'
   stylus:    './src/css/*.styl'
 
+AppFile = [
+  './src/js/App/index.coffee'
+]
+
 resources = './resources'
 
 gulp.task 'coffee', ->
+  
+  gulp.src AppFile
+  .pipe concatenate 'index.coffee'
+  .pipe gulp.dest './src/js'
+
   gulp.src paths.coffee
   .pipe coffee()
   .pipe gulp.dest resources
