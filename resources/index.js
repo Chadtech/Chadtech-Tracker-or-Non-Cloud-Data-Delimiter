@@ -484,27 +484,35 @@
               })(this);
               break;
             case Keys['down']:
-              if (selectedCells[0][0] < (Sheets[currentSheet][0].length - 1)) {
+              if ((selectedCells[0][0] + cellYOrg) < (Sheets[currentSheet][0].length - 1)) {
                 justSelected = true;
                 Next = (function(_this) {
                   return function() {
-                    if (((selectedCells[0][0] - cellYOrg) % 15) === 14) {
+                    if ((selectedCells[0][0] % 15) === 14) {
                       cellYOrg++;
                       _this.DrawRowNames();
                       _this.ClearAllCellGlyphs();
-                      _this.DrawEveryCellData();
+                      return _this.DrawEveryCellData();
+                    } else {
+                      return selectedCells[0][0]++;
                     }
-                    return selectedCells[0][0]++;
                   };
                 })(this);
               }
               break;
             case Keys['up']:
-              if (0 < selectedCells[0][0]) {
+              if (0 < (selectedCells[0][0] + cellYOrg)) {
                 justSelected = true;
                 Next = (function(_this) {
                   return function() {
-                    return selectedCells[0][0]--;
+                    if ((selectedCells[0][0] % 15) === 0) {
+                      cellYOrg--;
+                      _this.DrawRowNames();
+                      _this.ClearAllCellGlyphs();
+                      return _this.DrawEveryCellData();
+                    } else {
+                      return selectedCells[0][0]--;
+                    }
                   };
                 })(this);
               }

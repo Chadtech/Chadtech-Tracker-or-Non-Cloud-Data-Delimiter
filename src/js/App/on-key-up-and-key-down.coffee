@@ -34,24 +34,32 @@
               selectedCells[0][0]++
 
           when Keys['down']
-            if selectedCells[0][0] < (Sheets[currentSheet][0].length - 1)
+            if (selectedCells[0][0] + cellYOrg) < (Sheets[currentSheet][0].length - 1)
               justSelected = true
               Next = =>
-                if ((selectedCells[0][0] - cellYOrg ) % 15) is 14
+                if (selectedCells[0][0] % 15) is 14
                   cellYOrg++
                   @DrawRowNames()
                   @ClearAllCellGlyphs()
                   @DrawEveryCellData()
-                selectedCells[0][0]++
+                else
+                  selectedCells[0][0]++
           
           when Keys['up']
-            if 0 < selectedCells[0][0]
+            if 0 < (selectedCells[0][0] + cellYOrg)
               justSelected = true
               Next = =>
-                selectedCells[0][0]--
+                if (selectedCells[0][0] % 15) is 0
+                  cellYOrg--
+                  @DrawRowNames()
+                  @ClearAllCellGlyphs()
+                  @DrawEveryCellData()
+                else
+                  selectedCells[0][0]--
+
 
           when Keys['right']
-            if selectedCells[0][1] < (Sheets[currentSheet].length  - 1)
+            if selectedCells[0][1] < (Sheets[currentSheet].length - 1)
               justSelected = true
               Next = =>
                 selectedCells[0][1]++

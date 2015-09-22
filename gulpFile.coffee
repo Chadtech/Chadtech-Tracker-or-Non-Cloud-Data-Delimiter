@@ -22,7 +22,7 @@ launchWebkit = ->
 
 paths =
   resources: './resources'
-  coffee:    './src/js/*.coffee'
+  coffee:    './src/js/**/*.coffee'
   jade:      './src/html/*.jade'
   stylus:    './src/css/*.styl'
 
@@ -52,7 +52,7 @@ gulp.task 'coffee', ->
   .pipe concatenate 'index.coffee'
   .pipe gulp.dest './src/js'
 
-  gulp.src paths.coffee
+  gulp.src './src/js/*.coffee'
   .pipe coffee()
   .pipe gulp.dest resources
 
