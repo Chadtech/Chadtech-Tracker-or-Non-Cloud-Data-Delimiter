@@ -96,8 +96,6 @@ cellXOrg      = 0
 cellYOrg      = 0
 rowNameRadix  = 8
 
-
-
 Index = React.createClass
 
 
@@ -147,8 +145,6 @@ Index = React.createClass
     Glyphs                 = LoadGlyphs AllCharacters, next
     Glyphs.characterWidth  = 11
     Glyphs.characterHeight = 19
-
-
   setCanvasDimensions: ->
     toolbar0        = document.getElementById 'toolbar0'
     toolbar0.width  = window.innerWidth
@@ -245,7 +241,6 @@ Index = React.createClass
         drawText toolbar1, Glyphs, 6, sheetName, [ glyphXOrg, 7 ]
 
         sheetXOrg += tabWidth + 4
-
   Just8x15: ->
     Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
 
@@ -298,6 +293,7 @@ Index = React.createClass
     DrawRowOptions    Sheets[ currentSheet ], WorkArea, Glyphs, edgeColor, cell, Assets
     
     @DrawSelectedCellsSelected()
+
 
 
   handleClickWorkArea: (event) ->
@@ -377,6 +373,7 @@ Index = React.createClass
         # DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, whichCell
 
 
+
   # buttonFunctions:
   #   open: doNothing
   #   save: 
@@ -423,8 +420,6 @@ Index = React.createClass
           @handleSave
           @handleSaveAs
           @state.filePath
-
-
   handleClickToolbar1: (event) ->
 
     mouseX = event.clientX
@@ -441,7 +436,6 @@ Index = React.createClass
       @ClearAllCellGlyphs()
       @DrawEveryCellData()
       @drawToolBar1()
-
 
   handleSaveAs: ->
     csvs = convertToCSVs Sheets
@@ -473,6 +467,7 @@ Index = React.createClass
       fileName += '.csv'
       filePath += fileName
       fs.writeFileSync filePath, csv
+
 
 
   onKeyUp: (event) ->
@@ -569,9 +564,8 @@ Index = React.createClass
         @DrawSelectedCellsNormal()
         Next()
         @DrawSelectedCellsSelected()
+
               
-
-
   render: ->
 
     div

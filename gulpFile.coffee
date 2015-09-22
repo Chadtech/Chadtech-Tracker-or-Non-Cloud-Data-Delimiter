@@ -5,6 +5,7 @@ coffee        = require 'gulp-coffee'
 autowatch     = require 'gulp-autowatch'
 concatenate   = require 'gulp-concat'
 childProcess  = require 'child_process'
+_             = require 'lodash'
 
 
 launchWebkit = ->
@@ -26,13 +27,27 @@ paths =
   stylus:    './src/css/*.styl'
 
 AppFile = [
-  './src/js/App/index.coffee'
+  'header.coffee'
+  'component-did-mount.coffee'
+  'set-canvas-dimensions.coffee'
+  'draw-toolbar0.coffee'
+  'draw-toolbar1.coffee'
+  'drawing-operations.coffee'
+  'handle-mouse-down-workarea.coffee'
+  'handle-click-toolbar0.coffee'
+  'handle-click-toolbar1.coffee'
+  'handle-save-and-save-as.coffee'
+  'on-key-up-and-key-down.coffee'
+  'render.coffee'
 ]
+
+AppFile = _.map AppFile, (file) ->
+  './src/js/App/' + file
 
 resources = './resources'
 
 gulp.task 'coffee', ->
-  
+
   gulp.src AppFile
   .pipe concatenate 'index.coffee'
   .pipe gulp.dest './src/js'
