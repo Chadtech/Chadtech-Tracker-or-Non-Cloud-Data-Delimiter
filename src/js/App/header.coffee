@@ -75,7 +75,7 @@ Glyphs = undefined
 toolbarSize = 35
 cell =
   w: 6 + (11 * 5)
-  h: 7 + 19
+  h: 7 +  19
 
 
 # Assets
