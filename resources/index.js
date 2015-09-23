@@ -193,8 +193,6 @@
       for (point = i = 0, ref3 = window.innerWidth - 1; 0 <= ref3 ? i <= ref3 : i >= ref3; point = 0 <= ref3 ? ++i : --i) {
         borderColor = hexToArray(borderGray);
         putPixel(toolbar0, cellColor, [point, toolbarSize - 2]);
-        putPixel(toolbar0, cellColor, [point, toolbarSize - 3]);
-        putPixel(toolbar0, borderColor, [point, toolbarSize - 4]);
       }
       toolbar0.drawImage(Assets['open'][0], 5, 5);
       return toolbar0.drawImage(Assets['save'][0], 58, 5);
@@ -216,17 +214,16 @@
           tabWidth = 9 * Glyphs.characterWidth;
           toolbar1.fillStyle = '#202020';
           toolbar1.fillRect(sheetXOrg + 1, 2, tabWidth - 2, cell.h - 1);
-          for (point = j = 0, ref4 = cell.h - 1; 0 <= ref4 ? j <= ref4 : j >= ref4; point = 0 <= ref4 ? ++j : --j) {
-            putPixel(toolbar1, borderColor, [sheetXOrg, point + 3]);
-            putPixel(toolbar1, borderColor, [sheetXOrg - 1, point + 3]);
-            putPixel(toolbar1, borderColor, [sheetXOrg + tabWidth, point + 3]);
-            putPixel(toolbar1, borderColor, [sheetXOrg + tabWidth - 1, point + 3]);
-          }
-          for (point = k = 0, ref5 = tabWidth + 1; 0 <= ref5 ? k <= ref5 : k >= ref5; point = 0 <= ref5 ? ++k : --k) {
+          for (point = j = 0, ref4 = tabWidth; 0 <= ref4 ? j <= ref4 : j >= ref4; point = 0 <= ref4 ? ++j : --j) {
             putPixel(toolbar1, borderColor, [sheetXOrg + point - 1, 2]);
             putPixel(toolbar1, borderColor, [sheetXOrg + point - 1, 3]);
             putPixel(toolbar1, borderColor, [sheetXOrg + point - 1, cell.h + 2]);
             putPixel(toolbar1, borderColor, [sheetXOrg + point - 1, cell.h + 3]);
+          }
+          for (point = k = 0, ref5 = cell.h - 1; 0 <= ref5 ? k <= ref5 : k >= ref5; point = 0 <= ref5 ? ++k : --k) {
+            putPixel(toolbar1, cellColor, [sheetXOrg, point + 3]);
+            putPixel(toolbar1, cellColor, [sheetXOrg - 1, point + 4]);
+            putPixel(toolbar1, borderColor, [sheetXOrg + tabWidth - 1, point + 3]);
           }
           glyphXOrg = sheetXOrg;
           glyphXOffset = Math.floor(tabWidth / 2);
@@ -239,15 +236,14 @@
           tabWidth *= Glyphs.characterWidth;
           toolbar1.fillStyle = '#202020';
           toolbar1.fillRect(sheetXOrg + 1, 2, tabWidth - 2, cell.h - 1);
-          for (point = l = 0, ref6 = cell.h - 1; 0 <= ref6 ? l <= ref6 : l >= ref6; point = 0 <= ref6 ? ++l : --l) {
-            putPixel(toolbar1, borderColor, [sheetXOrg, point + 3]);
-            putPixel(toolbar1, borderColor, [sheetXOrg - 1, point + 3]);
-            putPixel(toolbar1, borderColor, [sheetXOrg + tabWidth, point + 3]);
-            putPixel(toolbar1, borderColor, [sheetXOrg + tabWidth - 1, point + 3]);
-          }
-          for (point = m = 0, ref7 = tabWidth + 1; 0 <= ref7 ? m <= ref7 : m >= ref7; point = 0 <= ref7 ? ++m : --m) {
+          for (point = l = 0, ref6 = tabWidth; 0 <= ref6 ? l <= ref6 : l >= ref6; point = 0 <= ref6 ? ++l : --l) {
             putPixel(toolbar1, borderColor, [sheetXOrg + point - 1, cell.h + 2]);
             putPixel(toolbar1, borderColor, [sheetXOrg + point - 1, cell.h + 3]);
+          }
+          for (point = m = 0, ref7 = cell.h - 1; 0 <= ref7 ? m <= ref7 : m >= ref7; point = 0 <= ref7 ? ++m : --m) {
+            putPixel(toolbar1, cellColor, [sheetXOrg, point + 3]);
+            putPixel(toolbar1, cellColor, [sheetXOrg - 1, point + 4]);
+            putPixel(toolbar1, borderColor, [sheetXOrg + tabWidth - 1, point + 3]);
           }
           glyphXOrg = sheetXOrg;
           glyphXOffset = Math.floor(tabWidth / 2);

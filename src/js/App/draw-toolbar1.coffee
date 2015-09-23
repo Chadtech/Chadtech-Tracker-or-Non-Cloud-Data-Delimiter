@@ -19,18 +19,17 @@
         toolbar1.fillStyle = '#202020'
         toolbar1.fillRect sheetXOrg + 1, 2, tabWidth - 2, cell.h - 1
 
-        for point in [ 0 .. cell.h - 1 ]
-          putPixel toolbar1, borderColor, [ sheetXOrg,                point + 3 ]
-          putPixel toolbar1, borderColor, [ sheetXOrg - 1,            point + 3 ]
-          putPixel toolbar1, borderColor, [ sheetXOrg + tabWidth,     point + 3 ]
-          putPixel toolbar1, borderColor, [ sheetXOrg + tabWidth - 1, point + 3 ]
-
-        for point in [ 0 .. tabWidth + 1 ]
+        for point in [ 0 .. tabWidth ]
           putPixel toolbar1, borderColor, [ sheetXOrg + point - 1,     2 ]
           putPixel toolbar1, borderColor, [ sheetXOrg + point - 1,     3 ]
           putPixel toolbar1, borderColor, [ sheetXOrg + point - 1,     cell.h + 2 ]
           putPixel toolbar1, borderColor, [ sheetXOrg + point - 1,     cell.h + 3 ]
 
+        for point in [ 0 .. cell.h - 1 ]
+          putPixel toolbar1, cellColor,   [ sheetXOrg,                point + 3 ]
+          putPixel toolbar1, cellColor,   [ sheetXOrg - 1,            point + 4 ]
+          putPixel toolbar1, borderColor, [ sheetXOrg + tabWidth - 1, point + 3 ]
+          
         glyphXOrg    = sheetXOrg
         glyphXOffset = tabWidth // 2
         glyphXOffset -= (11 * sheetName.length) // 2
@@ -48,15 +47,14 @@
         toolbar1.fillStyle = '#202020'
         toolbar1.fillRect sheetXOrg + 1, 2, tabWidth - 2, cell.h - 1
 
-        for point in [ 0 .. cell.h - 1 ]
-          putPixel toolbar1, borderColor, [ sheetXOrg,                point + 3 ]
-          putPixel toolbar1, borderColor, [ sheetXOrg - 1,            point + 3 ]
-          putPixel toolbar1, borderColor, [ sheetXOrg + tabWidth,     point + 3 ]
-          putPixel toolbar1, borderColor, [ sheetXOrg + tabWidth - 1, point + 3 ]
-
-        for point in [ 0 .. tabWidth + 1 ]
+        for point in [ 0 .. tabWidth ]
           putPixel toolbar1, borderColor, [ sheetXOrg + point - 1,     cell.h + 2 ]
           putPixel toolbar1, borderColor, [ sheetXOrg + point - 1,     cell.h + 3 ]
+
+        for point in [ 0 .. cell.h - 1 ]
+          putPixel toolbar1, cellColor,   [ sheetXOrg,                point + 3 ]
+          putPixel toolbar1, cellColor,   [ sheetXOrg - 1,            point + 4 ]
+          putPixel toolbar1, borderColor, [ sheetXOrg + tabWidth - 1, point + 3 ]
 
         glyphXOrg    = sheetXOrg
         glyphXOffset = tabWidth // 2

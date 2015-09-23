@@ -88,7 +88,6 @@
                 selectedCells[0][0] + cellYOrg
                 selectedCells[0][1] + cellXOrg
               ] 
-            # SC = selectedCells[0]
             thisCell = Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ]
             thisKey  = Keys[ event.which ]
             if event.shiftKey
