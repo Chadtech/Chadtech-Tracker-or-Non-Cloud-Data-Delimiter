@@ -83,8 +83,8 @@ Assets = undefined
 
 
 buttonXBoundaries =
-  'open': [ 5, 56 ]
-  'save': [ 57, 109 ]
+  'open': [ 4,  55  ]
+  'save': [ 56, 108 ]
 
 
 # Main Globals

@@ -83,8 +83,8 @@ Assets = undefined
 
 
 buttonXBoundaries =
-  'open': [ 5, 56 ]
-  'save': [ 57, 109 ]
+  'open': [ 4,  55  ]
+  'save': [ 56, 108 ]
 
 
 # Main Globals
@@ -168,11 +168,9 @@ Index = React.createClass
     for point in [ 0 .. window.innerWidth - 1 ]
       borderColor = hexToArray borderGray
       putPixel toolbar0, cellColor, [ point, toolbarSize - 2 ]
-      # putPixel toolbar0, cellColor, [ point, toolbarSize - 3 ]
-      # putPixel toolbar0, borderColor, [ point, toolbarSize - 4 ]
 
-    toolbar0.drawImage Assets[ 'open' ][0], 5, 5
-    toolbar0.drawImage Assets[ 'save' ][0], 58, 5
+    toolbar0.drawImage Assets[ 'open' ][0], 4,  4
+    toolbar0.drawImage Assets[ 'save' ][0], 57, 4
 
 
   drawToolBar1: ->
