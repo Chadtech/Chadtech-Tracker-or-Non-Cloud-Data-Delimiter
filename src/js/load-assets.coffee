@@ -27,7 +27,7 @@ module.exports = (next) ->
   load 'save',           'save'
   load 'open',           'open'
   load '+',              'add-sheet'
-  load 'radix-area',     'radix-area'
-  load 'new-sheet-area', 'new-sheet-area'
+  # load 'radix-area',     'radix-area'
+  # load 'new-sheet-area', 'new-sheet-area'
 
   assets

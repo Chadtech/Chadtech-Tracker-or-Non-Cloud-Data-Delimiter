@@ -208,50 +208,33 @@
       }
       sheetXOrg = 5;
       return _.forEach(Sheets, function(sheet, sheetIndex) {
-        var glyphXOffset, glyphXOrg, j, k, l, m, ref4, ref5, ref6, ref7, sheetName, tabWidth;
+        var glyphXOffset, glyphXOrg, j, k, l, ref4, ref5, ref6, sheetName, tabWidth;
         sheetName = sheetNames[sheetIndex];
+        tabWidth = (9 * Glyphs.characterWidth) + 21;
+        toolbar1.fillStyle = '#202020';
+        toolbar1.fillRect(sheetXOrg + 1, 2, tabWidth - 2, cell.h - 1);
+        for (point = j = 0, ref4 = tabWidth; 0 <= ref4 ? j <= ref4 : j >= ref4; point = 0 <= ref4 ? ++j : --j) {
+          putPixel(toolbar1, borderColor, [sheetXOrg + point - 1, cell.h + 4]);
+          putPixel(toolbar1, borderColor, [sheetXOrg + point - 1, cell.h + 5]);
+        }
+        for (point = k = 0, ref5 = cell.h + 1; 0 <= ref5 ? k <= ref5 : k >= ref5; point = 0 <= ref5 ? ++k : --k) {
+          putPixel(toolbar1, cellColor, [sheetXOrg, point + 3]);
+          putPixel(toolbar1, cellColor, [sheetXOrg - 1, point + 4]);
+          putPixel(toolbar1, borderColor, [sheetXOrg + tabWidth - 1, point + 3]);
+        }
         if (sheetIndex !== currentSheet) {
-          tabWidth = 9 * Glyphs.characterWidth;
-          toolbar1.fillStyle = '#202020';
-          toolbar1.fillRect(sheetXOrg + 1, 2, tabWidth - 2, cell.h - 1);
-          for (point = j = 0, ref4 = tabWidth; 0 <= ref4 ? j <= ref4 : j >= ref4; point = 0 <= ref4 ? ++j : --j) {
+          for (point = l = 0, ref6 = tabWidth; 0 <= ref6 ? l <= ref6 : l >= ref6; point = 0 <= ref6 ? ++l : --l) {
             putPixel(toolbar1, borderColor, [sheetXOrg + point - 1, 2]);
             putPixel(toolbar1, borderColor, [sheetXOrg + point - 1, 3]);
-            putPixel(toolbar1, borderColor, [sheetXOrg + point - 1, cell.h + 2]);
-            putPixel(toolbar1, borderColor, [sheetXOrg + point - 1, cell.h + 3]);
           }
-          for (point = k = 0, ref5 = cell.h - 1; 0 <= ref5 ? k <= ref5 : k >= ref5; point = 0 <= ref5 ? ++k : --k) {
-            putPixel(toolbar1, cellColor, [sheetXOrg, point + 3]);
-            putPixel(toolbar1, cellColor, [sheetXOrg - 1, point + 4]);
-            putPixel(toolbar1, borderColor, [sheetXOrg + tabWidth - 1, point + 3]);
-          }
-          glyphXOrg = sheetXOrg;
-          glyphXOffset = Math.floor(tabWidth / 2);
-          glyphXOffset -= Math.floor((11 * sheetName.length) / 2);
-          glyphXOrg += glyphXOffset;
-          drawText(toolbar1, Glyphs, 6, sheetName, [glyphXOrg, 7]);
-          return sheetXOrg += tabWidth + 4;
-        } else {
-          tabWidth = sheetName.length + 2;
-          tabWidth *= Glyphs.characterWidth;
-          toolbar1.fillStyle = '#202020';
-          toolbar1.fillRect(sheetXOrg + 1, 2, tabWidth - 2, cell.h - 1);
-          for (point = l = 0, ref6 = tabWidth; 0 <= ref6 ? l <= ref6 : l >= ref6; point = 0 <= ref6 ? ++l : --l) {
-            putPixel(toolbar1, borderColor, [sheetXOrg + point - 1, cell.h + 2]);
-            putPixel(toolbar1, borderColor, [sheetXOrg + point - 1, cell.h + 3]);
-          }
-          for (point = m = 0, ref7 = cell.h - 1; 0 <= ref7 ? m <= ref7 : m >= ref7; point = 0 <= ref7 ? ++m : --m) {
-            putPixel(toolbar1, cellColor, [sheetXOrg, point + 3]);
-            putPixel(toolbar1, cellColor, [sheetXOrg - 1, point + 4]);
-            putPixel(toolbar1, borderColor, [sheetXOrg + tabWidth - 1, point + 3]);
-          }
-          glyphXOrg = sheetXOrg;
-          glyphXOffset = Math.floor(tabWidth / 2);
-          glyphXOffset -= Math.floor((11 * sheetName.length) / 2);
-          glyphXOrg += glyphXOffset;
-          drawText(toolbar1, Glyphs, 6, sheetName, [glyphXOrg, 7]);
-          return sheetXOrg += tabWidth + 4;
         }
+        glyphXOrg = sheetXOrg;
+        glyphXOffset = Math.floor((tabWidth - 21) / 2);
+        glyphXOffset -= Math.floor((11 * sheetName.length) / 2);
+        glyphXOrg += glyphXOffset;
+        drawText(toolbar1, Glyphs, 6, sheetName, [glyphXOrg, 9]);
+        toolbar1.drawImage(Assets['X'][0], sheetXOrg + tabWidth - 26, 5);
+        return sheetXOrg += tabWidth + 4;
       });
     },
     Just8x15: function() {

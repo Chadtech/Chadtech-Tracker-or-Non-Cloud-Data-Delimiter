@@ -29,6 +29,7 @@
     load('^+', 'add-row-button');
     load('save', 'save');
     load('open', 'open');
+    load('+', 'add-sheet');
     return assets;
   };
 

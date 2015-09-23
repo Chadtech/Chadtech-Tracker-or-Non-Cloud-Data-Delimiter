@@ -14,7 +14,7 @@ cutButton = (saveFile, a) =>
 buttonsToCut = [
   [ 'x-button',                   [ 24, 24, 35, 0  ] ]
   [ 'x-button-selected',          [ 24, 24, 35, 24 ] ]
-  [ 'add-column-button',          [ 35, 25, 0,  0  ] ]
+  [ 'add-column-button',          [ 35, 24, 0,  0  ] ]
   [ 'add-column-button-selected', [ 35, 24, 0,  24 ] ]
   [ 'add-row-button',             [ 35, 24, 0,  48 ] ]
   [ 'add-row-button-selected',    [ 35, 34, 0,  72 ] ]
