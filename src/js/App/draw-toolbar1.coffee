@@ -42,3 +42,7 @@
       toolbar1.drawImage Assets['X'][0], sheetXOrg + tabWidth - 26, 5
 
       sheetXOrg += tabWidth + 4
+
+    toolbar1.drawImage Assets['new-sheet-area'][0], sheetXOrg, 6
+    toolbar1.drawImage Assets['+'][0], sheetXOrg + 97, 6
+    drawText toolbar1, Glyphs, 2, 'food', [ sheetXOrg + 6, 9 ]

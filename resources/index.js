@@ -195,7 +195,10 @@
         putPixel(toolbar0, cellColor, [point, toolbarSize - 2]);
       }
       toolbar0.drawImage(Assets['open'][0], 4, 4);
-      return toolbar0.drawImage(Assets['save'][0], 57, 4);
+      toolbar0.drawImage(Assets['save'][0], 57, 4);
+      drawText(toolbar0, Glyphs, 6, 'column radix:', [121, 8]);
+      toolbar0.drawImage(Assets['radix-area'][0], 264, 4);
+      return drawText(toolbar0, Glyphs, 2, rowNameRadix + '', [270, 9]);
     },
     drawToolBar1: function() {
       var i, point, ref3, sheetXOrg, toolbar1;
@@ -207,7 +210,7 @@
         putPixel(toolbar1, borderColor, [point, 3]);
       }
       sheetXOrg = 5;
-      return _.forEach(Sheets, function(sheet, sheetIndex) {
+      _.forEach(Sheets, function(sheet, sheetIndex) {
         var glyphXOffset, glyphXOrg, j, k, l, ref4, ref5, ref6, sheetName, tabWidth;
         sheetName = sheetNames[sheetIndex];
         tabWidth = (9 * Glyphs.characterWidth) + 21;
@@ -236,6 +239,9 @@
         toolbar1.drawImage(Assets['X'][0], sheetXOrg + tabWidth - 26, 5);
         return sheetXOrg += tabWidth + 4;
       });
+      toolbar1.drawImage(Assets['new-sheet-area'][0], sheetXOrg, 6);
+      toolbar1.drawImage(Assets['+'][0], sheetXOrg + 97, 6);
+      return drawText(toolbar1, Glyphs, 2, 'food', [sheetXOrg + 6, 9]);
     },
     Just8x15: function() {
       return Eightx15ify(Sheets[currentSheet], cellXOrg, cellYOrg);

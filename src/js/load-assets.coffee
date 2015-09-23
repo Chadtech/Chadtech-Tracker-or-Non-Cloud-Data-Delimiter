@@ -5,7 +5,7 @@ module.exports = (next) ->
 
   assets = {}
 
-  totalNumberOfAssets  = 10
+  totalNumberOfAssets  = 14
   numberOfAssetsLoaded = 0
 
   checkForNext = (a, b, c, d) =>
@@ -13,21 +13,22 @@ module.exports = (next) ->
     if numberOfAssetsLoaded is totalNumberOfAssets
       next()
 
-  load = (key, name) =>
+  load = (key, name, selectedImage) =>
     assets[ key ] = [ image(), image() ]
     assets[ key ][0].src    = './' + name + '.png'
     assets[ key ][0].onload = checkForNext
-    assets[ key ][1].src    = './' + name + '-selected.png'
-    assets[ key ][1].onload = checkForNext
+    if selectedImage
+      assets[ key ][1].src    = './' + name + '-selected.png'
+      assets[ key ][1].onload = checkForNext
 
 
-  load 'X',              'x-button'
-  load '<+',             'add-column-button'
-  load '^+',             'add-row-button'
-  load 'save',           'save'
-  load 'open',           'open'
-  load '+',              'add-sheet'
-  # load 'radix-area',     'radix-area'
-  # load 'new-sheet-area', 'new-sheet-area'
+  load 'X',              'x-button',          true
+  load '<+',             'add-column-button', true
+  load '^+',             'add-row-button',    true
+  load 'save',           'save',              true
+  load 'open',           'open',              true
+  load '+',              'add-sheet',         true
+  load 'radix-area',     'radix-area',        false
+  load 'new-sheet-area', 'new-sheet-area',    false
 
   assets

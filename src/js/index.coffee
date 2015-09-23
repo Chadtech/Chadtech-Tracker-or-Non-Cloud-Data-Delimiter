@@ -171,6 +171,9 @@ Index = React.createClass
 
     toolbar0.drawImage Assets[ 'open' ][0], 4,  4
     toolbar0.drawImage Assets[ 'save' ][0], 57, 4
+    drawText toolbar0, Glyphs, 6, 'column radix:', [ 121, 8 ]
+    toolbar0.drawImage Assets[ 'radix-area'][0], 264, 4
+    drawText toolbar0, Glyphs, 2, rowNameRadix + '', [ 270, 9 ]
 
 
   drawToolBar1: ->
@@ -217,6 +220,11 @@ Index = React.createClass
       toolbar1.drawImage Assets['X'][0], sheetXOrg + tabWidth - 26, 5
 
       sheetXOrg += tabWidth + 4
+
+    toolbar1.drawImage Assets['new-sheet-area'][0], sheetXOrg, 6
+    toolbar1.drawImage Assets['+'][0], sheetXOrg + 97, 6
+    drawText toolbar1, Glyphs, 2, 'food', [ sheetXOrg + 6, 9 ]
+
   Just8x15: ->
     Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
 

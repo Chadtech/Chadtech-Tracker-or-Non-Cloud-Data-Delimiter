@@ -24,8 +24,8 @@ buttonsToCut = [
   [ 'save-selected',              [ 52, 25, 0, 172 ] ]
   [ 'add-sheet',                  [ 24, 24, 0, 197 ] ]
   [ 'add-sheet-selected',         [ 24, 24, 24,197 ] ]
-  [ 'radix-area',                 [ 24, 24, 0, 221 ] ]
-  [ 'new-sheet-area',             [ 96, 24, 0, 245 ] ]
+  [ 'radix-area',                 [ 24, 25, 0, 221 ] ]
+  [ 'new-sheet-area',             [ 96, 25, 0, 246 ] ]
 ]
 
 _.forEach buttonsToCut, (buttonToCut) ->
