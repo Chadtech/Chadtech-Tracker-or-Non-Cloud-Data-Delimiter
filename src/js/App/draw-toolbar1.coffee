@@ -45,4 +45,4 @@
 
     toolbar1.drawImage Assets['new-sheet-area'][0], sheetXOrg, 6
     toolbar1.drawImage Assets['+'][0], sheetXOrg + 97, 6
-    drawText toolbar1, Glyphs, 2, 'food', [ sheetXOrg + 6, 9 ]
+    drawText toolbar1, Glyphs, 2, newSheetName, [ sheetXOrg + 6, 9 ]

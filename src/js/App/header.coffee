@@ -86,6 +86,25 @@ buttonXBoundaries =
   'open': [ 4,  55  ]
   'save': [ 56, 108 ]
 
+buttonFunctions = 
+  open:
+    down: (ctx) ->
+      ctx.drawImage Assets['open'][1], buttonXBoundaries.open[0], 4
+    up: (ctx, handleOpen) ->
+      handleOpen()
+      ctx.drawImage Assets['open'][0], buttonXBoundaries.open[0], 4
+
+
+  save:
+    down: (ctx) ->
+      ctx.drawImage Assets['save'][1], buttonXBoundaries.save[0], 4
+    up: (ctx, handleSave, handleSaveAs, saveFilePath)->
+      if saveFilePath isnt ''
+        handleSave()
+      else
+        handleSaveAs()
+      ctx.drawImage Assets['save'][0], buttonXBoundaries.save[0], 4
+
 
 # Main Globals
 currentSheet  = 0
@@ -96,4 +115,5 @@ justSelected  = true
 cellXOrg      = 0
 cellYOrg      = 0
 rowNameRadix  = 8
+newSheetName  = 'newSheet'
 

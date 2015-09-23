@@ -1,5 +1,5 @@
 (function() {
-  var AllCharacters, AssetLoader, Assets, ClearAllCellGlyphs, CoordinateIsElement, DrawColumnBoxes, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawEveryCellBorder, DrawEveryCellData, DrawNormalCell, DrawOriginMark, DrawRowBoxes, DrawRowNames, DrawRowOptions, DrawSelectedCell, DrawSheetTabs, Eightx15ify, Glyphs, Index, Keys, LoadGlyphs, React, Sheets, WorkArea, _, borderColor, borderGray, buttonXBoundaries, canvas, cell, cellColor, cellXOrg, cellYOrg, convertToCSVs, currentSheet, darkGray, darkerGray, div, doNothing, drawText, edgeColor, gray, gui, hexToArray, injectionPoint, input, justSelected, lighterGray, putPixel, ref, ref1, ref2, rowNameRadix, selectedCells, selectedColor, sheetNames, toolbarSize, topEdgeColor, zeroPadder;
+  var AllCharacters, AssetLoader, Assets, ClearAllCellGlyphs, CoordinateIsElement, DrawColumnBoxes, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawEveryCellBorder, DrawEveryCellData, DrawNormalCell, DrawOriginMark, DrawRowBoxes, DrawRowNames, DrawRowOptions, DrawSelectedCell, DrawSheetTabs, Eightx15ify, Glyphs, Index, Keys, LoadGlyphs, React, Sheets, WorkArea, _, borderColor, borderGray, buttonFunctions, buttonXBoundaries, canvas, cell, cellColor, cellXOrg, cellYOrg, convertToCSVs, currentSheet, darkGray, darkerGray, div, doNothing, drawText, edgeColor, gray, gui, hexToArray, injectionPoint, input, justSelected, lighterGray, newSheetName, putPixel, ref, ref1, ref2, rowNameRadix, selectedCells, selectedColor, sheetNames, toolbarSize, topEdgeColor, zeroPadder;
 
   global.document = window.document;
 
@@ -108,6 +108,31 @@
     'save': [56, 108]
   };
 
+  buttonFunctions = {
+    open: {
+      down: function(ctx) {
+        return ctx.drawImage(Assets['open'][1], buttonXBoundaries.open[0], 4);
+      },
+      up: function(ctx, handleOpen) {
+        handleOpen();
+        return ctx.drawImage(Assets['open'][0], buttonXBoundaries.open[0], 4);
+      }
+    },
+    save: {
+      down: function(ctx) {
+        return ctx.drawImage(Assets['save'][1], buttonXBoundaries.save[0], 4);
+      },
+      up: function(ctx, handleSave, handleSaveAs, saveFilePath) {
+        if (saveFilePath !== '') {
+          handleSave();
+        } else {
+          handleSaveAs();
+        }
+        return ctx.drawImage(Assets['save'][0], buttonXBoundaries.save[0], 4);
+      }
+    }
+  };
+
   currentSheet = 0;
 
   sheetNames = ['dollars', 'numbers'];
@@ -124,6 +149,8 @@
 
   rowNameRadix = 8;
 
+  newSheetName = 'newSheet';
+
   Index = React.createClass({
     getInitialState: function() {
       return {
@@ -138,7 +165,7 @@
       WorkArea(document);
       init = (function(_this) {
         return function() {
-          var fileExporter, nwDir;
+          var fileExporter, fileImporter, nwDir;
           _.forEach([0, 1, 2, 3, 4], function(CS) {
             var thisScheme;
             thisScheme = Glyphs.images[CS];
@@ -162,7 +189,10 @@
           _this.refreshWorkArea();
           fileExporter = document.getElementById('fileExporter');
           nwDir = window.document.createAttribute('nwdirectory');
-          return fileExporter.setAttributeNode(nwDir);
+          fileExporter.setAttributeNode(nwDir);
+          fileImporter = document.getElementById('fileImporter');
+          nwDir = window.document.createAttribute('nwdirectory');
+          return fileImporter.setAttributeNode(nwDir);
         };
       })(this);
       next = (function(_this) {
@@ -241,7 +271,7 @@
       });
       toolbar1.drawImage(Assets['new-sheet-area'][0], sheetXOrg, 6);
       toolbar1.drawImage(Assets['+'][0], sheetXOrg + 97, 6);
-      return drawText(toolbar1, Glyphs, 2, 'food', [sheetXOrg + 6, 9]);
+      return drawText(toolbar1, Glyphs, 2, newSheetName, [sheetXOrg + 6, 9]);
     },
     Just8x15: function() {
       return Eightx15ify(Sheets[currentSheet], cellXOrg, cellYOrg);
@@ -372,23 +402,42 @@
         }
       }
     },
-    handleMouseUpToolbar0: function() {
-      var mouseX, mouseY;
+    handleClickToolbar0: function(event) {
+      var mouseX, mouseY, toolbar0;
       mouseX = event.clientX;
       mouseY = event.clientY;
-      buttonXBoundaries = {
-        'open': [5, 56],
-        'save': [57, 109]
-      };
+      toolbar0 = document.getElementById('toolbar0');
+      toolbar0 = toolbar0.getContext('2d', {
+        alpha: false
+      });
       return _.forEach(_.keys(buttonXBoundaries), (function(_this) {
         return function(key) {
           var button;
           button = buttonXBoundaries[key];
           if ((mouseX > button[0]) && (button[1] > mouseX)) {
-            return _this.buttonFunctions[key].mouseUp(toolbar0, _this.handleSave, _this.handleSaveAs, _this.state.filePath);
+            return _this.buttonToFunction(toolbar0, key, event.type);
           }
         };
       })(this));
+    },
+    buttonToFunction: function(ctx, button, direction) {
+      switch (direction) {
+        case 'mouseup':
+          switch (button) {
+            case 'save':
+              return buttonFunctions.save.up(ctx, this.handleSave, this.handleSaveAs, this.state.filePath);
+            case 'open':
+              return buttonFunctions.open.up(ctx, this.handleOpen);
+          }
+          break;
+        case 'mousedown':
+          switch (button) {
+            case 'save':
+              return buttonFunctions.save.down(ctx);
+            case 'open':
+              return buttonFunctions.open.down(ctx);
+          }
+      }
     },
     handleClickToolbar1: function(event) {
       var mouseX, mouseY, whichTab;
@@ -444,6 +493,53 @@
           return fs.writeFileSync(filePath, csv);
         };
       })(this));
+    },
+    handleOpen: function() {
+      var fileImporter;
+      fileImporter = document.getElementById('fileImporter');
+      fileImporter.addEventListener('change', (function(_this) {
+        return function(event) {
+          var csvs, directory;
+          csvs = [];
+          directory = fs.readdirSync(event.target.value);
+          _.forEach(directory, function(f) {
+            var ending;
+            ending = f.substring(f.length - 4, f.length);
+            if (ending === '.csv') {
+              return csvs.push(event.target.value + '/' + f);
+            }
+          });
+          csvs = _.map(csvs, function(csv) {
+            csv = fs.readFileSync(csv, 'utf-8');
+            csv = csv.split('\n');
+            return csv = _.map(csv, function(column) {
+              return column.split(',');
+            });
+          });
+          _.forEach(csvs, function(csv) {
+            var results, thisNewColumn;
+            _.forEach(csv, function(column) {
+              var results;
+              results = [];
+              while (column.length !== 15) {
+                results.push(column.push(''));
+              }
+              return results;
+            });
+            results = [];
+            while (csv.length !== 8) {
+              thisNewColumn = [];
+              _.times(15, function() {
+                return thisNewColumn.push('');
+              });
+              results.push(csv.push(thisNewColumn));
+            }
+            return results;
+          });
+          return Sheets = csvs;
+        };
+      })(this));
+      return fileImporter.click();
     },
     onKeyUp: function(event) {},
     onKeyDown: function(event) {
@@ -595,7 +691,7 @@
       }, canvas({
         id: 'toolbar0',
         onMouseDown: this.handleClickToolbar0,
-        onMouseUp: this.handleMouseUpToolbar0,
+        onMouseUp: this.handleClickToolbar0,
         style: {
           backgroundColor: darkerGray,
           width: '100%',

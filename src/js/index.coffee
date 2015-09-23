@@ -86,6 +86,25 @@ buttonXBoundaries =
   'open': [ 4,  55  ]
   'save': [ 56, 108 ]
 
+buttonFunctions = 
+  open:
+    down: (ctx) ->
+      ctx.drawImage Assets['open'][1], buttonXBoundaries.open[0], 4
+    up: (ctx, handleOpen) ->
+      handleOpen()
+      ctx.drawImage Assets['open'][0], buttonXBoundaries.open[0], 4
+
+
+  save:
+    down: (ctx) ->
+      ctx.drawImage Assets['save'][1], buttonXBoundaries.save[0], 4
+    up: (ctx, handleSave, handleSaveAs, saveFilePath)->
+      if saveFilePath isnt ''
+        handleSave()
+      else
+        handleSaveAs()
+      ctx.drawImage Assets['save'][0], buttonXBoundaries.save[0], 4
+
 
 # Main Globals
 currentSheet  = 0
@@ -96,6 +115,7 @@ justSelected  = true
 cellXOrg      = 0
 cellYOrg      = 0
 rowNameRadix  = 8
+newSheetName  = 'newSheet'
 
 
 Index = React.createClass
@@ -140,6 +160,10 @@ Index = React.createClass
       fileExporter = document.getElementById 'fileExporter'
       nwDir        = window.document.createAttribute 'nwdirectory'
       fileExporter.setAttributeNode nwDir
+
+      fileImporter = document.getElementById 'fileImporter'
+      nwDir        = window.document.createAttribute 'nwdirectory'
+      fileImporter.setAttributeNode nwDir
 
     next = =>
       Assets = AssetLoader init
@@ -223,7 +247,7 @@ Index = React.createClass
 
     toolbar1.drawImage Assets['new-sheet-area'][0], sheetXOrg, 6
     toolbar1.drawImage Assets['+'][0], sheetXOrg + 97, 6
-    drawText toolbar1, Glyphs, 2, 'food', [ sheetXOrg + 6, 9 ]
+    drawText toolbar1, Glyphs, 2, newSheetName, [ sheetXOrg + 6, 9 ]
 
   Just8x15: ->
     Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
@@ -367,52 +391,45 @@ Index = React.createClass
 
 
 
-  # buttonFunctions:
-  #   open: doNothing
-  #   save: 
-  #     mouseDown: (toolbar0) =>
-  #       toolbar0.drawImage Assets['save'][1], 57, 5
 
-  #     mouseUp: (toolbar0, handleSave, handleSaveAs, stateFilePath) =>
-  #       if stateFilePath isnt ''
-  #         handleSave()
-  #       else
-  #         @handleSaveAs()
-  #       toolbar0.drawImage Assets['save'][0], 57, 5
+  handleClickToolbar0: (event) ->
 
-
-  # handleClickToolbar0: ->
-  #   mouseX = event.clientX
-  #   mouseY = event.clientY
-    
-  #   toolbar0 = document.getElementById 'toolbar0'
-  #   toolbar0 = toolbar0.getContext '2d', alpha: false
-
-  #   buttonXBoundaries =
-  #     'open': [ 5, 56 ]
-  #     'save': [ 57, 109 ]
-
-  #   _.forEach (_.keys buttonXBoundaries), (key) =>
-  #     button = buttonXBoundaries[ key ]
-  #     if (mouseX > button[0]) and (button[1] > mouseX)
-  #       @buttonFunctions[key].mouseDown toolbar0
-
-
-  handleMouseUpToolbar0: ->
     mouseX = event.clientX
     mouseY = event.clientY
 
-    buttonXBoundaries =
-      'open': [ 5, 56 ]
-      'save': [ 57, 109 ]
+    toolbar0 = document.getElementById 'toolbar0'
+    toolbar0 = toolbar0.getContext '2d', alpha: false
 
     _.forEach (_.keys buttonXBoundaries), (key) =>
       button = buttonXBoundaries[ key ]
       if (mouseX > button[0]) and (button[1] > mouseX)
-        @buttonFunctions[key].mouseUp toolbar0, 
-          @handleSave
-          @handleSaveAs
-          @state.filePath
+        @buttonToFunction toolbar0, key, event.type
+
+
+
+  buttonToFunction: (ctx, button, direction) ->
+    switch direction
+      
+      when 'mouseup'
+        switch button
+          
+          when 'save'
+            buttonFunctions.save.up ctx, @handleSave, @handleSaveAs, @state.filePath
+      
+          when 'open'
+            buttonFunctions.open.up ctx, @handleOpen
+
+      when 'mousedown'
+        switch button
+          
+          when 'save'
+            buttonFunctions.save.down ctx
+
+          when 'open'
+            buttonFunctions.open.down ctx
+
+
+
   handleClickToolbar1: (event) ->
 
     mouseX = event.clientX
@@ -462,6 +479,37 @@ Index = React.createClass
       fs.writeFileSync filePath, csv
 
 
+
+  handleOpen: ->
+    fileImporter = document.getElementById 'fileImporter'
+
+    fileImporter.addEventListener 'change', (event) =>
+      csvs = []
+      directory = fs.readdirSync event.target.value
+      _.forEach directory, (f) ->
+        ending = f.substring f.length - 4, f.length
+        if ending is '.csv'
+          csvs.push event.target.value + '/' + f
+      csvs = _.map csvs, (csv) ->
+        csv = fs.readFileSync csv, 'utf-8'
+        csv = csv.split '\n'
+        csv = _.map csv, (column) ->
+          column.split ','
+
+      _.forEach csvs, (csv) ->
+        _.forEach csv, (column) ->
+          while column.length isnt 15
+            column.push ''
+
+        while csv.length isnt 8
+          thisNewColumn = []
+          _.times 15, ->
+            thisNewColumn.push ''
+          csv.push thisNewColumn
+
+      Sheets = csvs
+
+    fileImporter.click()
 
   onKeyUp: (event) ->
     # if event.which is Keys['command']
@@ -590,7 +638,7 @@ Index = React.createClass
       canvas
         id:                 'toolbar0'
         onMouseDown:        @handleClickToolbar0
-        onMouseUp:          @handleMouseUpToolbar0
+        onMouseUp:          @handleClickToolbar0
         style:
           backgroundColor:  darkerGray
           width:            '100%'

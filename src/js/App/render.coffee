@@ -15,7 +15,7 @@
       canvas
         id:                 'toolbar0'
         onMouseDown:        @handleClickToolbar0
-        onMouseUp:          @handleMouseUpToolbar0
+        onMouseUp:          @handleClickToolbar0
         style:
           backgroundColor:  darkerGray
           width:            '100%'

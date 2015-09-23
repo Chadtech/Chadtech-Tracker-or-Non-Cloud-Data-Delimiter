@@ -37,6 +37,7 @@ AppFile = [
   'handle-click-toolbar0.coffee'
   'handle-click-toolbar1.coffee'
   'handle-save-and-save-as.coffee'
+  'handle-open.coffee'
   'on-key-up-and-key-down.coffee'
   'render.coffee'
 ]

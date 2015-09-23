@@ -41,6 +41,10 @@ Index = React.createClass
       nwDir        = window.document.createAttribute 'nwdirectory'
       fileExporter.setAttributeNode nwDir
 
+      fileImporter = document.getElementById 'fileImporter'
+      nwDir        = window.document.createAttribute 'nwdirectory'
+      fileImporter.setAttributeNode nwDir
+
     next = =>
       Assets = AssetLoader init
 
