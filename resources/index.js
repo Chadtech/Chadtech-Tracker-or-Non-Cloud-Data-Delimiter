@@ -459,12 +459,12 @@
       whichTab = Math.floor(whichTab / tabWidth);
       if ((tabWidth - 4) > ((mouseX - 5) % tabWidth)) {
         if (!(whichTab > (Sheets.length - 1))) {
-          console.log(mouseX, (mouseX - 5) % tabWidth, tabWidth - 25);
           if (((mouseX - 5) % tabWidth) > (tabWidth - 25)) {
-            console.log(Sheets);
+            console.log(Sheets.length, whichTab, Sheets);
             Sheets.splice(whichTab, 1);
             sheetNames.splice(whichTab, 1);
-            if (currentSheet > 0) {
+            console.log(Sheets.length, whichTab, Sheets);
+            if (whichTab > 0) {
               currentSheet--;
             }
           } else {
@@ -483,7 +483,7 @@
         if (mouseX < (leftNewTabButtonEdge + 24)) {
           Sheets.push(_.clone(require('./new-sheet.js'), true));
           sheetNames.push(newSheetName);
-          sheetNames.push('newSheet');
+          newSheetName = 'newSheet';
           this.refreshWorkArea();
           return this.drawToolBar1();
         }
