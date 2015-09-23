@@ -3,13 +3,15 @@
     fileImporter = document.getElementById 'fileImporter'
 
     fileImporter.addEventListener 'change', (event) =>
-      csvs = []
+      csvs      = []
+      csvNames  = []
       directory = fs.readdirSync event.target.value
       _.forEach directory, (f) ->
         ending = f.substring f.length - 4, f.length
         if ending is '.csv'
           csvs.push event.target.value + '/' + f
-      csvs = _.map csvs, (csv) ->
+          csvNames.push f.substring 0, f.length - 4
+      csvs  = _.map csvs, (csv) ->
         csv = fs.readFileSync csv, 'utf-8'
         csv = csv.split '\n'
         csv = _.map csv, (column) ->
@@ -26,6 +28,11 @@
             thisNewColumn.push ''
           csv.push thisNewColumn
 
-      Sheets = csvs
+      Sheets     = csvs
+      sheetNames = csvNames
+
+      @refreshWorkArea()
+      @drawToolBar0()
+      @drawToolBar1()
 
     fileImporter.click()

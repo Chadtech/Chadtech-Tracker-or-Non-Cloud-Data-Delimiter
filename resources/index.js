@@ -234,6 +234,8 @@
       var i, point, ref3, sheetXOrg, toolbar1;
       toolbar1 = document.getElementById('toolbar1');
       toolbar1 = toolbar1.getContext('2d');
+      toolbar1.fillStyle = '#202020';
+      toolbar1.fillRect(0, 0, window.innerWidth, toolbarSize);
       for (point = i = 0, ref3 = window.innerWidth - 1; 0 <= ref3 ? i <= ref3 : i >= ref3; point = 0 <= ref3 ? ++i : --i) {
         borderColor = hexToArray(borderGray);
         putPixel(toolbar1, borderColor, [point, 2]);
@@ -241,7 +243,7 @@
       }
       sheetXOrg = 5;
       _.forEach(Sheets, function(sheet, sheetIndex) {
-        var glyphXOffset, glyphXOrg, j, k, l, ref4, ref5, ref6, sheetName, tabWidth;
+        var formattedName, glyphXOffset, glyphXOrg, j, k, l, ref4, ref5, ref6, sheetName, tabWidth;
         sheetName = sheetNames[sheetIndex];
         tabWidth = (9 * Glyphs.characterWidth) + 21;
         toolbar1.fillStyle = '#202020';
@@ -261,11 +263,18 @@
             putPixel(toolbar1, borderColor, [sheetXOrg + point - 1, 3]);
           }
         }
+        formattedName = sheetName;
+        if (formattedName.length > 7) {
+          while (formattedName.length > 5) {
+            formattedName = formattedName.substring(0, formattedName.length - 1);
+          }
+          formattedName += '..';
+        }
         glyphXOrg = sheetXOrg;
         glyphXOffset = Math.floor((tabWidth - 21) / 2);
-        glyphXOffset -= Math.floor((11 * sheetName.length) / 2);
+        glyphXOffset -= Math.floor((11 * formattedName.length) / 2);
         glyphXOrg += glyphXOffset;
-        drawText(toolbar1, Glyphs, 6, sheetName, [glyphXOrg, 9]);
+        drawText(toolbar1, Glyphs, 6, formattedName, [glyphXOrg, 9]);
         toolbar1.drawImage(Assets['X'][0], sheetXOrg + tabWidth - 26, 5);
         return sheetXOrg += tabWidth + 4;
       });
@@ -499,14 +508,16 @@
       fileImporter = document.getElementById('fileImporter');
       fileImporter.addEventListener('change', (function(_this) {
         return function(event) {
-          var csvs, directory;
+          var csvNames, csvs, directory;
           csvs = [];
+          csvNames = [];
           directory = fs.readdirSync(event.target.value);
           _.forEach(directory, function(f) {
             var ending;
             ending = f.substring(f.length - 4, f.length);
             if (ending === '.csv') {
-              return csvs.push(event.target.value + '/' + f);
+              csvs.push(event.target.value + '/' + f);
+              return csvNames.push(f.substring(0, f.length - 4));
             }
           });
           csvs = _.map(csvs, function(csv) {
@@ -536,7 +547,11 @@
             }
             return results;
           });
-          return Sheets = csvs;
+          Sheets = csvs;
+          sheetNames = csvNames;
+          _this.refreshWorkArea();
+          _this.drawToolBar0();
+          return _this.drawToolBar1();
         };
       })(this));
       return fileImporter.click();
