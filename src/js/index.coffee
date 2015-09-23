@@ -108,8 +108,9 @@ buttonFunctions =
 
 # Main Globals
 currentSheet  = 0
-sheetNames    = [ 'dollars', 'numbers' ]
-Sheets        = require './initial-sheets.js'
+sheetNames    = [ ]
+# Sheets        = require './initial-sheets.js'
+Sheets        = [ ]
 selectedCells = [ [ 2, 3] ]
 justSelected  = true
 cellXOrg      = 0
@@ -243,8 +244,8 @@ Index = React.createClass
           formattedName = formattedName.substring 0, formattedName.length - 1
         formattedName += '..'
 
-      glyphXOrg    = sheetXOrg
-      glyphXOffset = (tabWidth - 21) // 2
+      glyphXOrg     = sheetXOrg
+      glyphXOffset  = (tabWidth - 21) // 2
       glyphXOffset -= (11 * formattedName.length) // 2
       glyphXOrg    += glyphXOffset
 
@@ -257,6 +258,7 @@ Index = React.createClass
     toolbar1.drawImage Assets['new-sheet-area'][0], sheetXOrg, 6
     toolbar1.drawImage Assets['+'][0], sheetXOrg + 97, 6
     drawText toolbar1, Glyphs, 2, newSheetName, [ sheetXOrg + 6, 9 ]
+
 
   Just8x15: ->
     Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
@@ -302,23 +304,25 @@ Index = React.createClass
   refreshWorkArea: ->
     sheetName = sheetNames[ currentSheet ]
 
-    WorkArea.fillStyle = '#000000'
+    WorkArea.fillStyle = '#202020'
     WorkArea.fillRect 0, 0, window.innerWidth, window.innerHeight
 
-    DrawOriginMark sheetName, WorkArea, Glyphs, edgeColor, cell, Assets
-    @DrawColumnBoxes()
-    @DrawColumnNames()
-    @DrawRowBoxes()
-    @DrawRowNames()
+    if Sheets.length 
 
-    @ClearAllCellGlyphs()
-    DrawEveryCellBorder Sheets[ currentSheet ], WorkArea, Glyphs, cellColor, cell
-    @DrawEveryCellData()
+      DrawOriginMark sheetName, WorkArea, Glyphs, edgeColor, cell, Assets
+      @DrawColumnBoxes()
+      @DrawColumnNames()
+      @DrawRowBoxes()
+      @DrawRowNames()
 
-    DrawColumnOptions Sheets[ currentSheet ], WorkArea, Glyphs, edgeColor, cell, Assets
-    DrawRowOptions    Sheets[ currentSheet ], WorkArea, Glyphs, edgeColor, cell, Assets
-    
-    @DrawSelectedCellsSelected()
+      @ClearAllCellGlyphs()
+      DrawEveryCellBorder Sheets[ currentSheet ], WorkArea, Glyphs, cellColor, cell
+      @DrawEveryCellData()
+
+      DrawColumnOptions Sheets[ currentSheet ], WorkArea, Glyphs, edgeColor, cell, Assets
+      DrawRowOptions    Sheets[ currentSheet ], WorkArea, Glyphs, edgeColor, cell, Assets
+      
+      @DrawSelectedCellsSelected()
 
 
 
@@ -399,8 +403,6 @@ Index = React.createClass
         # DrawSelectedCell Sheets[ currentSheet ], workarea, Glyphs, selectedColor, cell, whichCell
 
 
-
-
   handleClickToolbar0: (event) ->
 
     mouseX = event.clientX
@@ -450,11 +452,24 @@ Index = React.createClass
     # If the user clicked on a tab
     # and not a gap between tabs
     if 95 > ((mouseX - 5) % 99 )
-      currentSheet = whichTab
-      @DrawRowNames()
-      @ClearAllCellGlyphs()
-      @DrawEveryCellData()
-      @drawToolBar1()
+      if not (whichTab > (Sheets.length - 1))
+        currentSheet = whichTab
+        @DrawRowNames()
+        @ClearAllCellGlyphs()
+        @DrawEveryCellData()
+        @drawToolBar1()
+
+    tabWidth = (9 * Glyphs.characterWidth) + 21
+    leftNewTabButtonEdge = 5 + (tabWidth + 4) * Sheets.length
+    leftNewTabButtonEdge += 97
+    
+    if leftNewTabButtonEdge < mouseX
+      if mouseX < (leftNewTabButtonEdge + 24)
+        Sheets.push (require './new-sheet.js')
+        sheetNames.push newSheetName
+        sheetNames .push 'newSheet'
+        @refreshWorkArea()
+        @drawToolBar1()
 
   handleSaveAs: ->
     csvs = convertToCSVs Sheets
@@ -496,6 +511,9 @@ Index = React.createClass
       csvs      = []
       csvNames  = []
       directory = fs.readdirSync event.target.value
+
+      @setState filePath: directory
+
       _.forEach directory, (f) ->
         ending = f.substring f.length - 4, f.length
         if ending is '.csv'

@@ -1,5 +1,3 @@
-
-
   handleClickToolbar0: (event) ->
 
     mouseX = event.clientX

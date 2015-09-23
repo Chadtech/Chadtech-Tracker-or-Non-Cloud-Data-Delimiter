@@ -135,9 +135,9 @@
 
   currentSheet = 0;
 
-  sheetNames = ['dollars', 'numbers'];
+  sheetNames = [];
 
-  Sheets = require('./initial-sheets.js');
+  Sheets = [];
 
   selectedCells = [[2, 3]];
 
@@ -327,19 +327,21 @@
     refreshWorkArea: function() {
       var sheetName;
       sheetName = sheetNames[currentSheet];
-      WorkArea.fillStyle = '#000000';
+      WorkArea.fillStyle = '#202020';
       WorkArea.fillRect(0, 0, window.innerWidth, window.innerHeight);
-      DrawOriginMark(sheetName, WorkArea, Glyphs, edgeColor, cell, Assets);
-      this.DrawColumnBoxes();
-      this.DrawColumnNames();
-      this.DrawRowBoxes();
-      this.DrawRowNames();
-      this.ClearAllCellGlyphs();
-      DrawEveryCellBorder(Sheets[currentSheet], WorkArea, Glyphs, cellColor, cell);
-      this.DrawEveryCellData();
-      DrawColumnOptions(Sheets[currentSheet], WorkArea, Glyphs, edgeColor, cell, Assets);
-      DrawRowOptions(Sheets[currentSheet], WorkArea, Glyphs, edgeColor, cell, Assets);
-      return this.DrawSelectedCellsSelected();
+      if (Sheets.length) {
+        DrawOriginMark(sheetName, WorkArea, Glyphs, edgeColor, cell, Assets);
+        this.DrawColumnBoxes();
+        this.DrawColumnNames();
+        this.DrawRowBoxes();
+        this.DrawRowNames();
+        this.ClearAllCellGlyphs();
+        DrawEveryCellBorder(Sheets[currentSheet], WorkArea, Glyphs, cellColor, cell);
+        this.DrawEveryCellData();
+        DrawColumnOptions(Sheets[currentSheet], WorkArea, Glyphs, edgeColor, cell, Assets);
+        DrawRowOptions(Sheets[currentSheet], WorkArea, Glyphs, edgeColor, cell, Assets);
+        return this.DrawSelectedCellsSelected();
+      }
     },
     handleClickWorkArea: function(event) {
       var mouseX, mouseY, newColumn, thisColumn, whichCell;
@@ -449,17 +451,31 @@
       }
     },
     handleClickToolbar1: function(event) {
-      var mouseX, mouseY, whichTab;
+      var leftNewTabButtonEdge, mouseX, mouseY, tabWidth, whichTab;
       mouseX = event.clientX;
       mouseY = event.clientY;
       whichTab = mouseX - 5;
       whichTab = Math.floor(whichTab / 99);
       if (95 > ((mouseX - 5) % 99)) {
-        currentSheet = whichTab;
-        this.DrawRowNames();
-        this.ClearAllCellGlyphs();
-        this.DrawEveryCellData();
-        return this.drawToolBar1();
+        if (!(whichTab > (Sheets.length - 1))) {
+          currentSheet = whichTab;
+          this.DrawRowNames();
+          this.ClearAllCellGlyphs();
+          this.DrawEveryCellData();
+          this.drawToolBar1();
+        }
+      }
+      tabWidth = (9 * Glyphs.characterWidth) + 21;
+      leftNewTabButtonEdge = 5 + (tabWidth + 4) * Sheets.length;
+      leftNewTabButtonEdge += 97;
+      if (leftNewTabButtonEdge < mouseX) {
+        if (mouseX < (leftNewTabButtonEdge + 24)) {
+          Sheets.push(require('./new-sheet.js'));
+          sheetNames.push(newSheetName);
+          sheetNames.push('newSheet');
+          this.refreshWorkArea();
+          return this.drawToolBar1();
+        }
       }
     },
     handleSaveAs: function() {
@@ -512,6 +528,9 @@
           csvs = [];
           csvNames = [];
           directory = fs.readdirSync(event.target.value);
+          _this.setState({
+            filePath: directory
+          });
           _.forEach(directory, function(f) {
             var ending;
             ending = f.substring(f.length - 4, f.length);

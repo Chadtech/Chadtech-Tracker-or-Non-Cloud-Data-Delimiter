@@ -41,8 +41,8 @@
           formattedName = formattedName.substring 0, formattedName.length - 1
         formattedName += '..'
 
-      glyphXOrg    = sheetXOrg
-      glyphXOffset = (tabWidth - 21) // 2
+      glyphXOrg     = sheetXOrg
+      glyphXOffset  = (tabWidth - 21) // 2
       glyphXOffset -= (11 * formattedName.length) // 2
       glyphXOrg    += glyphXOffset
 
@@ -55,3 +55,4 @@
     toolbar1.drawImage Assets['new-sheet-area'][0], sheetXOrg, 6
     toolbar1.drawImage Assets['+'][0], sheetXOrg + 97, 6
     drawText toolbar1, Glyphs, 2, newSheetName, [ sheetXOrg + 6, 9 ]
+

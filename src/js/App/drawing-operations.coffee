@@ -42,21 +42,23 @@
   refreshWorkArea: ->
     sheetName = sheetNames[ currentSheet ]
 
-    WorkArea.fillStyle = '#000000'
+    WorkArea.fillStyle = '#202020'
     WorkArea.fillRect 0, 0, window.innerWidth, window.innerHeight
 
-    DrawOriginMark sheetName, WorkArea, Glyphs, edgeColor, cell, Assets
-    @DrawColumnBoxes()
-    @DrawColumnNames()
-    @DrawRowBoxes()
-    @DrawRowNames()
+    if Sheets.length 
 
-    @ClearAllCellGlyphs()
-    DrawEveryCellBorder Sheets[ currentSheet ], WorkArea, Glyphs, cellColor, cell
-    @DrawEveryCellData()
+      DrawOriginMark sheetName, WorkArea, Glyphs, edgeColor, cell, Assets
+      @DrawColumnBoxes()
+      @DrawColumnNames()
+      @DrawRowBoxes()
+      @DrawRowNames()
 
-    DrawColumnOptions Sheets[ currentSheet ], WorkArea, Glyphs, edgeColor, cell, Assets
-    DrawRowOptions    Sheets[ currentSheet ], WorkArea, Glyphs, edgeColor, cell, Assets
-    
-    @DrawSelectedCellsSelected()
+      @ClearAllCellGlyphs()
+      DrawEveryCellBorder Sheets[ currentSheet ], WorkArea, Glyphs, cellColor, cell
+      @DrawEveryCellData()
+
+      DrawColumnOptions Sheets[ currentSheet ], WorkArea, Glyphs, edgeColor, cell, Assets
+      DrawRowOptions    Sheets[ currentSheet ], WorkArea, Glyphs, edgeColor, cell, Assets
+      
+      @DrawSelectedCellsSelected()
 
