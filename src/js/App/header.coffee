@@ -83,8 +83,9 @@ Assets = undefined
 
 
 buttonXBoundaries =
-  'open': [ 4,  55  ]
-  'save': [ 56, 108 ]
+  'open':   [ 4,   55  ]
+  'save':   [ 56,  108 ]
+  'radix':  [ 264, 287 ]
 
 buttonFunctions = 
   open:
@@ -104,6 +105,13 @@ buttonFunctions =
         handleSaveAs()
       ctx.drawImage Assets['save'][0], buttonXBoundaries.save[0], 4
 
+  radix:
+    down: =>
+      # console.log 'RADIX DOWN'
+      # keyArea = 'toolbar0'
+      # console.log keyArea
+    up: ->
+      console.log 'RADIX UP'
 
 # Main Globals
 currentSheet  = 0
@@ -116,4 +124,5 @@ cellXOrg      = 0
 cellYOrg      = 0
 rowNameRadix  = 8
 newSheetName  = 'newSheet'
+keyArea       = 'workarea'
 

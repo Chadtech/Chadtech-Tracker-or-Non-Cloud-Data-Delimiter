@@ -1,5 +1,7 @@
 
   handleClickWorkArea: (event) ->
+    keyArea = 'workarea'
+
     mouseX = event.clientX
     mouseY = event.clientY
     mouseX -= cell.w

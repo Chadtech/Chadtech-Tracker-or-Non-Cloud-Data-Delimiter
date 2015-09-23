@@ -12,7 +12,6 @@
         @buttonToFunction toolbar0, key, event.type
 
 
-
   buttonToFunction: (ctx, button, direction) ->
     switch direction
       
@@ -25,6 +24,9 @@
           when 'open'
             buttonFunctions.open.up ctx, @handleOpen
 
+          when 'radix'
+            keyArea = 'toolbar0'
+
       when 'mousedown'
         switch button
           
@@ -33,5 +35,8 @@
 
           when 'open'
             buttonFunctions.open.down ctx
+
+          when 'radix'
+            buttonFunctions.radix.down keyArea
 
 

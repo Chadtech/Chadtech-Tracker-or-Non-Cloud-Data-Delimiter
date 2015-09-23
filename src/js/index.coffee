@@ -83,8 +83,9 @@ Assets = undefined
 
 
 buttonXBoundaries =
-  'open': [ 4,  55  ]
-  'save': [ 56, 108 ]
+  'open':   [ 4,   55  ]
+  'save':   [ 56,  108 ]
+  'radix':  [ 264, 287 ]
 
 buttonFunctions = 
   open:
@@ -104,6 +105,13 @@ buttonFunctions =
         handleSaveAs()
       ctx.drawImage Assets['save'][0], buttonXBoundaries.save[0], 4
 
+  radix:
+    down: =>
+      # console.log 'RADIX DOWN'
+      # keyArea = 'toolbar0'
+      # console.log keyArea
+    up: ->
+      console.log 'RADIX UP'
 
 # Main Globals
 currentSheet  = 0
@@ -116,6 +124,7 @@ cellXOrg      = 0
 cellYOrg      = 0
 rowNameRadix  = 8
 newSheetName  = 'newSheet'
+keyArea       = 'workarea'
 
 
 Index = React.createClass
@@ -197,7 +206,7 @@ Index = React.createClass
     toolbar0.drawImage Assets[ 'save' ][0], 57, 4
     drawText toolbar0, Glyphs, 6, 'column radix:', [ 121, 8 ]
     toolbar0.drawImage Assets[ 'radix-area'][0], 264, 4
-    drawText toolbar0, Glyphs, 2, rowNameRadix + '', [ 270, 9 ]
+    drawText toolbar0, Glyphs, 2, (rowNameRadix.toString 36), [ 270, 9 ]
 
 
   drawToolBar1: ->
@@ -326,6 +335,8 @@ Index = React.createClass
 
 
   handleClickWorkArea: (event) ->
+    keyArea = 'workarea'
+
     mouseX = event.clientX
     mouseY = event.clientY
     mouseX -= cell.w
@@ -416,7 +427,6 @@ Index = React.createClass
         @buttonToFunction toolbar0, key, event.type
 
 
-
   buttonToFunction: (ctx, button, direction) ->
     switch direction
       
@@ -429,6 +439,9 @@ Index = React.createClass
           when 'open'
             buttonFunctions.open.up ctx, @handleOpen
 
+          when 'radix'
+            keyArea = 'toolbar0'
+
       when 'mousedown'
         switch button
           
@@ -437,6 +450,9 @@ Index = React.createClass
 
           when 'open'
             buttonFunctions.open.down ctx
+
+          when 'radix'
+            buttonFunctions.radix.down keyArea
 
 
 
@@ -562,109 +578,118 @@ Index = React.createClass
     #     console.log 'command is marked Up'
 
   onKeyDown: (event) ->
-    
-    if event.metaKey
 
-      if event.which is Keys['s']
-        if @state.filePath
-          @handleSave()
-        else 
-          @handleSaveAs()
-
-    else
-      
-      if selectedCells.length is 1
-
-        Next = => return
-
-        refreshCellData = (first) =>
-          first()
-          @ClearAllCellGlyphs()
-          @DrawEveryCellData()
-
-        switch event.which
-
-          when Keys['backspace']
-            if justSelected
-              justSelected = false
-            SC = selectedCells[0]
-            Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = ''
-
-          when Keys['enter']
-            justSelected = true
-            Next = =>
-              selectedCells[0][0]++
-
-          when Keys['down']
-            if (selectedCells[0][0] + cellYOrg) < (Sheets[currentSheet][0].length - 1)
-              justSelected = true
-              Next = =>
-                if (selectedCells[0][0] % 15) is 14
-                  cellYOrg++
-                  refreshCellData @DrawRowNames
-                else
-                  selectedCells[0][0]++
-          
-          when Keys['up']
-            if 0 < (selectedCells[0][0] + cellYOrg)
-              justSelected = true
-              Next = =>
-                if (selectedCells[0][0] % 15) is 0
-                  cellYOrg--
-                  refreshCellData @DrawRowNames
-                else
-                  selectedCells[0][0]--
-
-          when Keys['right']
-            if (selectedCells[0][1] + cellXOrg) < (Sheets[currentSheet].length - 1)
-              justSelected = true
-              Next = =>
-                if (selectedCells[0][1] % 8) is 7
-                  cellXOrg++
-                  refreshCellData @DrawColumnNames
-                else
-                  selectedCells[0][1]++
-          
-          when Keys['left']
-            if 0 < (selectedCells[0][1] + cellXOrg)
-              justSelected = true
-              Next = =>
-                if (selectedCells[0][1] % 8) is 0
-                  cellXOrg--
-                  refreshCellData @DrawColumnNames
-                else
-                  selectedCells[0][1]--
-
-          when Keys['ctrl']  then doNothing()
-          when Keys['shift'] then doNothing()
-          when Keys['alt']   then doNothing()
-
-          else
-
-            SC = [
-                selectedCells[0][0] + cellYOrg
-                selectedCells[0][1] + cellXOrg
-              ] 
-            thisCell = Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ]
-            thisKey  = Keys[ event.which ]
-            if event.shiftKey
-              if justSelected
-                justSelected = false
-                thisCell     = thisKey.toUpperCase()
-              else
-                thisCell    += thisKey.toUpperCase()
-            else
-              if justSelected
-                justSelected = false
-                thisCell     = thisKey
-              else
-                thisCell    += thisKey
-
-            Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = thisCell
+    switch keyArea
         
-        @DrawSelectedCellsNormal()
-        Next()
-        @DrawSelectedCellsSelected()
+      when 'workarea'
+        if event.metaKey
+
+          if event.which is Keys['s']
+            if @state.filePath
+              @handleSave()
+            else 
+              @handleSaveAs()
+
+        else
+          
+          if selectedCells.length is 1
+
+            Next = => return
+
+            refreshCellData = (first) =>
+              first()
+              @ClearAllCellGlyphs()
+              @DrawEveryCellData()
+
+            switch event.which
+
+              when Keys['backspace']
+                if justSelected
+                  justSelected = false
+                SC = selectedCells[0]
+                Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = ''
+
+              when Keys['enter']
+                justSelected = true
+                Next = =>
+                  selectedCells[0][0]++
+
+              when Keys['down']
+                if (selectedCells[0][0] + cellYOrg) < (Sheets[currentSheet][0].length - 1)
+                  justSelected = true
+                  Next = =>
+                    if (selectedCells[0][0] % 15) is 14
+                      cellYOrg++
+                      refreshCellData @DrawRowNames
+                    else
+                      selectedCells[0][0]++
+              
+              when Keys['up']
+                if 0 < (selectedCells[0][0] + cellYOrg)
+                  justSelected = true
+                  Next = =>
+                    if (selectedCells[0][0] % 15) is 0
+                      cellYOrg--
+                      refreshCellData @DrawRowNames
+                    else
+                      selectedCells[0][0]--
+
+              when Keys['right']
+                if (selectedCells[0][1] + cellXOrg) < (Sheets[currentSheet].length - 1)
+                  justSelected = true
+                  Next = =>
+                    if (selectedCells[0][1] % 8) is 7
+                      cellXOrg++
+                      refreshCellData @DrawColumnNames
+                    else
+                      selectedCells[0][1]++
+              
+              when Keys['left']
+                if 0 < (selectedCells[0][1] + cellXOrg)
+                  justSelected = true
+                  Next = =>
+                    if (selectedCells[0][1] % 8) is 0
+                      cellXOrg--
+                      refreshCellData @DrawColumnNames
+                    else
+                      selectedCells[0][1]--
+
+              when Keys['ctrl']  then doNothing()
+              when Keys['shift'] then doNothing()
+              when Keys['alt']   then doNothing()
+
+              else
+
+                SC = [
+                    selectedCells[0][0] + cellYOrg
+                    selectedCells[0][1] + cellXOrg
+                  ] 
+                thisCell = Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ]
+                thisKey  = Keys[ event.which ]
+                if event.shiftKey
+                  if justSelected
+                    justSelected = false
+                    thisCell     = thisKey.toUpperCase()
+                  else
+                    thisCell    += thisKey.toUpperCase()
+                else
+                  if justSelected
+                    justSelected = false
+                    thisCell     = thisKey
+                  else
+                    thisCell    += thisKey
+
+                Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = thisCell
+            
+            @DrawSelectedCellsNormal()
+            Next()
+            @DrawSelectedCellsSelected()
+
+      when 'toolbar0'
+        rowNameRadix = parseInt Keys[ event.which ], 36
+        @drawToolBar0()
+        @DrawRowNames()
+
 
               
   render: ->

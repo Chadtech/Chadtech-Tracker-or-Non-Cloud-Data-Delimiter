@@ -10,5 +10,5 @@
     toolbar0.drawImage Assets[ 'save' ][0], 57, 4
     drawText toolbar0, Glyphs, 6, 'column radix:', [ 121, 8 ]
     toolbar0.drawImage Assets[ 'radix-area'][0], 264, 4
-    drawText toolbar0, Glyphs, 2, rowNameRadix + '', [ 270, 9 ]
+    drawText toolbar0, Glyphs, 2, (rowNameRadix.toString 36), [ 270, 9 ]
 

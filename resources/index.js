@@ -1,5 +1,5 @@
 (function() {
-  var AllCharacters, AssetLoader, Assets, ClearAllCellGlyphs, CoordinateIsElement, DrawColumnBoxes, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawEveryCellBorder, DrawEveryCellData, DrawNormalCell, DrawOriginMark, DrawRowBoxes, DrawRowNames, DrawRowOptions, DrawSelectedCell, DrawSheetTabs, Eightx15ify, Glyphs, Index, Keys, LoadGlyphs, React, Sheets, WorkArea, _, borderColor, borderGray, buttonFunctions, buttonXBoundaries, canvas, cell, cellColor, cellXOrg, cellYOrg, convertToCSVs, currentSheet, darkGray, darkerGray, div, doNothing, drawText, edgeColor, gray, gui, hexToArray, injectionPoint, input, justSelected, lighterGray, newSheetName, putPixel, ref, ref1, ref2, rowNameRadix, selectedCells, selectedColor, sheetNames, toolbarSize, topEdgeColor, zeroPadder;
+  var AllCharacters, AssetLoader, Assets, ClearAllCellGlyphs, CoordinateIsElement, DrawColumnBoxes, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawEveryCellBorder, DrawEveryCellData, DrawNormalCell, DrawOriginMark, DrawRowBoxes, DrawRowNames, DrawRowOptions, DrawSelectedCell, DrawSheetTabs, Eightx15ify, Glyphs, Index, Keys, LoadGlyphs, React, Sheets, WorkArea, _, borderColor, borderGray, buttonFunctions, buttonXBoundaries, canvas, cell, cellColor, cellXOrg, cellYOrg, convertToCSVs, currentSheet, darkGray, darkerGray, div, doNothing, drawText, edgeColor, gray, gui, hexToArray, injectionPoint, input, justSelected, keyArea, lighterGray, newSheetName, putPixel, ref, ref1, ref2, rowNameRadix, selectedCells, selectedColor, sheetNames, toolbarSize, topEdgeColor, zeroPadder;
 
   global.document = window.document;
 
@@ -105,7 +105,8 @@
 
   buttonXBoundaries = {
     'open': [4, 55],
-    'save': [56, 108]
+    'save': [56, 108],
+    'radix': [264, 287]
   };
 
   buttonFunctions = {
@@ -130,6 +131,14 @@
         }
         return ctx.drawImage(Assets['save'][0], buttonXBoundaries.save[0], 4);
       }
+    },
+    radix: {
+      down: (function(_this) {
+        return function() {};
+      })(this),
+      up: function() {
+        return console.log('RADIX UP');
+      }
     }
   };
 
@@ -150,6 +159,8 @@
   rowNameRadix = 8;
 
   newSheetName = 'newSheet';
+
+  keyArea = 'workarea';
 
   Index = React.createClass({
     getInitialState: function() {
@@ -228,7 +239,7 @@
       toolbar0.drawImage(Assets['save'][0], 57, 4);
       drawText(toolbar0, Glyphs, 6, 'column radix:', [121, 8]);
       toolbar0.drawImage(Assets['radix-area'][0], 264, 4);
-      return drawText(toolbar0, Glyphs, 2, rowNameRadix + '', [270, 9]);
+      return drawText(toolbar0, Glyphs, 2, rowNameRadix.toString(36), [270, 9]);
     },
     drawToolBar1: function() {
       var i, point, ref3, sheetXOrg, toolbar1;
@@ -345,6 +356,7 @@
     },
     handleClickWorkArea: function(event) {
       var mouseX, mouseY, newColumn, thisColumn, whichCell;
+      keyArea = 'workarea';
       mouseX = event.clientX;
       mouseY = event.clientY;
       mouseX -= cell.w;
@@ -439,6 +451,8 @@
               return buttonFunctions.save.up(ctx, this.handleSave, this.handleSaveAs, this.state.filePath);
             case 'open':
               return buttonFunctions.open.up(ctx, this.handleOpen);
+            case 'radix':
+              return keyArea = 'toolbar0';
           }
           break;
         case 'mousedown':
@@ -447,6 +461,8 @@
               return buttonFunctions.save.down(ctx);
             case 'open':
               return buttonFunctions.open.down(ctx);
+            case 'radix':
+              return buttonFunctions.radix.down(keyArea);
           }
       }
     },
@@ -589,136 +605,144 @@
     onKeyUp: function(event) {},
     onKeyDown: function(event) {
       var Next, SC, refreshCellData, thisCell, thisKey;
-      if (event.metaKey) {
-        if (event.which === Keys['s']) {
-          if (this.state.filePath) {
-            return this.handleSave();
-          } else {
-            return this.handleSaveAs();
-          }
-        }
-      } else {
-        if (selectedCells.length === 1) {
-          Next = (function(_this) {
-            return function() {};
-          })(this);
-          refreshCellData = (function(_this) {
-            return function(first) {
-              first();
-              _this.ClearAllCellGlyphs();
-              return _this.DrawEveryCellData();
-            };
-          })(this);
-          switch (event.which) {
-            case Keys['backspace']:
-              if (justSelected) {
-                justSelected = false;
+      switch (keyArea) {
+        case 'workarea':
+          if (event.metaKey) {
+            if (event.which === Keys['s']) {
+              if (this.state.filePath) {
+                return this.handleSave();
+              } else {
+                return this.handleSaveAs();
               }
-              SC = selectedCells[0];
-              Sheets[currentSheet][SC[1]][SC[0]] = '';
-              break;
-            case Keys['enter']:
-              justSelected = true;
+            }
+          } else {
+            if (selectedCells.length === 1) {
               Next = (function(_this) {
-                return function() {
-                  return selectedCells[0][0]++;
+                return function() {};
+              })(this);
+              refreshCellData = (function(_this) {
+                return function(first) {
+                  first();
+                  _this.ClearAllCellGlyphs();
+                  return _this.DrawEveryCellData();
                 };
               })(this);
-              break;
-            case Keys['down']:
-              if ((selectedCells[0][0] + cellYOrg) < (Sheets[currentSheet][0].length - 1)) {
-                justSelected = true;
-                Next = (function(_this) {
-                  return function() {
-                    if ((selectedCells[0][0] % 15) === 14) {
-                      cellYOrg++;
-                      return refreshCellData(_this.DrawRowNames);
-                    } else {
+              switch (event.which) {
+                case Keys['backspace']:
+                  if (justSelected) {
+                    justSelected = false;
+                  }
+                  SC = selectedCells[0];
+                  Sheets[currentSheet][SC[1]][SC[0]] = '';
+                  break;
+                case Keys['enter']:
+                  justSelected = true;
+                  Next = (function(_this) {
+                    return function() {
                       return selectedCells[0][0]++;
-                    }
-                  };
-                })(this);
-              }
-              break;
-            case Keys['up']:
-              if (0 < (selectedCells[0][0] + cellYOrg)) {
-                justSelected = true;
-                Next = (function(_this) {
-                  return function() {
-                    if ((selectedCells[0][0] % 15) === 0) {
-                      cellYOrg--;
-                      return refreshCellData(_this.DrawRowNames);
+                    };
+                  })(this);
+                  break;
+                case Keys['down']:
+                  if ((selectedCells[0][0] + cellYOrg) < (Sheets[currentSheet][0].length - 1)) {
+                    justSelected = true;
+                    Next = (function(_this) {
+                      return function() {
+                        if ((selectedCells[0][0] % 15) === 14) {
+                          cellYOrg++;
+                          return refreshCellData(_this.DrawRowNames);
+                        } else {
+                          return selectedCells[0][0]++;
+                        }
+                      };
+                    })(this);
+                  }
+                  break;
+                case Keys['up']:
+                  if (0 < (selectedCells[0][0] + cellYOrg)) {
+                    justSelected = true;
+                    Next = (function(_this) {
+                      return function() {
+                        if ((selectedCells[0][0] % 15) === 0) {
+                          cellYOrg--;
+                          return refreshCellData(_this.DrawRowNames);
+                        } else {
+                          return selectedCells[0][0]--;
+                        }
+                      };
+                    })(this);
+                  }
+                  break;
+                case Keys['right']:
+                  if ((selectedCells[0][1] + cellXOrg) < (Sheets[currentSheet].length - 1)) {
+                    justSelected = true;
+                    Next = (function(_this) {
+                      return function() {
+                        if ((selectedCells[0][1] % 8) === 7) {
+                          cellXOrg++;
+                          return refreshCellData(_this.DrawColumnNames);
+                        } else {
+                          return selectedCells[0][1]++;
+                        }
+                      };
+                    })(this);
+                  }
+                  break;
+                case Keys['left']:
+                  if (0 < (selectedCells[0][1] + cellXOrg)) {
+                    justSelected = true;
+                    Next = (function(_this) {
+                      return function() {
+                        if ((selectedCells[0][1] % 8) === 0) {
+                          cellXOrg--;
+                          return refreshCellData(_this.DrawColumnNames);
+                        } else {
+                          return selectedCells[0][1]--;
+                        }
+                      };
+                    })(this);
+                  }
+                  break;
+                case Keys['ctrl']:
+                  doNothing();
+                  break;
+                case Keys['shift']:
+                  doNothing();
+                  break;
+                case Keys['alt']:
+                  doNothing();
+                  break;
+                default:
+                  SC = [selectedCells[0][0] + cellYOrg, selectedCells[0][1] + cellXOrg];
+                  thisCell = Sheets[currentSheet][SC[1]][SC[0]];
+                  thisKey = Keys[event.which];
+                  if (event.shiftKey) {
+                    if (justSelected) {
+                      justSelected = false;
+                      thisCell = thisKey.toUpperCase();
                     } else {
-                      return selectedCells[0][0]--;
+                      thisCell += thisKey.toUpperCase();
                     }
-                  };
-                })(this);
-              }
-              break;
-            case Keys['right']:
-              if ((selectedCells[0][1] + cellXOrg) < (Sheets[currentSheet].length - 1)) {
-                justSelected = true;
-                Next = (function(_this) {
-                  return function() {
-                    if ((selectedCells[0][1] % 8) === 7) {
-                      cellXOrg++;
-                      return refreshCellData(_this.DrawColumnNames);
+                  } else {
+                    if (justSelected) {
+                      justSelected = false;
+                      thisCell = thisKey;
                     } else {
-                      return selectedCells[0][1]++;
+                      thisCell += thisKey;
                     }
-                  };
-                })(this);
+                  }
+                  Sheets[currentSheet][SC[1]][SC[0]] = thisCell;
               }
-              break;
-            case Keys['left']:
-              if (0 < (selectedCells[0][1] + cellXOrg)) {
-                justSelected = true;
-                Next = (function(_this) {
-                  return function() {
-                    if ((selectedCells[0][1] % 8) === 0) {
-                      cellXOrg--;
-                      return refreshCellData(_this.DrawColumnNames);
-                    } else {
-                      return selectedCells[0][1]--;
-                    }
-                  };
-                })(this);
-              }
-              break;
-            case Keys['ctrl']:
-              doNothing();
-              break;
-            case Keys['shift']:
-              doNothing();
-              break;
-            case Keys['alt']:
-              doNothing();
-              break;
-            default:
-              SC = [selectedCells[0][0] + cellYOrg, selectedCells[0][1] + cellXOrg];
-              thisCell = Sheets[currentSheet][SC[1]][SC[0]];
-              thisKey = Keys[event.which];
-              if (event.shiftKey) {
-                if (justSelected) {
-                  justSelected = false;
-                  thisCell = thisKey.toUpperCase();
-                } else {
-                  thisCell += thisKey.toUpperCase();
-                }
-              } else {
-                if (justSelected) {
-                  justSelected = false;
-                  thisCell = thisKey;
-                } else {
-                  thisCell += thisKey;
-                }
-              }
-              Sheets[currentSheet][SC[1]][SC[0]] = thisCell;
+              this.DrawSelectedCellsNormal();
+              Next();
+              return this.DrawSelectedCellsSelected();
+            }
           }
-          this.DrawSelectedCellsNormal();
-          Next();
-          return this.DrawSelectedCellsSelected();
-        }
+          break;
+        case 'toolbar0':
+          rowNameRadix = parseInt(Keys[event.which], 36);
+          this.drawToolBar0();
+          return this.DrawRowNames();
       }
     },
     render: function() {
