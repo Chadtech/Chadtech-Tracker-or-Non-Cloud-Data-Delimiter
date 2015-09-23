@@ -5,14 +5,14 @@ _ = require 'lodash'
 {putPixel, hexToArray, drawText} = require './drawingUtilities.js'
 drawABox                         = require './draw-a-box.js'
 
-module.exports = (sheet, ctx, glyphs, color, cell, cellYOrg) ->
+module.exports = (sheet, ctx, glyphs, color, cell, cellYOrg, radix) ->
 
   _.forEach [ 0 .. 14 ], (rowIndex) ->
 
     xCor = cell.w
     yCor = (rowIndex * (cell.h - 1)) + (cell.h * 2) - 3
     
-    rowName = '' + (rowIndex + cellYOrg)
+    rowName = (rowIndex + cellYOrg).toString radix
 
     textXOffset = (cell.w - (11 * rowName.length)) // 2
     textXOffset -= 2

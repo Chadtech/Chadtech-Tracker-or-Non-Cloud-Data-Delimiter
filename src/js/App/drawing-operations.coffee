@@ -24,7 +24,7 @@
 
 
   DrawRowNames: ->
-    DrawRowNames @Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellYOrg
+    DrawRowNames @Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellYOrg, rowNameRadix
 
 
   DrawRowBoxes: ->
@@ -36,7 +36,7 @@
 
 
   DrawColumnBoxes: ->
-    DrawColumnBoxes @Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellXOrg
+    DrawColumnBoxes WorkArea, edgeColor, cell
 
 
   refreshWorkArea: ->
@@ -45,11 +45,11 @@
     WorkArea.fillStyle = '#000000'
     WorkArea.fillRect 0, 0, window.innerWidth, window.innerHeight
 
-    DrawOriginMark    sheetName,    WorkArea, Glyphs, edgeColor, cell, Assets
-    DrawColumnBoxes                 WorkArea,         edgeColor, cell
-    DrawColumnNames   @Just8x15(),  WorkArea, Glyphs, edgeColor, cell, cellXOrg
-    DrawRowBoxes                    WorkArea,         edgeColor, cell
-    DrawRowNames      @Just8x15(),  WorkArea, Glyphs, edgeColor, cell, cellYOrg
+    DrawOriginMark sheetName, WorkArea, Glyphs, edgeColor, cell, Assets
+    @DrawColumnBoxes()
+    @DrawColumnNames()
+    @DrawRowBoxes()
+    @DrawRowNames()
 
     @ClearAllCellGlyphs()
     DrawEveryCellBorder Sheets[ currentSheet ], WorkArea, Glyphs, cellColor, cell

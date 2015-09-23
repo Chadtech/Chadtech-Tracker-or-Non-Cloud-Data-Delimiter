@@ -285,7 +285,7 @@
       return DrawEveryCellData(this.Just8x15(), WorkArea, Glyphs, cellColor, cell);
     },
     DrawRowNames: function() {
-      return DrawRowNames(this.Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellYOrg);
+      return DrawRowNames(this.Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellYOrg, rowNameRadix);
     },
     DrawRowBoxes: function() {
       return DrawRowBoxes(WorkArea, edgeColor, cell);
@@ -294,7 +294,7 @@
       return DrawColumnNames(this.Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellXOrg);
     },
     DrawColumnBoxes: function() {
-      return DrawColumnBoxes(this.Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellXOrg);
+      return DrawColumnBoxes(WorkArea, edgeColor, cell);
     },
     refreshWorkArea: function() {
       var sheetName;
@@ -302,10 +302,10 @@
       WorkArea.fillStyle = '#000000';
       WorkArea.fillRect(0, 0, window.innerWidth, window.innerHeight);
       DrawOriginMark(sheetName, WorkArea, Glyphs, edgeColor, cell, Assets);
-      DrawColumnBoxes(WorkArea, edgeColor, cell);
-      DrawColumnNames(this.Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellXOrg);
-      DrawRowBoxes(WorkArea, edgeColor, cell);
-      DrawRowNames(this.Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellYOrg);
+      this.DrawColumnBoxes();
+      this.DrawColumnNames();
+      this.DrawRowBoxes();
+      this.DrawRowNames();
       this.ClearAllCellGlyphs();
       DrawEveryCellBorder(Sheets[currentSheet], WorkArea, Glyphs, cellColor, cell);
       this.DrawEveryCellData();

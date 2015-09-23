@@ -87,7 +87,7 @@ buttonXBoundaries =
   'save': [ 57, 109 ]
 
 
-# Default Data for Development
+# Main Globals
 currentSheet  = 0
 sheetNames    = [ 'dollars', 'numbers' ]
 Sheets        = require './initial-sheets.js'
@@ -96,6 +96,7 @@ justSelected  = true
 cellXOrg      = 0
 cellYOrg      = 0
 rowNameRadix  = 8
+
 
 Index = React.createClass
 
@@ -266,7 +267,7 @@ Index = React.createClass
 
 
   DrawRowNames: ->
-    DrawRowNames @Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellYOrg
+    DrawRowNames @Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellYOrg, rowNameRadix
 
 
   DrawRowBoxes: ->
@@ -278,7 +279,7 @@ Index = React.createClass
 
 
   DrawColumnBoxes: ->
-    DrawColumnBoxes @Just8x15(), WorkArea, Glyphs, edgeColor, cell, cellXOrg
+    DrawColumnBoxes WorkArea, edgeColor, cell
 
 
   refreshWorkArea: ->
@@ -287,11 +288,11 @@ Index = React.createClass
     WorkArea.fillStyle = '#000000'
     WorkArea.fillRect 0, 0, window.innerWidth, window.innerHeight
 
-    DrawOriginMark    sheetName,    WorkArea, Glyphs, edgeColor, cell, Assets
-    DrawColumnBoxes                 WorkArea,         edgeColor, cell
-    DrawColumnNames   @Just8x15(),  WorkArea, Glyphs, edgeColor, cell, cellXOrg
-    DrawRowBoxes                    WorkArea,         edgeColor, cell
-    DrawRowNames      @Just8x15(),  WorkArea, Glyphs, edgeColor, cell, cellYOrg
+    DrawOriginMark sheetName, WorkArea, Glyphs, edgeColor, cell, Assets
+    @DrawColumnBoxes()
+    @DrawColumnNames()
+    @DrawRowBoxes()
+    @DrawRowNames()
 
     @ClearAllCellGlyphs()
     DrawEveryCellBorder Sheets[ currentSheet ], WorkArea, Glyphs, cellColor, cell

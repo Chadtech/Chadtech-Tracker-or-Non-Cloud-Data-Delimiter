@@ -11,5 +11,5 @@ module.exports = (ctx, color, cell) ->
 
     xCor = (columnIndex * (cell.w - 1)) + (cell.w * 2) - 1
     yCor = cell.h - 2
-    
+
     drawABox ctx, color, cell, [ xCor, yCor ]

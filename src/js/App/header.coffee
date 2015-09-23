@@ -87,7 +87,7 @@ buttonXBoundaries =
   'save': [ 57, 109 ]
 
 
-# Default Data for Development
+# Main Globals
 currentSheet  = 0
 sheetNames    = [ 'dollars', 'numbers' ]
 Sheets        = require './initial-sheets.js'
@@ -96,3 +96,4 @@ justSelected  = true
 cellXOrg      = 0
 cellYOrg      = 0
 rowNameRadix  = 8
+
