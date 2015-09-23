@@ -5,7 +5,7 @@ module.exports = (next) ->
 
   assets = {}
 
-  totalNumberOfAssets   = 10
+  totalNumberOfAssets  = 10
   numberOfAssetsLoaded = 0
 
   checkForNext = (a, b, c, d) =>
@@ -21,10 +21,13 @@ module.exports = (next) ->
     assets[ key ][1].onload = checkForNext
 
 
-  load 'X', 'x-button'
-  load '<+', 'add-column-button'
-  load '^+', 'add-row-button'
-  load 'save', 'save'
-  load 'open', 'open'
+  load 'X',              'x-button'
+  load '<+',             'add-column-button'
+  load '^+',             'add-row-button'
+  load 'save',           'save'
+  load 'open',           'open'
+  load '+',              'add-sheet'
+  load 'radix-area',     'radix-area'
+  load 'new-sheet-area', 'new-sheet-area'
 
   assets
