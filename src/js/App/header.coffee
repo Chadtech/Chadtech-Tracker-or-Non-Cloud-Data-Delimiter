@@ -94,7 +94,6 @@ buttonFunctions =
       handleOpen()
       ctx.drawImage Assets['open'][0], buttonXBoundaries.open[0], 4
 
-
   save:
     down: (ctx) ->
       ctx.drawImage Assets['save'][1], buttonXBoundaries.save[0], 4
@@ -111,7 +110,7 @@ currentSheet  = 0
 sheetNames    = [ ]
 # Sheets        = require './initial-sheets.js'
 Sheets        = [ ]
-selectedCells = [ [ 2, 3] ]
+selectedCells = [ [ 2, 3 ] ]
 justSelected  = true
 cellXOrg      = 0
 cellYOrg      = 0

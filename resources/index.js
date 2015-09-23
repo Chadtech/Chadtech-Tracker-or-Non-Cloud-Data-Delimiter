@@ -454,11 +454,22 @@
       var leftNewTabButtonEdge, mouseX, mouseY, tabWidth, whichTab;
       mouseX = event.clientX;
       mouseY = event.clientY;
+      tabWidth = (9 * Glyphs.characterWidth) + 21;
       whichTab = mouseX - 5;
-      whichTab = Math.floor(whichTab / 99);
-      if (95 > ((mouseX - 5) % 99)) {
+      whichTab = Math.floor(whichTab / tabWidth);
+      if ((tabWidth - 4) > ((mouseX - 5) % tabWidth)) {
         if (!(whichTab > (Sheets.length - 1))) {
-          currentSheet = whichTab;
+          console.log(mouseX, (mouseX - 5) % tabWidth, tabWidth - 25);
+          if (((mouseX - 5) % tabWidth) > (tabWidth - 25)) {
+            console.log(Sheets);
+            Sheets.splice(whichTab, 1);
+            sheetNames.splice(whichTab, 1);
+            if (currentSheet > 0) {
+              currentSheet--;
+            }
+          } else {
+            currentSheet = whichTab;
+          }
           this.DrawRowNames();
           this.ClearAllCellGlyphs();
           this.DrawEveryCellData();
@@ -470,7 +481,7 @@
       leftNewTabButtonEdge += 97;
       if (leftNewTabButtonEdge < mouseX) {
         if (mouseX < (leftNewTabButtonEdge + 24)) {
-          Sheets.push(require('./new-sheet.js'));
+          Sheets.push(_.clone(require('./new-sheet.js'), true));
           sheetNames.push(newSheetName);
           sheetNames.push('newSheet');
           this.refreshWorkArea();

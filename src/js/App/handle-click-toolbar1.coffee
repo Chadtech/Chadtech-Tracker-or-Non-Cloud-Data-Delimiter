@@ -3,26 +3,38 @@
     mouseX = event.clientX
     mouseY = event.clientY
 
+    tabWidth = (9 * Glyphs.characterWidth) + 21
+
     whichTab = mouseX - 5
-    whichTab = whichTab // 99
+    whichTab = whichTab // tabWidth
 
     # If the user clicked on a tab
     # and not a gap between tabs
-    if 95 > ((mouseX - 5) % 99 )
+    if (tabWidth - 4) > ((mouseX - 5) % tabWidth )
       if not (whichTab > (Sheets.length - 1))
-        currentSheet = whichTab
+
+        console.log mouseX, ((mouseX - 5) % tabWidth ), (tabWidth - 25)
+        if ((mouseX - 5) % tabWidth ) > (tabWidth - 25)
+          console.log Sheets
+          Sheets.splice whichTab, 1
+          sheetNames.splice whichTab, 1
+          if currentSheet > 0
+            currentSheet--
+        else
+          currentSheet = whichTab
+
         @DrawRowNames()
         @ClearAllCellGlyphs()
         @DrawEveryCellData()
         @drawToolBar1()
 
     tabWidth = (9 * Glyphs.characterWidth) + 21
-    leftNewTabButtonEdge = 5 + (tabWidth + 4) * Sheets.length
+    leftNewTabButtonEdge  = 5 + (tabWidth + 4) * Sheets.length
     leftNewTabButtonEdge += 97
     
     if leftNewTabButtonEdge < mouseX
       if mouseX < (leftNewTabButtonEdge + 24)
-        Sheets.push (require './new-sheet.js')
+        Sheets.push _.clone (require './new-sheet.js'), true
         sheetNames.push newSheetName
         sheetNames .push 'newSheet'
         @refreshWorkArea()
