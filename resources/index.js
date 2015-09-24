@@ -519,7 +519,9 @@
       }
     },
     handleClickToolbar1: function(event) {
-      var leftNewTabButtonEdge, leftSheetNameEdge, mouseX, mouseY, rightNewTabButtonEdge, rightSheetNameEdge, tabWidth, whichTab;
+      var leftNewTabButtonEdge, leftSheetNameEdge, mouseX, mouseY, next, rightNewTabButtonEdge, rightSheetNameEdge, tabWidth, toolbar1, whichTab;
+      toolbar1 = document.getElementById('toolbar1');
+      toolbar1 = toolbar1.getContext('2d');
       mouseX = event.clientX;
       mouseY = event.clientY;
       tabWidth = (9 * Glyphs.characterWidth) + 21;
@@ -527,7 +529,6 @@
       whichTab = Math.floor(whichTab / tabWidth);
       if ((tabWidth - 4) > ((mouseX - 5) % tabWidth)) {
         if (!(whichTab > (Sheets.length - 1))) {
-          console.log(currentSheet);
           if (((mouseX - 5) % tabWidth) > (tabWidth - 25)) {
             Sheets.splice(whichTab, 1);
             sheetNames.splice(whichTab, 1);
@@ -556,12 +557,19 @@
       rightNewTabButtonEdge = window.innerWidth - 4;
       if (leftNewTabButtonEdge < mouseX) {
         if (mouseX < rightNewTabButtonEdge) {
-          keyArea = 'workarea';
-          Sheets.push(_.clone(require('./new-sheet.js'), true));
-          sheetNames.push(newSheetName);
-          newSheetName = 'newSheet';
-          this.refreshWorkArea();
-          return this.drawToolBar1();
+          toolbar1.drawImage(Assets['+'][1], window.innerWidth - 28, 6);
+          next = (function(_this) {
+            return function() {
+              keyArea = 'workarea';
+              Sheets.push(_.clone(require('./new-sheet.js'), true));
+              sheetNames.push(newSheetName);
+              newSheetName = 'newSheet';
+              _this.refreshWorkArea();
+              _this.drawToolBar1();
+              return toolbar1.drawImage(Assets['+'][0], window.innerWidth - 28, 6);
+            };
+          })(this);
+          return setTimeout(next, 100);
         }
       }
     },
