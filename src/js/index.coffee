@@ -258,9 +258,9 @@ Index = React.createClass
 
       sheetXOrg += tabWidth + 4
 
-    toolbar1.drawImage Assets['new-sheet-area'][0], sheetXOrg, 6
-    toolbar1.drawImage Assets['+'][0], sheetXOrg + 97, 6
-    drawText toolbar1, Glyphs, 2, newSheetName, [ sheetXOrg + 6, 9 ]
+    toolbar1.drawImage Assets['new-sheet-area'][0], window.innerWidth - 28 - 97, 6
+    toolbar1.drawImage Assets['+'][0], window.innerWidth - 28, 6
+    drawText toolbar1, Glyphs, 2, newSheetName, [ window.innerWidth - 28 - 97 + 6, 9 ]
 
 
   Just8x15: ->
@@ -462,12 +462,12 @@ Index = React.createClass
     if (tabWidth - 4) > ((mouseX - 5) % tabWidth )
       if not (whichTab > (Sheets.length - 1))
 
+        console.log currentSheet
+
         if ((mouseX - 5) % tabWidth ) > (tabWidth - 25)
-          console.log Sheets.length, whichTab, Sheets
           Sheets.splice whichTab, 1
           sheetNames.splice whichTab, 1
-          console.log Sheets.length, whichTab, Sheets
-          if whichTab > 0
+          if currentSheet > whichTab
             currentSheet--
         else
           currentSheet = whichTab
@@ -477,19 +477,20 @@ Index = React.createClass
         @DrawEveryCellData()
         @drawToolBar1()
 
-    tabWidth = (9 * Glyphs.characterWidth) + 21
-    leftSheetNameEdge = 5 + (tabWidth + 4) * Sheets.length
+    leftSheetNameEdge  = window.innerWidth - 28 - 97
+    rightSheetNameEdge = window.innerWidth - 28
+    
     if leftSheetNameEdge < mouseX
-      if mouseX < (leftSheetNameEdge + 96)
+      if mouseX < rightSheetNameEdge
         keyArea = 'toolbar1'
         newSheetName = ''
         @drawToolBar1()
 
-    leftNewTabButtonEdge  = 5 + (tabWidth + 4) * Sheets.length
-    leftNewTabButtonEdge += 97
+    leftNewTabButtonEdge  = window.innerWidth - 28
+    rightNewTabButtonEdge = window.innerWidth - 4
     
     if leftNewTabButtonEdge < mouseX
-      if mouseX < (leftNewTabButtonEdge + 24)
+      if mouseX < rightNewTabButtonEdge
         keyArea = 'workarea'
         Sheets.push _.clone (require './new-sheet.js'), true
         sheetNames.push newSheetName
@@ -539,7 +540,7 @@ Index = React.createClass
       csvNames  = []
       directory = fs.readdirSync event.target.value
 
-      @setState filePath: directory
+      @setState filePath: event.target.value
 
       _.forEach directory, (f) ->
         ending = f.substring f.length - 4, f.length
@@ -589,6 +590,15 @@ Index = React.createClass
               @handleSave()
             else 
               @handleSaveAs()
+
+            toolbar0 = document.getElementById 'toolbar0'
+            toolbar0 = toolbar0.getContext '2d'
+
+            returnToUnclicked = =>
+              toolbar0.drawImage Assets['save'][0], buttonXBoundaries.save[0], 4 
+
+            toolbar0.drawImage Assets['save'][1], buttonXBoundaries.save[0], 4 
+            setTimeout returnToUnclicked, 300
 
         else
           
@@ -666,18 +676,22 @@ Index = React.createClass
                   ] 
                 thisCell = Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ]
                 thisKey  = Keys[ event.which ]
-                if event.shiftKey
-                  if justSelected
-                    justSelected = false
-                    thisCell     = thisKey.toUpperCase()
+                if thisKey is 'space'
+                  thisKey = ' '
+
+                if thisKey.length is 1
+                  if event.shiftKey
+                    if justSelected
+                      justSelected = false
+                      thisCell     = thisKey.toUpperCase()
+                    else
+                      thisCell    += thisKey.toUpperCase()
                   else
-                    thisCell    += thisKey.toUpperCase()
-                else
-                  if justSelected
-                    justSelected = false
-                    thisCell     = thisKey
-                  else
-                    thisCell    += thisKey
+                    if justSelected
+                      justSelected = false
+                      thisCell     = thisKey
+                    else
+                      thisCell    += thisKey
 
                 Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = thisCell
             

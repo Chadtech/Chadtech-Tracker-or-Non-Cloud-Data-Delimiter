@@ -17,6 +17,15 @@
             else 
               @handleSaveAs()
 
+            toolbar0 = document.getElementById 'toolbar0'
+            toolbar0 = toolbar0.getContext '2d'
+
+            returnToUnclicked = =>
+              toolbar0.drawImage Assets['save'][0], buttonXBoundaries.save[0], 4 
+
+            toolbar0.drawImage Assets['save'][1], buttonXBoundaries.save[0], 4 
+            setTimeout returnToUnclicked, 300
+
         else
           
           if selectedCells.length is 1
@@ -93,18 +102,22 @@
                   ] 
                 thisCell = Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ]
                 thisKey  = Keys[ event.which ]
-                if event.shiftKey
-                  if justSelected
-                    justSelected = false
-                    thisCell     = thisKey.toUpperCase()
+                if thisKey is 'space'
+                  thisKey = ' '
+
+                if thisKey.length is 1
+                  if event.shiftKey
+                    if justSelected
+                      justSelected = false
+                      thisCell     = thisKey.toUpperCase()
+                    else
+                      thisCell    += thisKey.toUpperCase()
                   else
-                    thisCell    += thisKey.toUpperCase()
-                else
-                  if justSelected
-                    justSelected = false
-                    thisCell     = thisKey
-                  else
-                    thisCell    += thisKey
+                    if justSelected
+                      justSelected = false
+                      thisCell     = thisKey
+                    else
+                      thisCell    += thisKey
 
                 Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = thisCell
             

@@ -52,7 +52,7 @@
 
       sheetXOrg += tabWidth + 4
 
-    toolbar1.drawImage Assets['new-sheet-area'][0], sheetXOrg, 6
-    toolbar1.drawImage Assets['+'][0], sheetXOrg + 97, 6
-    drawText toolbar1, Glyphs, 2, newSheetName, [ sheetXOrg + 6, 9 ]
+    toolbar1.drawImage Assets['new-sheet-area'][0], window.innerWidth - 28 - 97, 6
+    toolbar1.drawImage Assets['+'][0], window.innerWidth - 28, 6
+    drawText toolbar1, Glyphs, 2, newSheetName, [ window.innerWidth - 28 - 97 + 6, 9 ]
 

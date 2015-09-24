@@ -7,7 +7,7 @@
       csvNames  = []
       directory = fs.readdirSync event.target.value
 
-      @setState filePath: directory
+      @setState filePath: event.target.value
 
       _.forEach directory, (f) ->
         ending = f.substring f.length - 4, f.length

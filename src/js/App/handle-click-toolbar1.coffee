@@ -13,12 +13,12 @@
     if (tabWidth - 4) > ((mouseX - 5) % tabWidth )
       if not (whichTab > (Sheets.length - 1))
 
+        console.log currentSheet
+
         if ((mouseX - 5) % tabWidth ) > (tabWidth - 25)
-          console.log Sheets.length, whichTab, Sheets
           Sheets.splice whichTab, 1
           sheetNames.splice whichTab, 1
-          console.log Sheets.length, whichTab, Sheets
-          if whichTab > 0
+          if currentSheet > whichTab
             currentSheet--
         else
           currentSheet = whichTab
@@ -28,19 +28,20 @@
         @DrawEveryCellData()
         @drawToolBar1()
 
-    tabWidth = (9 * Glyphs.characterWidth) + 21
-    leftSheetNameEdge = 5 + (tabWidth + 4) * Sheets.length
+    leftSheetNameEdge  = window.innerWidth - 28 - 97
+    rightSheetNameEdge = window.innerWidth - 28
+    
     if leftSheetNameEdge < mouseX
-      if mouseX < (leftSheetNameEdge + 96)
+      if mouseX < rightSheetNameEdge
         keyArea = 'toolbar1'
         newSheetName = ''
         @drawToolBar1()
 
-    leftNewTabButtonEdge  = 5 + (tabWidth + 4) * Sheets.length
-    leftNewTabButtonEdge += 97
+    leftNewTabButtonEdge  = window.innerWidth - 28
+    rightNewTabButtonEdge = window.innerWidth - 4
     
     if leftNewTabButtonEdge < mouseX
-      if mouseX < (leftNewTabButtonEdge + 24)
+      if mouseX < rightNewTabButtonEdge
         keyArea = 'workarea'
         Sheets.push _.clone (require './new-sheet.js'), true
         sheetNames.push newSheetName
