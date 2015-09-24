@@ -110,7 +110,6 @@ buttonFunctions =
 # Main Globals
 currentSheet  = 0
 sheetNames    = [ ]
-# Sheets        = require './initial-sheets.js'
 Sheets        = [ ]
 selectedCells = [ [ 2, 3 ] ]
 justSelected  = true

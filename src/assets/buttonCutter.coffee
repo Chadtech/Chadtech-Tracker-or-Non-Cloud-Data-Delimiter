@@ -17,7 +17,7 @@ buttonsToCut = [
   [ 'add-column-button',          [ 35, 24, 0,  0  ] ]
   [ 'add-column-button-selected', [ 35, 24, 0,  24 ] ]
   [ 'add-row-button',             [ 35, 24, 0,  48 ] ]
-  [ 'add-row-button-selected',    [ 35, 34, 0,  72 ] ]
+  [ 'add-row-button-selected',    [ 35, 24, 0,  72 ] ]
   [ 'open',                       [ 53, 25, 0,  96 ] ]
   [ 'open-selected',              [ 53, 25, 0, 147 ] ]
   [ 'save',                       [ 52, 25, 0, 122 ] ]

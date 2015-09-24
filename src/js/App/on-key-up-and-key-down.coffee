@@ -1,9 +1,4 @@
 
-  onKeyUp: (event) ->
-    # if event.which is Keys['command']
-    #   @setState commandIsDown: false, ->
-    #     console.log 'command is marked Up'
-
   onKeyDown: (event) ->
 
     switch keyArea

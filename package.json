@@ -8,9 +8,10 @@
   "author": "",
   "license": "ISC",
   "window": {
-    "title": "node-webkit demo",
-    "icon": "link.png",
+    "title": "Chadtech Tracker or Non Cloud Data Delimiter",
+    "icon": "./resources/link.png",
     "toolbar":  true,
+    "resize":   false,
     "frame":    true,
     "width":    602,
     "height":   494,

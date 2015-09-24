@@ -349,7 +349,7 @@
       }
     },
     handleClickWorkArea: function(event) {
-      var mouseX, mouseY, newColumn, thisColumn, whichCell;
+      var mouseX, mouseY, newColumn, refreshCells, refreshSelectedCells, restoreNewColumnButton, restoreXButton, thisColumn, whichCell, xCor, yCor;
       keyArea = 'workarea';
       mouseX = event.clientX;
       mouseY = event.clientY;
@@ -357,53 +357,113 @@
       mouseY -= cell.h;
       mouseY -= toolbarSize + 5;
       whichCell = [(Math.floor((mouseY + 6) / cell.h)) - 1, (Math.floor(mouseX / cell.w)) - 1];
+      refreshCells = (function(_this) {
+        return function() {
+          _this.ClearAllCellGlyphs();
+          return _this.DrawEveryCellData();
+        };
+      })(this);
+      refreshSelectedCells = (function(_this) {
+        return function(update) {
+          _this.DrawSelectedCellsNormal();
+          update();
+          return _this.DrawSelectedCellsSelected();
+        };
+      })(this);
       if (!event.metaKey) {
         if ((whichCell[0] < 0) || (whichCell[1] < 0)) {
           if (whichCell[0] === -1) {
             thisColumn = Sheets[currentSheet][whichCell[1]];
-            this.DrawSelectedCellsNormal();
-            selectedCells = [];
-            _.forEach(thisColumn, function(row, rowIndex) {
-              return selectedCells.push([rowIndex, whichCell[1]]);
-            });
-            this.DrawSelectedCellsSelected();
+            refreshSelectedCells((function(_this) {
+              return function() {
+                selectedCells = [];
+                return _.forEach(thisColumn, function(row, rowIndex) {
+                  return selectedCells.push([rowIndex, whichCell[1]]);
+                });
+              };
+            })(this));
           }
           if (whichCell[0] === -2) {
             if ((mouseX % cell.w) < 25) {
               Sheets[currentSheet].splice(whichCell[1], 1);
-              this.ClearAllCellGlyphs();
-              this.DrawEveryCellData();
+              refreshCells();
+              xCor = (whichCell[1] + 2) * cell.w;
+              xCor -= 2;
+              WorkArea.drawImage(Assets['X'][1], xCor, 0);
+              restoreXButton = (function(_this) {
+                return function() {
+                  return WorkArea.drawImage(Assets['X'][0], xCor, 0);
+                };
+              })(this);
+              setTimeout(restoreXButton, 100);
+              if (Sheets[currentSheet].length < 8) {
+                newColumn = [];
+                _.times(Sheets[currentSheet].length, function() {
+                  return newColumn.push('');
+                });
+                Sheets[currentSheet].push(newColumn);
+              }
             } else {
               newColumn = [];
               _.forEach(Sheets[currentSheet][0], function(column) {
                 return newColumn.push('');
               });
               Sheets[currentSheet].splice(whichCell[1] + 1, 0, newColumn);
-              this.ClearAllCellGlyphs();
-              this.DrawEveryCellData();
+              refreshCells();
+              xCor = (whichCell[1] + 2) * cell.w + 25;
+              xCor -= 2;
+              WorkArea.drawImage(Assets['<+'][1], xCor, 0);
+              restoreNewColumnButton = (function(_this) {
+                return function() {
+                  return WorkArea.drawImage(Assets['<+'][0], xCor, 0);
+                };
+              })(this);
+              setTimeout(restoreNewColumnButton, 100);
             }
           }
           if (whichCell[1] === -1) {
-            this.DrawSelectedCellsNormal();
-            selectedCells = [];
-            _.forEach(Sheets[currentSheet], function(column, columnIndex) {
-              return selectedCells.push([whichCell[0], columnIndex]);
-            });
-            this.DrawSelectedCellsSelected();
+            refreshSelectedCells((function(_this) {
+              return function() {
+                selectedCells = [];
+                return _.forEach(Sheets[currentSheet], function(column, columnIndex) {
+                  return selectedCells.push([whichCell[0], columnIndex]);
+                });
+              };
+            })(this));
           }
           if (whichCell[1] === -2) {
             if (((mouseX + cell.w) % cell.w) < 25) {
               _.forEach(Sheets[currentSheet], function(column) {
                 return column.splice(whichCell[0], 1);
               });
-              this.ClearAllCellGlyphs();
-              return this.DrawEveryCellData();
+              refreshCells();
+              yCor = (whichCell[0] + 2) * (cell.h - 1);
+              WorkArea.drawImage(Assets['X'][1], 1, yCor);
+              restoreXButton = (function(_this) {
+                return function() {
+                  return WorkArea.drawImage(Assets['X'][0], 1, yCor);
+                };
+              })(this);
+              setTimeout(restoreXButton, 100);
+              if (Sheets[currentSheet][0].length < 15) {
+                newColumn = [];
+                return _.forEach(Sheets[currentSheet], function(column, columnIndex) {
+                  return Sheets[currentSheet][columnIndex].push('');
+                });
+              }
             } else {
               _.forEach(Sheets[currentSheet], function(column) {
                 return column.splice(whichCell[0] + 1, 0, '');
               });
-              this.ClearAllCellGlyphs();
-              return this.DrawEveryCellData();
+              refreshCells();
+              yCor = (whichCell[0] + 2) * (cell.h - 1);
+              WorkArea.drawImage(Assets['^+'][1], 26, yCor);
+              restoreXButton = (function(_this) {
+                return function() {
+                  return WorkArea.drawImage(Assets['^+'][0], 26, yCor);
+                };
+              })(this);
+              return setTimeout(restoreXButton, 100);
             }
           }
         } else {
@@ -602,7 +662,6 @@
       })(this));
       return fileImporter.click();
     },
-    onKeyUp: function(event) {},
     onKeyDown: function(event) {
       var Next, SC, refreshCellData, returnToUnclicked, thisCell, thisKey, toolbar0;
       switch (keyArea) {
