@@ -29,13 +29,22 @@
         @drawToolBar1()
 
     tabWidth = (9 * Glyphs.characterWidth) + 21
+    leftSheetNameEdge = 5 + (tabWidth + 4) * Sheets.length
+    if leftSheetNameEdge < mouseX
+      if mouseX < (leftSheetNameEdge + 96)
+        keyArea = 'toolbar1'
+        newSheetName = ''
+        @drawToolBar1()
+
     leftNewTabButtonEdge  = 5 + (tabWidth + 4) * Sheets.length
     leftNewTabButtonEdge += 97
     
     if leftNewTabButtonEdge < mouseX
       if mouseX < (leftNewTabButtonEdge + 24)
+        keyArea = 'workarea'
         Sheets.push _.clone (require './new-sheet.js'), true
         sheetNames.push newSheetName
         newSheetName = 'newSheet'
         @refreshWorkArea()
         @drawToolBar1()
+

@@ -15,6 +15,8 @@
       rowName = (rowIndex + cellYOrg).toString(radix);
       textXOffset = Math.floor((cell.w - (11 * rowName.length)) / 2);
       textXOffset -= 2;
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(xCor + 2, yCor + 2, cell.w - 3, cell.h - 3);
       return drawText(ctx, glyphs, 1, rowName, [xCor + textXOffset, yCor + 4]);
     });
   };

@@ -81,9 +81,9 @@
                     else
                       selectedCells[0][1]--
 
-              when Keys['ctrl']  then doNothing()
+              when Keys['ctrl' ] then doNothing()
               when Keys['shift'] then doNothing()
-              when Keys['alt']   then doNothing()
+              when Keys['alt'  ] then doNothing()
 
               else
 
@@ -113,7 +113,13 @@
             @DrawSelectedCellsSelected()
 
       when 'toolbar0'
-        rowNameRadix = parseInt Keys[ event.which ], 36
+        rowNameRadix = parseInt (Keys[ event.which ].slice 0, 1), 36
         @drawToolBar0()
         @DrawRowNames()
+
+      when 'toolbar1'
+        if Keys[ event.which ].length is 1
+          newSheetName += Keys[ event.which ]
+          @drawToolBar1()
+
 

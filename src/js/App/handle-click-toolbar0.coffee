@@ -36,7 +36,3 @@
           when 'open'
             buttonFunctions.open.down ctx
 
-          when 'radix'
-            buttonFunctions.radix.down keyArea
-
-

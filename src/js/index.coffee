@@ -87,6 +87,7 @@ buttonXBoundaries =
   'save':   [ 56,  108 ]
   'radix':  [ 264, 287 ]
 
+
 buttonFunctions = 
   open:
     down: (ctx) ->
@@ -105,13 +106,6 @@ buttonFunctions =
         handleSaveAs()
       ctx.drawImage Assets['save'][0], buttonXBoundaries.save[0], 4
 
-  radix:
-    down: =>
-      # console.log 'RADIX DOWN'
-      # keyArea = 'toolbar0'
-      # console.log keyArea
-    up: ->
-      console.log 'RADIX UP'
 
 # Main Globals
 currentSheet  = 0
@@ -124,6 +118,7 @@ cellXOrg      = 0
 cellYOrg      = 0
 rowNameRadix  = 8
 newSheetName  = 'newSheet'
+sheetNameJustSelected = false
 keyArea       = 'workarea'
 
 
@@ -451,10 +446,6 @@ Index = React.createClass
           when 'open'
             buttonFunctions.open.down ctx
 
-          when 'radix'
-            buttonFunctions.radix.down keyArea
-
-
 
   handleClickToolbar1: (event) ->
 
@@ -487,16 +478,25 @@ Index = React.createClass
         @drawToolBar1()
 
     tabWidth = (9 * Glyphs.characterWidth) + 21
+    leftSheetNameEdge = 5 + (tabWidth + 4) * Sheets.length
+    if leftSheetNameEdge < mouseX
+      if mouseX < (leftSheetNameEdge + 96)
+        keyArea = 'toolbar1'
+        newSheetName = ''
+        @drawToolBar1()
+
     leftNewTabButtonEdge  = 5 + (tabWidth + 4) * Sheets.length
     leftNewTabButtonEdge += 97
     
     if leftNewTabButtonEdge < mouseX
       if mouseX < (leftNewTabButtonEdge + 24)
+        keyArea = 'workarea'
         Sheets.push _.clone (require './new-sheet.js'), true
         sheetNames.push newSheetName
         newSheetName = 'newSheet'
         @refreshWorkArea()
         @drawToolBar1()
+
 
   handleSaveAs: ->
     csvs = convertToCSVs Sheets
@@ -654,9 +654,9 @@ Index = React.createClass
                     else
                       selectedCells[0][1]--
 
-              when Keys['ctrl']  then doNothing()
+              when Keys['ctrl' ] then doNothing()
               when Keys['shift'] then doNothing()
-              when Keys['alt']   then doNothing()
+              when Keys['alt'  ] then doNothing()
 
               else
 
@@ -686,9 +686,15 @@ Index = React.createClass
             @DrawSelectedCellsSelected()
 
       when 'toolbar0'
-        rowNameRadix = parseInt Keys[ event.which ], 36
+        rowNameRadix = parseInt (Keys[ event.which ].slice 0, 1), 36
         @drawToolBar0()
         @DrawRowNames()
+
+      when 'toolbar1'
+        if Keys[ event.which ].length is 1
+          newSheetName += Keys[ event.which ]
+          @drawToolBar1()
+
 
 
               

@@ -1,5 +1,5 @@
 (function() {
-  var AllCharacters, AssetLoader, Assets, ClearAllCellGlyphs, CoordinateIsElement, DrawColumnBoxes, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawEveryCellBorder, DrawEveryCellData, DrawNormalCell, DrawOriginMark, DrawRowBoxes, DrawRowNames, DrawRowOptions, DrawSelectedCell, DrawSheetTabs, Eightx15ify, Glyphs, Index, Keys, LoadGlyphs, React, Sheets, WorkArea, _, borderColor, borderGray, buttonFunctions, buttonXBoundaries, canvas, cell, cellColor, cellXOrg, cellYOrg, convertToCSVs, currentSheet, darkGray, darkerGray, div, doNothing, drawText, edgeColor, gray, gui, hexToArray, injectionPoint, input, justSelected, keyArea, lighterGray, newSheetName, putPixel, ref, ref1, ref2, rowNameRadix, selectedCells, selectedColor, sheetNames, toolbarSize, topEdgeColor, zeroPadder;
+  var AllCharacters, AssetLoader, Assets, ClearAllCellGlyphs, CoordinateIsElement, DrawColumnBoxes, DrawColumnNames, DrawColumnOptions, DrawEveryCell, DrawEveryCellBorder, DrawEveryCellData, DrawNormalCell, DrawOriginMark, DrawRowBoxes, DrawRowNames, DrawRowOptions, DrawSelectedCell, DrawSheetTabs, Eightx15ify, Glyphs, Index, Keys, LoadGlyphs, React, Sheets, WorkArea, _, borderColor, borderGray, buttonFunctions, buttonXBoundaries, canvas, cell, cellColor, cellXOrg, cellYOrg, convertToCSVs, currentSheet, darkGray, darkerGray, div, doNothing, drawText, edgeColor, gray, gui, hexToArray, injectionPoint, input, justSelected, keyArea, lighterGray, newSheetName, putPixel, ref, ref1, ref2, rowNameRadix, selectedCells, selectedColor, sheetNameJustSelected, sheetNames, toolbarSize, topEdgeColor, zeroPadder;
 
   global.document = window.document;
 
@@ -131,14 +131,6 @@
         }
         return ctx.drawImage(Assets['save'][0], buttonXBoundaries.save[0], 4);
       }
-    },
-    radix: {
-      down: (function(_this) {
-        return function() {};
-      })(this),
-      up: function() {
-        return console.log('RADIX UP');
-      }
     }
   };
 
@@ -159,6 +151,8 @@
   rowNameRadix = 8;
 
   newSheetName = 'newSheet';
+
+  sheetNameJustSelected = false;
 
   keyArea = 'workarea';
 
@@ -461,13 +455,11 @@
               return buttonFunctions.save.down(ctx);
             case 'open':
               return buttonFunctions.open.down(ctx);
-            case 'radix':
-              return buttonFunctions.radix.down(keyArea);
           }
       }
     },
     handleClickToolbar1: function(event) {
-      var leftNewTabButtonEdge, mouseX, mouseY, tabWidth, whichTab;
+      var leftNewTabButtonEdge, leftSheetNameEdge, mouseX, mouseY, tabWidth, whichTab;
       mouseX = event.clientX;
       mouseY = event.clientY;
       tabWidth = (9 * Glyphs.characterWidth) + 21;
@@ -493,10 +485,19 @@
         }
       }
       tabWidth = (9 * Glyphs.characterWidth) + 21;
+      leftSheetNameEdge = 5 + (tabWidth + 4) * Sheets.length;
+      if (leftSheetNameEdge < mouseX) {
+        if (mouseX < (leftSheetNameEdge + 96)) {
+          keyArea = 'toolbar1';
+          newSheetName = '';
+          this.drawToolBar1();
+        }
+      }
       leftNewTabButtonEdge = 5 + (tabWidth + 4) * Sheets.length;
       leftNewTabButtonEdge += 97;
       if (leftNewTabButtonEdge < mouseX) {
         if (mouseX < (leftNewTabButtonEdge + 24)) {
+          keyArea = 'workarea';
           Sheets.push(_.clone(require('./new-sheet.js'), true));
           sheetNames.push(newSheetName);
           newSheetName = 'newSheet';
@@ -740,9 +741,14 @@
           }
           break;
         case 'toolbar0':
-          rowNameRadix = parseInt(Keys[event.which], 36);
+          rowNameRadix = parseInt(Keys[event.which].slice(0, 1), 36);
           this.drawToolBar0();
           return this.DrawRowNames();
+        case 'toolbar1':
+          if (Keys[event.which].length === 1) {
+            newSheetName += Keys[event.which];
+            return this.drawToolBar1();
+          }
       }
     },
     render: function() {
