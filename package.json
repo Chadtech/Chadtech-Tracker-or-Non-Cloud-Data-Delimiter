@@ -1,5 +1,5 @@
 {
-  "name": "nw-demo",
+  "name": "CToNCDD",
   "version": "0.0.1",
   "main": "./resources/index.html",
   "scripts": {
@@ -10,7 +10,7 @@
   "window": {
     "title": "Chadtech Tracker or Non Cloud Data Delimiter",
     "icon": "./resources/link.png",
-    "toolbar":  true,
+    "toolbar":  false,
     "resize":   false,
     "frame":    true,
     "width":    602,

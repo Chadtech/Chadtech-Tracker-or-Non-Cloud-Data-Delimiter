@@ -1,6 +1,7 @@
   Just8x15: ->
     Eightx15ify Sheets[ currentSheet ], cellXOrg, cellYOrg
 
+
   DrawSelectedCellsNormal: ->
     for selectedCell in selectedCells
       DrawNormalCell @Just8x15(), WorkArea, Glyphs, cellColor, cell, selectedCell      
