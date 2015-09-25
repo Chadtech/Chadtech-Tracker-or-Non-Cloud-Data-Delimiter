@@ -516,12 +516,17 @@ Index = React.createClass
             currentSheet--
 
         else
-          currentSheet = whichTab
+          currentSheet  = whichTab
+          cellXOrg      = 0
+          cellYOrg      = 0
+          @DrawSelectedCellsNormal()
+          selectedCells = [ [ 0, 0 ] ]
 
         @DrawRowNames()
         @ClearAllCellGlyphs()
         @DrawEveryCellData()
         @drawToolBar1()
+        @DrawSelectedCellsSelected()
 
     # Steal the key listener to the
     # new sheet name field

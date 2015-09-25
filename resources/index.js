@@ -537,11 +537,16 @@
             }
           } else {
             currentSheet = whichTab;
+            cellXOrg = 0;
+            cellYOrg = 0;
+            this.DrawSelectedCellsNormal();
+            selectedCells = [[0, 0]];
           }
           this.DrawRowNames();
           this.ClearAllCellGlyphs();
           this.DrawEveryCellData();
           this.drawToolBar1();
+          this.DrawSelectedCellsSelected();
         }
       }
       leftSheetNameEdge = window.innerWidth - 28 - 97;
