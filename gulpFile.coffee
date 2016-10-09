@@ -17,7 +17,7 @@ launchWebkit = ->
       console.log 'STDOUT: ', stdout
       console.log 'STDERR: ', stderr
 
-  nwCommand = './nwjs.app/Contents/MacOS/nwjs'
+  nwCommand = './CToNCDD.app/Contents/MacOS/nwjs'
   childProcess.exec nwCommand, logOutput
 
 paths =

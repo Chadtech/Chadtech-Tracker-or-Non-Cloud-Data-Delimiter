@@ -385,10 +385,10 @@
           }
           if (whichCell[0] === -2) {
             if ((mouseX % cell.w) < 25) {
-              Sheets[currentSheet].splice(whichCell[1], 1);
+              Sheets[currentSheet].splice(whichCell[1] + cellXOrg, 1);
               refreshCells();
-              xCor = (whichCell[1] + 2) * cell.w;
-              xCor -= 2;
+              xCor = (whichCell[1] + 2) * (cell.w - 1);
+              xCor += 2;
               WorkArea.drawImage(Assets['X'][1], xCor, 0);
               restoreXButton = (function(_this) {
                 return function() {
@@ -408,10 +408,10 @@
               _.forEach(Sheets[currentSheet][0], function(column) {
                 return newColumn.push('');
               });
-              Sheets[currentSheet].splice(whichCell[1] + 1, 0, newColumn);
+              Sheets[currentSheet].splice(whichCell[1] + cellXOrg + 1, 0, newColumn);
               refreshCells();
-              xCor = (whichCell[1] + 2) * cell.w + 25;
-              xCor -= 2;
+              xCor = (whichCell[1] + 2) * (cell.w - 1);
+              xCor += 27;
               WorkArea.drawImage(Assets['<+'][1], xCor, 0);
               restoreNewColumnButton = (function(_this) {
                 return function() {
@@ -434,7 +434,7 @@
           if (whichCell[1] === -2) {
             if (((mouseX + cell.w) % cell.w) < 25) {
               _.forEach(Sheets[currentSheet], function(column) {
-                return column.splice(whichCell[0], 1);
+                return column.splice(whichCell[0] + cellYOrg, 1);
               });
               refreshCells();
               yCor = (whichCell[0] + 2) * (cell.h - 1);
@@ -453,7 +453,7 @@
               }
             } else {
               _.forEach(Sheets[currentSheet], function(column) {
-                return column.splice(whichCell[0] + 1, 0, '');
+                return column.splice(whichCell[0] + cellYOrg + 1, 0, '');
               });
               refreshCells();
               yCor = (whichCell[0] + 2) * (cell.h - 1);
@@ -587,37 +587,30 @@
       fileExporter = document.getElementById('fileExporter');
       fileExporter.addEventListener('change', (function(_this) {
         return function(event) {
+          var fileName, filePath;
           _this.setState({
             filePath: event.target.value
           });
-          return _.forEach(csvs, function(csv, csvIndex) {
-            var fileName, filePath;
-            filePath = event.target.value;
-            fileName = '/' + sheetNames[csvIndex];
-            fileName += '.csv';
-            filePath += fileName;
-            return fs.writeFileSync(filePath, csv);
-          });
+          filePath = event.target.value;
+          fileName = '/' + sheetNames[currentSheet];
+          fileName += '.csv';
+          filePath += fileName;
+          return fs.writeFileSync(filePath, csvs[currentSheet]);
         };
       })(this));
       return fileExporter.click();
     },
     handleSave: function() {
-      var csvs;
+      var csvs, fileName, filePath;
       csvs = convertToCSVs(Sheets);
       csvs = _.map(csvs, function(csv) {
         return new Buffer(csv, 'utf-8');
       });
-      return _.forEach(csvs, (function(_this) {
-        return function(csv, csvIndex) {
-          var fileName, filePath;
-          filePath = _this.state.filePath;
-          fileName = '/' + sheetNames[csvIndex];
-          fileName += '.csv';
-          filePath += fileName;
-          return fs.writeFileSync(filePath, csv);
-        };
-      })(this));
+      filePath = this.state.filePath;
+      fileName = '/' + sheetNames[currentSheet];
+      fileName += '.csv';
+      filePath += fileName;
+      return fs.writeFileSync(filePath, csvs[currentSheet]);
     },
     handleOpen: function() {
       var fileImporter;
@@ -651,13 +644,15 @@
             _.forEach(csv, function(column) {
               var results;
               results = [];
-              while (column.length !== 15) {
+              while (column.length < 15) {
+                console.log('C.4');
                 results.push(column.push(''));
               }
               return results;
             });
             results = [];
-            while (csv.length !== 8) {
+            while (csv.length < 8) {
+              console.log('C.5', csv.length);
               thisNewColumn = [];
               _.times(15, function() {
                 return thisNewColumn.push('');
@@ -680,6 +675,108 @@
       switch (keyArea) {
         case 'workarea':
           if (event.metaKey) {
+            Next = (function(_this) {
+              return function() {};
+            })(this);
+            refreshCellData = (function(_this) {
+              return function(first) {
+                first();
+                _this.ClearAllCellGlyphs();
+                return _this.DrawEveryCellData();
+              };
+            })(this);
+            switch (event.which) {
+              case Keys['backspace']:
+                if (justSelected) {
+                  justSelected = false;
+                }
+                SC = selectedCells[0];
+                Sheets[currentSheet][SC[1] + cellXOrg][SC[0] + cellYOrg] = '';
+                break;
+              case Keys['enter']:
+                justSelected = true;
+                Next = (function(_this) {
+                  return function() {
+                    return selectedCells[0][0]++;
+                  };
+                })(this);
+                break;
+              case Keys['down']:
+                if ((selectedCells[0][0] + cellYOrg) < (Sheets[currentSheet][0].length - 21)) {
+                  justSelected = true;
+                  Next = (function(_this) {
+                    return function() {
+                      return _.times(20, function() {
+                        if ((selectedCells[0][0] % 15) === 14) {
+                          cellYOrg++;
+                          return refreshCellData(_this.DrawRowNames);
+                        } else {
+                          return selectedCells[0][0]++;
+                        }
+                      });
+                    };
+                  })(this);
+                }
+                break;
+              case Keys['up']:
+                if (0 < (selectedCells[0][0] + cellYOrg)) {
+                  justSelected = true;
+                  Next = (function(_this) {
+                    return function() {
+                      return _.times(20, function() {
+                        if ((selectedCells[0][0] % 15) === 0) {
+                          if (cellYOrg !== 0) {
+                            cellYOrg--;
+                          }
+                          return refreshCellData(_this.DrawRowNames);
+                        } else {
+                          if (selectedCells[0][0] !== 0) {
+                            return selectedCells[0][0]--;
+                          }
+                        }
+                      });
+                    };
+                  })(this);
+                }
+                break;
+              case Keys['ctrl']:
+                doNothing();
+                break;
+              case Keys['shift']:
+                doNothing();
+                break;
+              case Keys['alt']:
+                doNothing();
+                break;
+              default:
+                SC = [selectedCells[0][0] + cellYOrg, selectedCells[0][1] + cellXOrg];
+                thisCell = Sheets[currentSheet][SC[1]][SC[0]];
+                thisKey = Keys[event.which];
+                if (thisKey === 'space') {
+                  thisKey = ' ';
+                }
+                if (thisKey.length === 1) {
+                  if (event.shiftKey) {
+                    if (justSelected) {
+                      justSelected = false;
+                      thisCell = thisKey.toUpperCase();
+                    } else {
+                      thisCell += thisKey.toUpperCase();
+                    }
+                  } else {
+                    if (justSelected) {
+                      justSelected = false;
+                      thisCell = thisKey;
+                    } else {
+                      thisCell += thisKey;
+                    }
+                  }
+                }
+                Sheets[currentSheet][SC[1]][SC[0]] = thisCell;
+            }
+            this.DrawSelectedCellsNormal();
+            Next();
+            this.DrawSelectedCellsSelected();
             if (event.which === Keys['s']) {
               if (this.state.filePath) {
                 this.handleSave();
@@ -714,7 +811,7 @@
                     justSelected = false;
                   }
                   SC = selectedCells[0];
-                  Sheets[currentSheet][SC[1]][SC[0]] = '';
+                  Sheets[currentSheet][SC[1] + cellXOrg][SC[0] + cellYOrg] = '';
                   break;
                 case Keys['enter']:
                   justSelected = true;

@@ -7,13 +7,18 @@
 
     fileExporter.addEventListener 'change', (event) =>
       @setState filePath: event.target.value
-      _.forEach csvs, (csv, csvIndex) =>
-        filePath = event.target.value
-        fileName = '/' + sheetNames[ csvIndex ]
-        fileName += '.csv'
-        filePath += fileName
-        fs.writeFileSync filePath, csv
-        
+      # _.forEach csvs, (csv, csvIndex) =>
+      #   filePath = event.target.value
+      #   fileName = '/' + sheetNames[ csvIndex ]
+      #   fileName += '.csv'
+      #   filePath += fileName
+      #   fs.writeFileSync filePath, csv
+      filePath = event.target.value
+      fileName = '/' + sheetNames[ currentSheet ]
+      fileName += '.csv'
+      filePath += fileName
+      fs.writeFileSync filePath, csvs[ currentSheet ]
+
     fileExporter.click()
 
 
@@ -22,10 +27,14 @@
     csvs = _.map csvs, (csv) ->
       new Buffer csv, 'utf-8'
 
-    _.forEach csvs, (csv, csvIndex) =>
-      filePath = @state.filePath
-      fileName = '/' + sheetNames[ csvIndex ]
-      fileName += '.csv'
-      filePath += fileName
-      fs.writeFileSync filePath, csv
-
+    # _.forEach csvs, (csv, csvIndex) =>
+      # filePath = @state.filePath
+      # fileName = '/' + sheetNames[ csvIndex ]
+      # fileName += '.csv'
+      # filePath += fileName
+      # fs.writeFileSync filePath, csv
+    filePath = @state.filePath
+    fileName = '/' + sheetNames[ currentSheet ]
+    fileName += '.csv'
+    filePath += fileName
+    fs.writeFileSync filePath, csvs[ currentSheet ]

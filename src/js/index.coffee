@@ -368,11 +368,11 @@ Index = React.createClass
 
           # Delete column
           if (mouseX % cell.w) < 25
-            Sheets[currentSheet].splice whichCell[1], 1
+            Sheets[currentSheet].splice whichCell[1] + cellXOrg, 1
             refreshCells()
 
-            xCor = (whichCell[1] + 2) * cell.w 
-            xCor -= 2
+            xCor = (whichCell[1] + 2) * (cell.w - 1)
+            xCor += 2
             WorkArea.drawImage Assets['X'][1], xCor, 0
             restoreXButton = =>
               WorkArea.drawImage Assets['X'][0], xCor, 0
@@ -389,11 +389,11 @@ Index = React.createClass
             newColumn = []
             _.forEach Sheets[currentSheet][0], (column) ->
               newColumn.push ''
-            Sheets[currentSheet].splice whichCell[1] + 1, 0, newColumn
+            Sheets[currentSheet].splice whichCell[1] + cellXOrg + 1, 0, newColumn
             refreshCells()
 
-            xCor = (whichCell[1] + 2) * cell.w + 25
-            xCor -= 2
+            xCor = (whichCell[1] + 2) * (cell.w - 1)
+            xCor += 27
             WorkArea.drawImage Assets['<+'][1], xCor, 0
             restoreNewColumnButton = =>
               WorkArea.drawImage Assets['<+'][0], xCor, 0
@@ -404,7 +404,7 @@ Index = React.createClass
           refreshSelectedCells =>
             selectedCells = []
             _.forEach Sheets[ currentSheet ], (column, columnIndex) ->
-              selectedCells.push [ whichCell[0], columnIndex]
+              selectedCells.push [ whichCell[0], columnIndex ]
 
 
         # If they clicked on delete row or new row
@@ -413,7 +413,7 @@ Index = React.createClass
           # delete row
           if ((mouseX + cell.w) % cell.w) < 25
             _.forEach Sheets[currentSheet], (column) ->
-              column.splice whichCell[0], 1         
+              column.splice whichCell[0] + cellYOrg, 1         
             refreshCells()
 
             yCor = (whichCell[0] + 2) * (cell.h - 1)
@@ -430,7 +430,7 @@ Index = React.createClass
           # add row
           else
             _.forEach Sheets[currentSheet], (column) ->
-              column.splice whichCell[0] + 1, 0, ''
+              column.splice whichCell[0] + cellYOrg + 1, 0, ''
             refreshCells()
 
             yCor = (whichCell[0] + 2) * (cell.h - 1)
@@ -570,13 +570,18 @@ Index = React.createClass
 
     fileExporter.addEventListener 'change', (event) =>
       @setState filePath: event.target.value
-      _.forEach csvs, (csv, csvIndex) =>
-        filePath = event.target.value
-        fileName = '/' + sheetNames[ csvIndex ]
-        fileName += '.csv'
-        filePath += fileName
-        fs.writeFileSync filePath, csv
-        
+      # _.forEach csvs, (csv, csvIndex) =>
+      #   filePath = event.target.value
+      #   fileName = '/' + sheetNames[ csvIndex ]
+      #   fileName += '.csv'
+      #   filePath += fileName
+      #   fs.writeFileSync filePath, csv
+      filePath = event.target.value
+      fileName = '/' + sheetNames[ currentSheet ]
+      fileName += '.csv'
+      filePath += fileName
+      fs.writeFileSync filePath, csvs[ currentSheet ]
+
     fileExporter.click()
 
 
@@ -585,13 +590,17 @@ Index = React.createClass
     csvs = _.map csvs, (csv) ->
       new Buffer csv, 'utf-8'
 
-    _.forEach csvs, (csv, csvIndex) =>
-      filePath = @state.filePath
-      fileName = '/' + sheetNames[ csvIndex ]
-      fileName += '.csv'
-      filePath += fileName
-      fs.writeFileSync filePath, csv
-
+    # _.forEach csvs, (csv, csvIndex) =>
+      # filePath = @state.filePath
+      # fileName = '/' + sheetNames[ csvIndex ]
+      # fileName += '.csv'
+      # filePath += fileName
+      # fs.writeFileSync filePath, csv
+    filePath = @state.filePath
+    fileName = '/' + sheetNames[ currentSheet ]
+    fileName += '.csv'
+    filePath += fileName
+    fs.writeFileSync filePath, csvs[ currentSheet ]
 
 
   handleOpen: ->
@@ -617,10 +626,12 @@ Index = React.createClass
 
       _.forEach csvs, (csv) ->
         _.forEach csv, (column) ->
-          while column.length isnt 15
+          while column.length < 15
+            console.log 'C.4'
             column.push ''
 
-        while csv.length isnt 8
+        while csv.length < 8
+          console.log  'C.5', csv.length
           thisNewColumn = []
           _.times 15, ->
             thisNewColumn.push ''
@@ -635,12 +646,91 @@ Index = React.createClass
 
     fileImporter.click()
 
+
   onKeyDown: (event) ->
 
     switch keyArea
         
       when 'workarea'
         if event.metaKey
+
+          Next = => return
+
+          refreshCellData = (first) =>
+            first()
+            @ClearAllCellGlyphs()
+            @DrawEveryCellData()
+
+          switch event.which
+
+            when Keys['backspace']
+              if justSelected
+                justSelected = false
+              SC = selectedCells[0]
+              Sheets[ currentSheet ][ SC[ 1 ] + cellXOrg ][ SC[ 0 ] + cellYOrg ] = ''
+
+            when Keys['enter']
+              justSelected = true
+              Next = =>
+                selectedCells[0][0]++
+
+            when Keys['down']
+              if (selectedCells[0][0] + cellYOrg) < (Sheets[currentSheet][0].length - 21)
+                justSelected = true
+
+                Next = =>
+                  _.times 20, =>
+                    if (selectedCells[0][0] % 15) is 14
+                      cellYOrg++
+                      refreshCellData @DrawRowNames
+                    else
+                      selectedCells[0][0]++
+            
+            when Keys['up']
+              if 0 < (selectedCells[0][0] + cellYOrg)
+                justSelected = true
+                Next = =>
+                  _.times 20, =>
+                    if (selectedCells[0][0] % 15) is 0
+                      if cellYOrg isnt 0 then cellYOrg--
+                      refreshCellData @DrawRowNames
+                    else
+                      if selectedCells[0][0] isnt 0 then selectedCells[0][0]--
+
+            when Keys['ctrl' ] then doNothing()
+            when Keys['shift'] then doNothing()
+            when Keys['alt'  ] then doNothing()
+
+            else
+
+              SC = [
+                  selectedCells[0][0] + cellYOrg
+                  selectedCells[0][1] + cellXOrg
+                ] 
+              thisCell = Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ]
+              thisKey  = Keys[ event.which ]
+              if thisKey is 'space'
+                thisKey = ' '
+
+              if thisKey.length is 1
+                if event.shiftKey
+                  if justSelected
+                    justSelected = false
+                    thisCell     = thisKey.toUpperCase()
+                  else
+                    thisCell    += thisKey.toUpperCase()
+                else
+                  if justSelected
+                    justSelected = false
+                    thisCell     = thisKey
+                  else
+                    thisCell    += thisKey
+
+              Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = thisCell
+          
+          @DrawSelectedCellsNormal()
+          Next()
+          @DrawSelectedCellsSelected()
 
           if event.which is Keys['s']
             if @state.filePath
@@ -674,7 +764,7 @@ Index = React.createClass
                 if justSelected
                   justSelected = false
                 SC = selectedCells[0]
-                Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = ''
+                Sheets[ currentSheet ][ SC[ 1 ] + cellXOrg ][ SC[ 0 ] + cellYOrg ] = ''
 
               when Keys['enter']
                 justSelected = true
@@ -684,6 +774,7 @@ Index = React.createClass
               when Keys['down']
                 if (selectedCells[0][0] + cellYOrg) < (Sheets[currentSheet][0].length - 1)
                   justSelected = true
+
                   Next = =>
                     if (selectedCells[0][0] % 15) is 14
                       cellYOrg++

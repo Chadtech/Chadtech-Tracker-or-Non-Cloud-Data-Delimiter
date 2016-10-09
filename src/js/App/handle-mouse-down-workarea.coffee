@@ -38,11 +38,11 @@
 
           # Delete column
           if (mouseX % cell.w) < 25
-            Sheets[currentSheet].splice whichCell[1], 1
+            Sheets[currentSheet].splice whichCell[1] + cellXOrg, 1
             refreshCells()
 
-            xCor = (whichCell[1] + 2) * cell.w 
-            xCor -= 2
+            xCor = (whichCell[1] + 2) * (cell.w - 1)
+            xCor += 2
             WorkArea.drawImage Assets['X'][1], xCor, 0
             restoreXButton = =>
               WorkArea.drawImage Assets['X'][0], xCor, 0
@@ -59,11 +59,11 @@
             newColumn = []
             _.forEach Sheets[currentSheet][0], (column) ->
               newColumn.push ''
-            Sheets[currentSheet].splice whichCell[1] + 1, 0, newColumn
+            Sheets[currentSheet].splice whichCell[1] + cellXOrg + 1, 0, newColumn
             refreshCells()
 
-            xCor = (whichCell[1] + 2) * cell.w + 25
-            xCor -= 2
+            xCor = (whichCell[1] + 2) * (cell.w - 1)
+            xCor += 27
             WorkArea.drawImage Assets['<+'][1], xCor, 0
             restoreNewColumnButton = =>
               WorkArea.drawImage Assets['<+'][0], xCor, 0
@@ -74,7 +74,7 @@
           refreshSelectedCells =>
             selectedCells = []
             _.forEach Sheets[ currentSheet ], (column, columnIndex) ->
-              selectedCells.push [ whichCell[0], columnIndex]
+              selectedCells.push [ whichCell[0], columnIndex ]
 
 
         # If they clicked on delete row or new row
@@ -83,7 +83,7 @@
           # delete row
           if ((mouseX + cell.w) % cell.w) < 25
             _.forEach Sheets[currentSheet], (column) ->
-              column.splice whichCell[0], 1         
+              column.splice whichCell[0] + cellYOrg, 1         
             refreshCells()
 
             yCor = (whichCell[0] + 2) * (cell.h - 1)
@@ -100,7 +100,7 @@
           # add row
           else
             _.forEach Sheets[currentSheet], (column) ->
-              column.splice whichCell[0] + 1, 0, ''
+              column.splice whichCell[0] + cellYOrg + 1, 0, ''
             refreshCells()
 
             yCor = (whichCell[0] + 2) * (cell.h - 1)

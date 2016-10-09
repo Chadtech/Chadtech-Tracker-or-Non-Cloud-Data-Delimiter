@@ -22,10 +22,12 @@
 
       _.forEach csvs, (csv) ->
         _.forEach csv, (column) ->
-          while column.length isnt 15
+          while column.length < 15
+            console.log 'C.4'
             column.push ''
 
-        while csv.length isnt 8
+        while csv.length < 8
+          console.log  'C.5', csv.length
           thisNewColumn = []
           _.times 15, ->
             thisNewColumn.push ''

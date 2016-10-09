@@ -6,6 +6,84 @@
       when 'workarea'
         if event.metaKey
 
+          Next = => return
+
+          refreshCellData = (first) =>
+            first()
+            @ClearAllCellGlyphs()
+            @DrawEveryCellData()
+
+          switch event.which
+
+            when Keys['backspace']
+              if justSelected
+                justSelected = false
+              SC = selectedCells[0]
+              Sheets[ currentSheet ][ SC[ 1 ] + cellXOrg ][ SC[ 0 ] + cellYOrg ] = ''
+
+            when Keys['enter']
+              justSelected = true
+              Next = =>
+                selectedCells[0][0]++
+
+            when Keys['down']
+              if (selectedCells[0][0] + cellYOrg) < (Sheets[currentSheet][0].length - 21)
+                justSelected = true
+
+                Next = =>
+                  _.times 20, =>
+                    if (selectedCells[0][0] % 15) is 14
+                      cellYOrg++
+                      refreshCellData @DrawRowNames
+                    else
+                      selectedCells[0][0]++
+            
+            when Keys['up']
+              if 0 < (selectedCells[0][0] + cellYOrg)
+                justSelected = true
+                Next = =>
+                  _.times 20, =>
+                    if (selectedCells[0][0] % 15) is 0
+                      if cellYOrg isnt 0 then cellYOrg--
+                      refreshCellData @DrawRowNames
+                    else
+                      if selectedCells[0][0] isnt 0 then selectedCells[0][0]--
+
+            when Keys['ctrl' ] then doNothing()
+            when Keys['shift'] then doNothing()
+            when Keys['alt'  ] then doNothing()
+
+            else
+
+              SC = [
+                  selectedCells[0][0] + cellYOrg
+                  selectedCells[0][1] + cellXOrg
+                ] 
+              thisCell = Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ]
+              thisKey  = Keys[ event.which ]
+              if thisKey is 'space'
+                thisKey = ' '
+
+              if thisKey.length is 1
+                if event.shiftKey
+                  if justSelected
+                    justSelected = false
+                    thisCell     = thisKey.toUpperCase()
+                  else
+                    thisCell    += thisKey.toUpperCase()
+                else
+                  if justSelected
+                    justSelected = false
+                    thisCell     = thisKey
+                  else
+                    thisCell    += thisKey
+
+              Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = thisCell
+          
+          @DrawSelectedCellsNormal()
+          Next()
+          @DrawSelectedCellsSelected()
+
           if event.which is Keys['s']
             if @state.filePath
               @handleSave()
@@ -38,7 +116,7 @@
                 if justSelected
                   justSelected = false
                 SC = selectedCells[0]
-                Sheets[ currentSheet ][ SC[ 1 ] ][ SC[ 0 ] ] = ''
+                Sheets[ currentSheet ][ SC[ 1 ] + cellXOrg ][ SC[ 0 ] + cellYOrg ] = ''
 
               when Keys['enter']
                 justSelected = true
@@ -48,6 +126,7 @@
               when Keys['down']
                 if (selectedCells[0][0] + cellYOrg) < (Sheets[currentSheet][0].length - 1)
                   justSelected = true
+
                   Next = =>
                     if (selectedCells[0][0] % 15) is 14
                       cellYOrg++
